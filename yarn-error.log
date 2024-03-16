@@ -1,0 +1,110 @@
+Arguments: 
+  C:\Program Files\nodejs\node.exe C:\Users\nv\AppData\Roaming\npm\node_modules\yarn\bin\yarn.js install
+
+PATH: 
+  C:\Users\nv\AppData\Local\cloud-code\installer\google-cloud-sdk\bin;C:\Program Files (x86)\Common Files\Oracle\Java\javapath;C:\ProgramData\Oracle\Java\javapath;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Windows\System32\OpenSSH\;C:\Program Files\Git\cmd;C:\Program Files\dotnet\;C:\Users\nv\AppData\Local\Programs\Python\Python311\Scripts\;C:\Users\nv\AppData\Local\Programs\Python\Python311\;C:\Users\nv\AppData\Local\Microsoft\WindowsApps;C:\Users\nv\AppData\Local\Programs\Microsoft VS Code\bin;C:\Users\nv\AppData\Roaming\npm;C:\src\flutter\bin;C:\adb;C:\Program Files\nodejs\;C:\Program Files\Docker\Docker\resources\bin;C:\Users\nv\AppData\Local\pnpm;C:\Users\nv\AppData\Local\Programs\Python\Python311\Scripts\;C:\Users\nv\AppData\Local\Programs\Python\Python311\;C:\Users\nv\AppData\Local\Microsoft\WindowsApps;C:\Users\nv\AppData\Local\Programs\Microsoft VS Code\bin;C:\src\flutter\bin;C:\msys64\ucrt64\bin;C:\Program Files\Java\jdk-20\bin;C:\Users\nv\AppData\Roaming\npm
+
+Yarn version: 
+  1.22.19
+
+Node version: 
+  18.17.1
+
+Platform: 
+  win32 x64
+
+Trace: 
+  TypeError [ERR_INVALID_URL]: Invalid URL
+      at new NodeError (node:internal/errors:405:5)
+      at Url.parse (node:url:445:17)
+      at urlParse (node:url:167:13)
+      at Function.isVersion (C:\Users\nv\AppData\Roaming\npm\node_modules\yarn\lib\cli.js:37204:21)
+      at getExoticResolver (C:\Users\nv\AppData\Roaming\npm\node_modules\yarn\lib\cli.js:29718:18)
+      at PackageRequest.<anonymous> (C:\Users\nv\AppData\Roaming\npm\node_modules\yarn\lib\cli.js:36566:76)
+      at Generator.next (<anonymous>)
+      at step (C:\Users\nv\AppData\Roaming\npm\node_modules\yarn\lib\cli.js:310:30)
+      at C:\Users\nv\AppData\Roaming\npm\node_modules\yarn\lib\cli.js:321:13
+      at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+
+npm manifest: 
+  {
+    "name": "saasdata",
+    "private": true,
+    "sideEffects": false,
+    "type": "module",
+    "scripts": {
+      "db-pull": "drizzle-kit introspect:pg",
+      "db-push": "drizzle-kit push:pg",
+      "db-studio": "drizzle-kit studio",
+      "build": "remix build",
+      "dev": "remix dev --manual",
+      "start": "remix-serve ./build/index.js",
+      "typecheck": "tsc"
+    },
+    "dependencies": {
+      "@radix-ui/react-accordion": "^1.1.2",
+      "@radix-ui/react-dialog": "^1.0.5",
+      "@radix-ui/react-dropdown-menu": "^2.0.6",
+      "@radix-ui/react-hover-card": "^1.0.7",
+      "@radix-ui/react-label": "^2.0.2",
+      "@radix-ui/react-popover": "^1.0.7",
+      "@radix-ui/react-scroll-area": "^1.0.5",
+      "@radix-ui/react-select": "^2.0.0",
+      "@radix-ui/react-separator": "^1.0.3",
+      "@radix-ui/react-slider": "^1.1.2",
+      "@radix-ui/react-slot": "^1.0.2",
+      "@radix-ui/react-tabs": "^1.0.4",
+      "@radix-ui/react-toast": "^1.1.5",
+      "@radix-ui/react-tooltip": "^1.0.7",
+      "@remix-run/css-bundle": "^2.3.0",
+      "@remix-run/node": "^2.3.0",
+      "@remix-run/react": "^2.3.0",
+      "@remix-run/serve": "^2.3.0",
+      "@tanstack/react-table": "^8.10.7",
+      "class-variance-authority": "^0.7.0",
+      "clsx": "^2.0.0",
+      "cmdk": "^0.2.0",
+      "drizzle-orm": "^0.29.1",
+      "isbot": "^3.6.8",
+      "lemonsqueezy.ts": "^0.1.7",
+      "lucide-react": "^0.292.0",
+      "nodemailer": "^6.9.7",
+      "ofetch": "^1.3.3",
+      "postgres": "^3.4.3",
+      "pretty-cache-header": "^1.0.0",
+      "react": "^18.2.0",
+      "react-dom": "^18.2.0",
+      "recharts": "^2.10.3",
+      "tailwind-merge": "^2.0.0",
+      "tailwindcss-animate": "^1.0.7",
+      "zod": "^3.22.4"
+    },
+    "devDependencies": {
+      "@remix-run/dev": "^2.3.0",
+      "@remix-run/eslint-config": "^2.3.0",
+      "@tailwindcss/typography": "^0.5.10",
+      "@trivago/prettier-plugin-sort-imports": "^4.3.0",
+      "@types/nodemailer": "^6.4.14",
+      "@types/react": "^18.2.20",
+      "@types/react-dom": "^18.2.7",
+      "autoprefixer": "^10.4.16",
+      "dotenv": "^16.3.1",
+      "drizzle-kit": "^0.20.6",
+      "eslint": "^8.38.0",
+      "pg": "^8.11.3",
+      "postcss": "^8.4.31",
+      "prettier": "^3.1.0",
+      "prettier-plugin-tailwindcss": "^0.5.7",
+      "tailwindcss": "^3.3.5",
+      "typescript": "^5.1.6"
+    },
+    "engines": {
+      "node": ">=18.0.0"
+    }
+  }
+
+yarn manifest: 
+  No manifest
+
+Lockfile: 
+  No lockfile
