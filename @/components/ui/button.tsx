@@ -18,7 +18,7 @@ const buttonVariants = cva(
           "bg-destructive text-destructive-foreground hover:bg-destructive/90",
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
-        hero: "bg-gradient-to-br from-indigo-400 via-indigo-600 to-indigo-600 text-white hover:opacity-75",
+        hero: "bg-gradient-to-br from-[#e27673] via-[#ff312b] to-[#ff312b] text-white hover:opacity-75",
       },
       size: {
         default: "h-10 px-4 py-2 rounded-md text-base/none font-medium gap-2",

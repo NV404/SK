@@ -84,28 +84,28 @@ export default function Index() {
 
       <header className="container flex min-h-[60vh] flex-col items-center justify-center gap-8 px-4 text-center">
         <div className="flex flex-col items-stretch justify-start gap-4">
-          <h1 className="max-w-3xl bg-gradient-to-tr from-indigo-500 via-indigo-950 to-indigo-950 bg-clip-text text-4xl/none font-extrabold text-transparent [text-wrap:_balance] sm:text-5xl/none md:text-6xl/none">
-            Database of SaaS companies & founders
+          <h1 className="max-w-3xl bg-gradient-to-tr from-[#ff9390] via-[#810d09] to-[#810d09] bg-clip-text pb-1 text-4xl/none font-extrabold text-transparent [text-wrap:_balance] sm:text-5xl/none md:text-6xl/none">
+            India's Leading SaaS Discovery and Buying Platform
           </h1>
           <h2 className="max-w-3xl text-xs/snug font-medium opacity-75 [text-wrap:_balance] sm:text-sm/snug md:text-base/snug">
-            Discover, analyze, and stay ahead in the competitive startup
-            landscape with our extensive database of software as a service
-            companies and their founders.
+            One Dashboard to easily manage your software stack so your company
+            can grow sustainably. SaaSKart’s integration will help your business
+            optimize your SaaS Stack and save up to 30% on Software Buying.
           </h2>
         </div>
-        <div className="flex flex-row items-center justify-center gap-4">
+        {/* <div className="flex flex-row items-center justify-center gap-4">
           <p className="text-xl/none font-semibold opacity-75 md:text-2xl/none">
             30k+ companies.
           </p>
           <p className="text-xl/none font-semibold opacity-75 md:text-2xl/none">
             25k+ founders.
           </p>
-        </div>
+        </div> */}
         <div className="flex flex-row flex-wrap items-center justify-center gap-2">
           <Button asChild variant="secondary" size="lg">
-            <Link to="/directory">
+            <Link to="/directory/industries">
               <Compass size={18} className="opacity-50" />
-              <span>Directory</span>
+              <span>Categories</span>
             </Link>
           </Button>
           <Button asChild variant="hero" size="lg">
@@ -116,7 +116,7 @@ export default function Index() {
           </Button>
         </div>
       </header>
-
+      {/* 
       <Separator />
 
       <div className="flex flex-col items-center justify-start gap-4">
@@ -312,30 +312,6 @@ export default function Index() {
         </div>
       </div>
 
-      <div
-        id="faqs"
-        className="container flex min-h-[60vh] flex-col items-center justify-center gap-8 px-4"
-      >
-        <div className="flex flex-col items-center justify-center gap-4 text-center">
-          {/* <h3 className="max-w-2xl text-3xl/none font-semibold [text-wrap:_balance] sm:text-4xl/none md:text-5xl/none">
-            FAQ's
-          </h3> */}
-          <h3 className="text-lg/none font-semibold opacity-75 md:text-xl/none">
-            Frequently Asked Questions
-          </h3>
-        </div>
-        <div className="flex w-full max-w-xl flex-col items-stretch justify-start gap-4">
-          <Accordion type="multiple">
-            {FAQs.map((faq) => (
-              <AccordionItem key={faq.question} value={faq.question}>
-                <AccordionTrigger>{faq.question}</AccordionTrigger>
-                <AccordionContent>{faq.answer}</AccordionContent>
-              </AccordionItem>
-            ))}
-          </Accordion>
-        </div>
-      </div>
-
       <Separator />
 
       <div className="container flex min-h-[60vh] flex-col items-center justify-center gap-8 px-4 text-center">
@@ -361,65 +337,9 @@ export default function Index() {
             <span>Back to top</span>
           </Link>
         </Button>
-      </div>
+      </div> */}
 
       <Footer />
     </div>
   )
 }
-
-const FAQs: Array<{
-  question: string
-  answer: string
-}> = [
-  {
-    question: "What is SaaSData?",
-    answer:
-      "SaaSData is a comprehensive database of Software as a Service (SaaS) companies and their founders, empowering users to discover, analyze, and stay ahead in the competitive startup landscape.",
-  },
-  {
-    question: "What is SaaSData used for?",
-    answer:
-      "Our rich, in-depth data helps SaaS industry leaders and businesses make informed decisions with insights you can't find anywhere else. It answers questions like which disruptive SaaS companies should keep on my radar, which emerging SaaS trends could empower or kill us, what new markets and sectors should we enter, and more. We help key innovators such as SaaS leaders, sales teams, M&A and PE professionals, venture capital firms, growth and strategy experts, investment banks, aspiring SaaS entrepreneurs, and researchers.",
-  },
-  // {
-  //   question: "What can I achieve with SaaSData?",
-  //   answer:
-  //     "With SaaSData, you can explore and analyze the SaaS landscape efficiently. Whether you're researching competitors, seeking potential collaborations, or staying informed about industry leaders, our platform offers the tools to help you make informed decisions.",
-  // },
-  {
-    question: "How extensive is the SaaSData database?",
-    answer:
-      "SaaSData boasts a vast collection, including information on over 30,000 SaaS companies and 25,000 founders, providing users with a rich and diverse dataset for their needs.",
-  },
-  {
-    question: "What sets SaaSData apart in terms of data collection?",
-    answer:
-      "SaaSData ensures a complete data collection, offering every data point you may need to make strategic decisions in the competitive market.",
-  },
-  // {
-  //   question: "How user-friendly is SaaSData's interface?",
-  //   answer:
-  //     "SaaSData provides a fantastic user experience (UX) with robust query capabilities. Our platform allows users to search, sort, and filter the dataset quickly and effectively, streamlining the data exploration process.",
-  // },
-  // {
-  //   question: "What pricing options does SaaSData offer?",
-  //   answer:
-  //     "SaaSData provides flexible pricing options to meet your needs. Choose from a monthly subscription at $49 per month, allowing you to cancel anytime, or a lifetime subscription at $999, giving you unlimited access to our database.",
-  // },
-  // {
-  //   question: "Why choose SaaSData for data analysis?",
-  //   answer:
-  //     "SaaSData offers unparalleled value for money. Our platform ensures that you receive comprehensive data and powerful analysis tools at a competitive price, setting us apart from other options in the market.",
-  // },
-  {
-    question: "Can I cancel my monthly subscription at any time?",
-    answer:
-      "Yes, SaaSData provides the flexibility to cancel your monthly subscription at any time, giving you control over your access to the extensive database.",
-  },
-  {
-    question: "How does the lifetime subscription work?",
-    answer:
-      "With the lifetime subscription option, you pay once and enjoy unlimited access to SaaSData forever. This provides a cost-effective solution for long-term users who want continuous access to our evolving dataset.",
-  },
-]

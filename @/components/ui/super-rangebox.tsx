@@ -1,9 +1,8 @@
+import { type LucideIcon } from "lucide-react"
 import { useEffect, useMemo, useState } from "react"
 
-import { type LucideIcon } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button, type ButtonProps } from "@/components/ui/button"
-
 import {
   Popover,
   PopoverContent,
@@ -13,11 +12,12 @@ import { Separator } from "@/components/ui/separator"
 
 import { useOFetcher } from "@/lib/ofetch"
 import {
-  type SingleFormatterType,
   type RangeFormatterType,
-  getRangeValueFromConfig,
+  type SingleFormatterType,
   formatNumber,
+  getRangeValueFromConfig,
 } from "@/lib/utils"
+
 import { Slider } from "./slider"
 
 export type SuperRangeboxConfig = {
@@ -45,6 +45,8 @@ export type SuperRangeboxProps = {
 
   triggerButtonProps?: ButtonProps
 
+  isHidden?: boolean
+
   onValueChange?: (value: SuperRangeboxValue) => void
 }
 
@@ -65,6 +67,8 @@ export function SuperRangebox({
   defaultValue: _defaultValue,
 
   triggerButtonProps,
+
+  isHidden = false,
 
   onValueChange,
 }: SuperRangeboxProps) {
@@ -116,27 +120,26 @@ export function SuperRangebox({
         </>
       ) : null}
 
-      <Popover>
-        <PopoverTrigger asChild>
-          <Button
-            variant="outline"
-            size="sm"
-            className="border-dashed"
-            disabled={fetcher.loading}
-            {...triggerButtonProps}
-          >
-            {Icon ? <Icon size={14} className="opacity-50" /> : null}
-            {title}
+      <div className="w-full">
+        <Button
+          size="sm"
+          variant={"outline"}
+          className={`w-full border-dashed ${isHidden ? "hidden" : "visible"}`}
+          disabled={fetcher.loading}
+          {...triggerButtonProps}
+        >
+          {Icon ? <Icon size={14} className="opacity-50" /> : null}
+          {title}
 
-            <Separator orientation="vertical" className="h-1/2" />
-            <Badge variant="ghost" className="rounded-sm px-1 font-normal">
-              {formatter(value)}
-            </Badge>
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent
-          className="flex w-[200px] flex-col items-stretch justify-start gap-4 p-4"
-          align="start"
+          <Separator orientation="vertical" className="h-1/2" />
+          <Badge variant="ghost" className="rounded-sm px-1 font-normal">
+            {formatter(value)}
+          </Badge>
+        </Button>
+        <div
+          className={`mt-2 flex w-full flex-col items-stretch justify-start gap-4 rounded-md border p-4 ${
+            isHidden ? "hidden" : "visible"
+          }`}
         >
           <div className="flex flex-row items-center justify-between gap-2">
             <p className="text-sm leading-none opacity-75">
@@ -166,8 +169,8 @@ export function SuperRangebox({
               Reset
             </Button>
           ) : null} */}
-        </PopoverContent>
-      </Popover>
+        </div>
+      </div>
     </div>
   )
 }

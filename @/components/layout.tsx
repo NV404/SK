@@ -40,6 +40,7 @@ import {
   DialogTrigger,
 } from "./ui/dialog"
 import { Input } from "./ui/input"
+import { Separator } from "./ui/separator"
 import { useToast } from "./ui/use-toast"
 
 export function NavbarPublic() {
@@ -94,7 +95,7 @@ export function NavbarPublic() {
           </DialogTrigger>
           <DialogContent>
             <authenticationFetcher.Form
-              action="/api/authentication"
+              // action="/api/authentication"
               method="post"
               className="contents"
             >
@@ -109,6 +110,12 @@ export function NavbarPublic() {
                   </DialogDescription>
                 </DialogHeader>
                 <div className="flex flex-col items-stretch justify-start gap-2">
+                  <Button variant={"outline"}>Login with Google</Button>
+                  <Button variant={"outline"}>Login with Linkedin</Button>
+                  <Separator className="m-2" />
+                  <Button variant={"secondary"}>Use Business Email</Button>
+                </div>
+                {/* <div className="flex flex-col items-stretch justify-start gap-2">
                   <Input
                     type="email"
                     name="email"
@@ -133,8 +140,8 @@ export function NavbarPublic() {
                       autoFocus
                     />
                   ) : null}
-                </div>
-                <DialogFooter>
+                </div> */}
+                {/* <DialogFooter>
                   {isOTPSent ? (
                     <Button variant="hero" type="submit">
                       <Check size={16} className="opacity-50" />
@@ -146,7 +153,7 @@ export function NavbarPublic() {
                       <span>Continue</span>
                     </Button>
                   )}
-                </DialogFooter>
+                </DialogFooter> */}
               </fieldset>
             </authenticationFetcher.Form>
           </DialogContent>

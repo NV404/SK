@@ -20,20 +20,6 @@ type FILTER = {
 
 export const FILTERS_CONST = [
   {
-    type: "combobox",
-    name: "countries",
-    title: "Countries",
-    icon: MapPinned,
-    url: "/dashboard/api/options?name=countries",
-  },
-  {
-    type: "combobox",
-    name: "industries",
-    title: "Industries",
-    icon: Boxes,
-    url: "/dashboard/api/options?name=industries",
-  },
-  {
     type: "range",
     name: "revenue",
     title: "Revenue",
@@ -74,6 +60,20 @@ export const FILTERS_CONST = [
     title: "Team Size",
     icon: HeartHandshake,
     url: "/dashboard/api/options?name=teamSize",
+  },
+  {
+    type: "combobox",
+    name: "countries",
+    title: "Countries",
+    icon: MapPinned,
+    url: "/dashboard/api/options?name=countries",
+  },
+  {
+    type: "combobox",
+    name: "industries",
+    title: "Industries",
+    icon: Boxes,
+    url: "/dashboard/api/options?name=industries",
   },
 ] as const
 

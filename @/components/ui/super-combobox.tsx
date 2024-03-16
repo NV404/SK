@@ -43,6 +43,8 @@ export type SuperComboboxProps = {
   showTitle?: boolean
   triggerButtonProps?: ButtonProps
 
+  isHidden?: boolean
+
   onValuesChange?: (values: SuperComboboxOption["value"][]) => void
 }
 
@@ -60,6 +62,8 @@ export function SuperCombobox({
 
   showTitle = true,
   triggerButtonProps,
+
+  isHidden = false,
 
   onValuesChange,
 }: SuperComboboxProps) {
@@ -137,6 +141,7 @@ export function SuperCombobox({
               type="text"
               name={name}
               value={selectedValue}
+              className="w-full"
               readOnly
               hidden
             />
@@ -144,59 +149,58 @@ export function SuperCombobox({
         </>
       ) : null}
 
-      <Popover>
-        <PopoverTrigger asChild>
-          <Button
-            variant="outline"
-            size="sm"
-            className="border-dashed"
-            disabled={fetcher.loading}
-            {...triggerButtonProps}
-          >
-            {Icon ? <Icon size={14} className="opacity-50" /> : null}
-            {showTitle ? title : null}
-            {selectedValues.length > 0 && (
-              <>
-                {title || Icon ? (
-                  <Separator orientation="vertical" className="h-1/2" />
-                ) : null}
-                <Badge
-                  variant="ghost"
-                  className="rounded-sm px-1 font-normal md:hidden"
-                >
-                  {multiple && !required
-                    ? selectedValues.length
-                    : options.find(
-                        (option) => option.value === selectedValues[0],
-                      )?.label}
-                </Badge>
-                <div className="hidden space-x-1 md:flex">
-                  {selectedValues.length > 1 ? (
-                    <Badge
-                      variant="ghost"
-                      className="rounded-sm px-1 font-normal"
-                    >
-                      {selectedValues.length}
-                    </Badge>
-                  ) : (
-                    options
-                      .filter((option) => selectedValues.includes(option.value))
-                      .map((option) => (
-                        <Badge
-                          variant="ghost"
-                          key={option.value}
-                          className="rounded-sm px-1 font-normal text-current"
-                        >
-                          {option.label}
-                        </Badge>
-                      ))
-                  )}
-                </div>
-              </>
-            )}
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-[200px] p-0" align="start">
+      <div className="w-full">
+        {/* <PopoverTrigger asChild> */}
+        <Button
+          // variant="outline"
+          size="sm"
+          className={`w-full border-dashed ${isHidden ? "hidden" : "visible"}`}
+          disabled={fetcher.loading}
+          {...triggerButtonProps}
+        >
+          {Icon ? <Icon size={14} className="opacity-50" /> : null}
+          {showTitle ? title : null}
+          {selectedValues.length > 0 && (
+            <>
+              {title || Icon ? (
+                <Separator orientation="vertical" className="h-1/2" />
+              ) : null}
+              <Badge
+                variant="ghost"
+                className="rounded-sm px-1 font-normal md:hidden"
+              >
+                {multiple && !required
+                  ? selectedValues.length
+                  : options.find((option) => option.value === selectedValues[0])
+                      ?.label}
+              </Badge>
+              <div className="hidden space-x-1 md:flex">
+                {selectedValues.length > 1 ? (
+                  <Badge
+                    variant="ghost"
+                    className="rounded-sm px-1 font-normal"
+                  >
+                    {selectedValues.length}
+                  </Badge>
+                ) : (
+                  options
+                    .filter((option) => selectedValues.includes(option.value))
+                    .map((option) => (
+                      <Badge
+                        variant="ghost"
+                        key={option.value}
+                        className="rounded-sm px-1 font-normal text-current"
+                      >
+                        {option.label}
+                      </Badge>
+                    ))
+                )}
+              </div>
+            </>
+          )}
+        </Button>
+        {/* </PopoverTrigger> */}
+        <div className={`w-[200px] p-0 ${isHidden ? "hidden" : "visible"}`}>
           <Command>
             <CommandInput placeholder={title} />
             <CommandList>
@@ -244,8 +248,8 @@ export function SuperCombobox({
               ) : null}
             </CommandList>
           </Command>
-        </PopoverContent>
-      </Popover>
+        </div>
+      </div>
     </div>
   )
 }

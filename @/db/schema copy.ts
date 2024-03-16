@@ -197,6 +197,8 @@ export type CompetitorInsert = InferInsertModel<typeof competitors>
 export const industries = pgTable("industries", {
   id: text("id").primaryKey(),
   name: text("name").notNull(),
+  category_title: text("category_title"),
+  about_category: text("about_category"),
   parent_industry: text("parent_industry"),
 })
 
