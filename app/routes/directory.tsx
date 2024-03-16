@@ -31,8 +31,7 @@ export default function DirectoryLayout() {
           className="flex flex-row items-center justify-start gap-2"
         >
           <ChevronLeft size={20} className="opacity-50" />
-          <img src="/logo.svg" alt="logo" width={20} height={20} />
-          <span className="text-xl/none font-bold">SaaSData</span>
+          <img src="/saaskart_logo.jpg" alt="logo" width={150} />
           <p className="text-xl/none font-medium opacity-75">Directory</p>
         </Link>
       </div>
