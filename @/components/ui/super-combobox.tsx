@@ -153,6 +153,7 @@ export function SuperCombobox({
         {/* <PopoverTrigger asChild> */}
         <Button
           // variant="outline"
+          type="button"
           size="sm"
           className={`w-full border-dashed ${isHidden ? "hidden" : "visible"}`}
           disabled={fetcher.loading}
@@ -162,10 +163,10 @@ export function SuperCombobox({
           {showTitle ? title : null}
           {selectedValues.length > 0 && (
             <>
-              {title || Icon ? (
+              {/* {title || Icon ? (
                 <Separator orientation="vertical" className="h-1/2" />
-              ) : null}
-              <Badge
+              ) : null} */}
+              {/* <Badge
                 variant="ghost"
                 className="rounded-sm px-1 font-normal md:hidden"
               >
@@ -195,7 +196,7 @@ export function SuperCombobox({
                       </Badge>
                     ))
                 )}
-              </div>
+              </div> */}
             </>
           )}
         </Button>

@@ -122,8 +122,10 @@ export function SuperRangebox({
 
       <div className="w-full">
         <Button
+          type="button"
+          // onClick={}
           size="sm"
-          variant={"outline"}
+          // variant={"outline"}
           className={`w-full border-dashed ${isHidden ? "hidden" : "visible"}`}
           disabled={fetcher.loading}
           {...triggerButtonProps}
@@ -131,10 +133,10 @@ export function SuperRangebox({
           {Icon ? <Icon size={14} className="opacity-50" /> : null}
           {title}
 
-          <Separator orientation="vertical" className="h-1/2" />
+          {/* <Separator orientation="vertical" className="h-1/2" />
           <Badge variant="ghost" className="rounded-sm px-1 font-normal">
             {formatter(value)}
-          </Badge>
+          </Badge> */}
         </Button>
         <div
           className={`mt-2 flex w-full flex-col items-stretch justify-start gap-4 rounded-md border p-4 ${
