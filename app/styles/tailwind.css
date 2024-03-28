@@ -2,6 +2,23 @@
 @tailwind components;
 @tailwind utilities;
 
+.carousel .slider-wrapper {
+  overflow: visible !important;
+  width: 60% !important;
+}
+
+.carousel .slide {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 30px;
+}
+
+.carousel .slide div {
+  border-radius: 10px;
+  overflow: hidden;
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;

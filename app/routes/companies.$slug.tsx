@@ -4,7 +4,7 @@ import {
   type SerializeFrom,
   redirect,
 } from "@remix-run/node"
-import { Link, useLoaderData } from "@remix-run/react"
+import { Link, useFetcher, useLoaderData } from "@remix-run/react"
 import {
   Banknote,
   Boxes,
@@ -27,10 +27,14 @@ import {
   TrendingUp,
   Twitter,
   Users2,
+  XCircleIcon,
   Youtube,
 } from "lucide-react"
 import { useMemo, useState } from "react"
+import { Carousel } from "react-responsive-carousel"
+import "react-responsive-carousel/lib/styles/carousel.min.css"
 import { Line, LineChart, ResponsiveContainer, Tooltip, XAxis } from "recharts"
+import { type action as authenticationAction } from "~/routes/api.authentication"
 
 import { Footer, NavbarDashboard, NavbarPublic } from "@/components/layout"
 import { Badge } from "@/components/ui/badge"
@@ -43,9 +47,18 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
+import { Separator } from "@/components/ui/separator"
 import {
   Table,
   TableBody,
@@ -266,28 +279,74 @@ export default function Company() {
     [hideData, metricsHistoryGrouped, selectedMetricsHistoryChart],
   )
 
+  var settings = {
+    dots: true,
+    infinite: false,
+    speed: 500,
+    slidesToShow: 3,
+    slidesToScroll: 3,
+    initialSlide: 0,
+    responsive: [
+      {
+        breakpoint: 1024,
+        settings: {
+          slidesToShow: 3,
+          slidesToScroll: 3,
+          infinite: true,
+          dots: true,
+        },
+      },
+      {
+        breakpoint: 600,
+        settings: {
+          slidesToShow: 2,
+          slidesToScroll: 2,
+          initialSlide: 2,
+        },
+      },
+      {
+        breakpoint: 480,
+        settings: {
+          slidesToShow: 1,
+          slidesToScroll: 1,
+        },
+      },
+    ],
+  }
+
+  const [contactForm, setForm] = useState(false)
+  const authenticationFetcher = useFetcher<typeof authenticationAction>({
+    key: "authentication",
+  })
+
   return (
     <div className="relative flex min-h-screen flex-col items-stretch gap-8 py-4 sm:py-8">
+      <Dialog open={contactForm} onOpenChange={setForm}>
+        <DialogContent>
+          <DialogHeader className="font-bold">Conatct Form</DialogHeader>
+          <div className="flex flex-col gap-2">
+            <Label>Name</Label>
+            <Input type="text" className="w-full"></Input>
+          </div>
+        </DialogContent>
+      </Dialog>
       {isAuthenticated ? <NavbarDashboard /> : <NavbarPublic />}
 
       <div className="container flex flex-col items-stretch justify-start gap-8 px-4">
         <div className="flex flex-col overflow-hidden rounded-lg shadow-md">
           <div className="h-40 w-full bg-red-300"></div>
           <div className="flex flex-row items-start justify-start gap-4 p-4 pb-0 md:gap-6">
-            <div className="-my-12 overflow-hidden rounded-full bg-white p-2 shadow-md">
-              {company.logo ? (
-                <img
-                  src={company.logo}
-                  alt={`${company.name} logo`}
-                  width={90}
-                  height={90}
-                  className="rounded-full"
-                />
-              ) : (
-                <CircleOff size={90} className="opacity-50" />
-              )}
-            </div>
-            <div className="flex w-full items-center justify-between">
+            {company.logo ? (
+              <img
+                src={company.logo}
+                alt={`${company.name} logo`}
+                width={112}
+                className="-mt-12 h-28 w-28 rounded-full border-8 border-white bg-white"
+              />
+            ) : (
+              <CircleOff size={90} className="opacity-50" />
+            )}
+            <div className="flex w-full flex-col items-center justify-between lg:flex-row">
               <div className="flex flex-1 flex-col items-start justify-start gap-2">
                 <h1 className="text-xl/none font-extrabold sm:text-2xl/none md:text-3xl/none">
                   {company.name}
@@ -303,16 +362,90 @@ export default function Company() {
                   <div className="font-semibold text-gray-400">|</div>
                   <div className="font-semibold">198 Reviews</div>
                 </div>
-                <h2 className="sr-only">{getCompanyDescription(loaderData)}</h2>
-                <div className="flex items-center gap-2">
-                  <div>
-                    <Badge
-                      variant={"outline"}
-                      className="flex items-center gap-x-1.5 text-sm"
-                    >
-                      clamied <CheckCircle color="green" size={12} />
-                    </Badge>
-                  </div>
+                <div className="hidden items-center gap-2 lg:flex">
+                  <Dialog defaultOpen={false}>
+                    <DialogTrigger asChild>
+                      <div>
+                        <Badge
+                          variant={"outline"}
+                          className="flex cursor-pointer items-center gap-x-1.5 text-sm"
+                        >
+                          unclamied <XCircleIcon color="red" size={12} />
+                        </Badge>
+                      </div>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <authenticationFetcher.Form
+                        // action="/api/authentication"
+                        method="post"
+                        className="contents"
+                      >
+                        <fieldset
+                          disabled={authenticationFetcher.state !== "idle"}
+                          className="contents"
+                        >
+                          <DialogHeader>
+                            <DialogTitle>Login</DialogTitle>
+                            <DialogDescription>
+                              Authenticate with the email you used to buy the
+                              product.
+                            </DialogDescription>
+                          </DialogHeader>
+                          <div className="flex flex-col items-stretch justify-start gap-2">
+                            <Button variant={"outline"}>
+                              Login with Google
+                            </Button>
+                            <Button variant={"outline"}>
+                              Login with Linkedin
+                            </Button>
+                            <Separator className="m-2" />
+                            <Button variant={"secondary"}>
+                              Use Business Email
+                            </Button>
+                          </div>
+                          {/* <div className="flex flex-col items-stretch justify-start gap-2">
+                  <Input
+                    type="email"
+                    name="email"
+                    placeholder="Email"
+                    required
+                    readOnly={isOTPSent}
+                    autoFocus
+                  />
+                  {!isOTPSent ? (
+                    <Input
+                      type="text"
+                      name="lifetimeRedeemCode"
+                      placeholder="Redeem Code? (optional)"
+                    />
+                  ) : null}
+                  {isOTPSent ? (
+                    <Input
+                      type="text"
+                      name="otp"
+                      placeholder="One Time Password"
+                      required
+                      autoFocus
+                    />
+                  ) : null}
+                </div> */}
+                          {/* <DialogFooter>
+                  {isOTPSent ? (
+                    <Button variant="hero" type="submit">
+                      <Check size={16} className="opacity-50" />
+                      <span>Confirm</span>
+                    </Button>
+                  ) : (
+                    <Button type="submit">
+                      <Fingerprint size={16} className="opacity-50" />
+                      <span>Continue</span>
+                    </Button>
+                  )}
+                </DialogFooter> */}
+                        </fieldset>
+                      </authenticationFetcher.Form>
+                    </DialogContent>
+                  </Dialog>
                   <div className="font-semibold text-gray-400">|</div>
                   {company.industry?.name ? (
                     <Link
@@ -327,7 +460,7 @@ export default function Company() {
                 {company.country ? (
                   <Link
                     to={`/directory/countries/${company.country}`}
-                    className="mb-6 text-sm/none font-medium opacity-75 sm:text-base/none md:text-lg/none"
+                    className="mb-6 hidden text-sm/none font-medium opacity-75 sm:text-base/none md:text-lg/none lg:block"
                   >
                     {[
                       company.street,
@@ -398,20 +531,59 @@ export default function Company() {
                 <p className="font-medium">Features</p>
               </div> */}
               </div>
-              <div className="flex flex-col gap-3">
-                <Button variant={"secondary"}>Contact {company.name}</Button>
-                <Button variant={"hero"}>Get a demo</Button>
+              <div className="mb-3 hidden flex-row gap-3 lg:flex lg:flex-col">
+                <Button variant={"secondary"} onClick={() => setForm(true)}>
+                  Contact {company.name}
+                </Button>
+                <Button variant={"hero"}>Visit Website</Button>
               </div>
             </div>
+          </div>
+          <div className="px-6">
+            <div className="flex items-center gap-2 lg:hidden">
+              <div>
+                <Badge
+                  variant={"outline"}
+                  className="flex items-center gap-x-1.5 text-sm"
+                >
+                  clamied <CheckCircle color="green" size={12} />
+                </Badge>
+              </div>
+              <div className="font-semibold text-gray-400">|</div>
+              {company.industry?.name ? (
+                <Link
+                  to={`/directory/industries/${company.industry.id}`}
+                  className="flex items-center gap-2 text-base/none font-semibold opacity-75 hover:underline sm:text-lg/none"
+                >
+                  <FactoryIcon size={18} />
+                  {company.industry.name}
+                </Link>
+              ) : null}
+            </div>
+            {company.country ? (
+              <Link
+                to={`/directory/countries/${company.country}`}
+                className="mb-6 text-sm/none font-medium opacity-75 sm:text-base/none md:text-lg/none lg:hidden"
+              >
+                {[company.street, company.city, company.state, company.country]
+                  .filter((value) => !!value)
+                  .join(", ")}
+              </Link>
+            ) : null}
+          </div>
+          <div className="mb-3 flex flex-row gap-3 px-6 py-2 lg:hidden lg:flex-col">
+            <Button variant={"secondary"}>Contact {company.name}</Button>
+            <Button variant={"hero"}>Visit Website</Button>
           </div>
         </div>
 
         <Tabs defaultValue="overview" className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="reviews">Reviews</TabsTrigger>
             <TabsTrigger value="pricing">Pricing</TabsTrigger>
             <TabsTrigger value="features">Features</TabsTrigger>
+            <TabsTrigger value="metrics">Metrics</TabsTrigger>
+            <TabsTrigger value="reviews">Reviews</TabsTrigger>
           </TabsList>
           <TabsContent value="overview" className="flex flex-col gap-4">
             <Card>
@@ -750,202 +922,461 @@ export default function Company() {
                 </div>
               </CardContent>
             </Card>
-          </TabsContent>
-        </Tabs>
+            <Card>
+              <CardContent className="pt-10">
+                {metricsHistoryChartPossible.length ? (
+                  <section className="flex flex-col items-stretch justify-start gap-6">
+                    <div className="flex flex-row items-center justify-between gap-4">
+                      <div className="h-px flex-1 rounded-full bg-border"></div>
+                      <h3 className="text-base/none font-bold sm:text-lg/none md:text-xl/none">
+                        Metrics History
+                      </h3>
+                      <div className="h-px flex-1 rounded-full bg-border"></div>
+                    </div>
 
-        <div className="flex flex-col items-stretch justify-start gap-8">
-          {/* {company.founders.length ? (
-            <section className="flex flex-col items-stretch justify-start gap-6">
-              <div className="flex flex-row items-center justify-between gap-4">
-                <div className="h-px flex-1 rounded-full bg-border"></div>
-                <h3 className="text-base/none font-bold sm:text-lg/none md:text-xl/none">
-                  People
-                </h3>
-                <div className="h-px flex-1 rounded-full bg-border"></div>
+                    <ScrollArea className="mx-auto max-w-full">
+                      <Tabs
+                        value={selectedMetricsHistoryChart}
+                        onValueChange={setSelectedMetricsHistoryChart}
+                      >
+                        <TabsList>
+                          {metricsHistoryChartPossible.map((key) => {
+                            const filter = FILTERS.find(
+                              (filter) => filter.name === key,
+                            )
+
+                            return (
+                              <TabsTrigger key={key} value={key}>
+                                {filter ? (
+                                  <filter.icon
+                                    size={16}
+                                    className="opacity-50"
+                                  />
+                                ) : null}
+                                <span>{filter ? filter.title : key}</span>
+                              </TabsTrigger>
+                            )
+                          })}
+                        </TabsList>
+                      </Tabs>
+
+                      <ScrollBar orientation="horizontal" />
+                    </ScrollArea>
+
+                    <ResponsiveContainer
+                      width="100%"
+                      height="100%"
+                      className={cn("max-h-[50vh] min-h-[50vh]", {
+                        "blur-sm": hideData,
+                      })}
+                    >
+                      <LineChart
+                        width={320}
+                        height={320}
+                        data={metricsHistoryChartData}
+                      >
+                        <Line
+                          type="monotone"
+                          dataKey="value"
+                          stroke="#000"
+                          name={selectedMetricsHistoryChart}
+                        />
+                        <XAxis
+                          dataKey="capturedAt"
+                          interval="preserveStartEnd"
+                        />
+                        <Tooltip />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </section>
+                ) : null}
+              </CardContent>
+            </Card>
+            <div className="flex flex-col items-stretch justify-start gap-8">
+              {company.fundingHistory.length ? (
+                <section className="flex flex-col items-stretch justify-start gap-6">
+                  <div className="flex flex-row items-center justify-between gap-4">
+                    <div className="h-px flex-1 rounded-full bg-border"></div>
+                    <h3 className="text-base/none font-bold sm:text-lg/none md:text-xl/none">
+                      Funding History
+                    </h3>
+                    <div className="h-px flex-1 rounded-full bg-border"></div>
+                  </div>
+
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Date</TableHead>
+                        <TableHead>Funding Amount</TableHead>
+                        <TableHead>Round Name</TableHead>
+                        <TableHead>Valuation</TableHead>
+                        <TableHead>Investors</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {company.fundingHistory.map((funding) => (
+                        <TableRow key={funding.id}>
+                          <TableCell className="font-medium">
+                            {new Date(funding.capturedAt).toDateString()}
+                          </TableCell>
+                          <TableCell>
+                            {funding.funding
+                              ? formatNumber(Number(funding.funding))
+                              : "-"}
+                          </TableCell>
+                          <TableCell
+                            className={cn("font-medium", {
+                              "blur-sm": hideData,
+                            })}
+                          >
+                            {funding.description
+                              ? funding.description
+                              : "Undisclosed"}
+                          </TableCell>
+                          <TableCell
+                            className={cn("font-medium", {
+                              "blur-sm": hideData,
+                            })}
+                          >
+                            {funding.valuation
+                              ? formatNumber(Number(funding.valuation))
+                              : "-"}
+                          </TableCell>
+                          <TableCell className="flex flex-row flex-wrap items-center justify-start gap-2">
+                            -
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </section>
+              ) : null}
+
+              <div className="flex flex-col items-stretch justify-start gap-8">
+                <section className="flex flex-col items-stretch justify-start gap-6">
+                  <div className="flex flex-row items-center justify-between gap-4">
+                    <div className="h-px flex-1 rounded-full bg-border"></div>
+                    <h3 className="text-base/none font-bold sm:text-lg/none md:text-xl/none">
+                      Product Images
+                    </h3>
+                    <div className="h-px flex-1 rounded-full bg-border"></div>
+                  </div>
+                  <Carousel
+                    swipeable
+                    infiniteLoop
+                    emulateTouch
+                    centerSlidePercentage={80}
+                  >
+                    <div>
+                      <img
+                        alt=""
+                        src="https://images.ctfassets.net/hrltx12pl8hq/28ECAQiPJZ78hxatLTa7Ts/2f695d869736ae3b0de3e56ceaca3958/free-nature-images.jpg?fit=fill&w=1200&h=630"
+                      />
+                    </div>
+                    <div>
+                      <img
+                        alt=""
+                        src="https://images.ctfassets.net/hrltx12pl8hq/28ECAQiPJZ78hxatLTa7Ts/2f695d869736ae3b0de3e56ceaca3958/free-nature-images.jpg?fit=fill&w=1200&h=630"
+                      />
+                    </div>
+                    <div>
+                      <img
+                        alt=""
+                        src="https://images.ctfassets.net/hrltx12pl8hq/28ECAQiPJZ78hxatLTa7Ts/2f695d869736ae3b0de3e56ceaca3958/free-nature-images.jpg?fit=fill&w=1200&h=630"
+                      />
+                    </div>
+                  </Carousel>
+                </section>
               </div>
+            </div>
+          </TabsContent>
+          <TabsContent value="pricing" className="flex flex-col gap-4">
+            <Card>
+              <CardContent className="flex flex-col gap-4 py-7">
+                <div className="flex flex-row items-center justify-between gap-4 py-4">
+                  <div className="h-px flex-1 rounded-full bg-border"></div>
+                  <h3 className="text-base/none font-bold sm:text-lg/none md:text-xl/none">
+                    Pricing
+                  </h3>
+                  <div className="h-px flex-1 rounded-full bg-border"></div>
+                </div>
+                <div className="grid h-full gap-6 lg:grid-cols-3 lg:gap-12">
+                  <div className="flex h-full flex-col items-center gap-2">
+                    <Card className="p-6 text-center">
+                      <div className="text-2xl font-semibold">Basic</div>
+                      <div className="text-4xl font-extrabold">$29</div>
+                      <div className="text-sm leading-loose text-gray-500">
+                        <p className="inline-block md:block">
+                          The Basic plan is designed for individuals and small
+                          teams looking to get started with the platform. It
+                          provides essential features for seamless collaboration
+                          and deployment.
+                        </p>
+                      </div>
+                      <ul className="my-4 grid gap-2 text-sm">
+                        <li className="flex items-center gap-2">
+                          <CheckIcon className="h-4 w-4" />
+                          Unlimited bandwidth
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <CheckIcon className="h-4 w-4" />
+                          Edge network optimization
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <CheckIcon className="h-4 w-4" />
+                          Serverless functions
+                        </li>
+                      </ul>
+                      <Link to="#">
+                        <Button variant={"outline"}>Get Started</Button>
+                      </Link>
+                    </Card>
+                  </div>
+                  <div className="flex h-full flex-col items-center gap-2">
+                    <Card className="h-full p-6 text-center">
+                      <div className="text-2xl font-semibold">Pro</div>
+                      <div className="text-4xl font-extrabold">$99</div>
+                      <div className="text-sm leading-loose text-gray-500">
+                        <p className="inline-block md:block">
+                          The Pro plan is ideal for growing teams and businesses
+                          that require advanced features for scaling their
+                          applications. It includes all the benefits of the
+                          Basic plan, with additional tools for automation and
+                          optimization.
+                        </p>
+                      </div>
+                      <ul className="my-4 grid gap-2 text-sm">
+                        <li className="flex items-center gap-2">
+                          <CheckIcon className="h-4 w-4" />
+                          Continuous deployment
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <CheckIcon className="h-4 w-4" />
+                          Custom domains
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <CheckIcon className="h-4 w-4" />
+                          Performance analytics
+                        </li>
+                      </ul>
+                      <Link to="#">
+                        <Button variant={"outline"}>Get Started</Button>
+                      </Link>
+                    </Card>
+                  </div>
+                  <div className="flex h-full flex-col items-center gap-2">
+                    <Card className="h-full p-6 text-center">
+                      <div className="text-2xl font-semibold">Enterprise</div>
+                      <div className="text-4xl font-extrabold">$249</div>
+                      <div className="text-sm leading-loose text-gray-500">
+                        <p className="inline-block md:block">
+                          The Enterprise plan is tailored for large
+                          organizations and high-traffic applications that
+                          demand the highest level of security, compliance, and
+                          support. It includes all the features of the Pro plan,
+                          with additional enterprise-grade capabilities.
+                        </p>
+                      </div>
+                      <ul className="my-4 grid gap-2 text-sm">
+                        <li className="flex items-center gap-2">
+                          <CheckIcon className="h-4 w-4" />
+                          Advanced access controls
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <CheckIcon className="h-4 w-4" />
+                          24/7 premium support
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <CheckIcon className="h-4 w-4" />
+                          Performance monitoring
+                        </li>
+                      </ul>
+                      <Link to="#">
+                        <Button variant={"hero"}>Contact Sales</Button>
+                      </Link>
+                    </Card>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+          <TabsContent value="features" className="flex flex-col gap-4">
+            <Card>
+              <CardHeader>
+                <div className="flex flex-row items-center justify-between gap-4">
+                  <div className="h-px flex-1 rounded-full bg-border"></div>
+                  <h3 className="text-base/none font-bold sm:text-lg/none md:text-xl/none">
+                    {company.name} Features
+                  </h3>
+                  <div className="h-px flex-1 rounded-full bg-border"></div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <section className="flex flex-col items-stretch justify-start gap-4">
+                  <div>
+                    <h2 className="text-lg font-bold">Tasks</h2>
+                    <div className="mt-2 grid grid-cols-1 gap-4 md:grid-cols-3">
+                      <div>
+                        <h3 className="flex items-center text-sm font-medium leading-6 text-gray-900">
+                          <CheckCircle className="mr-2 h-5 w-5 text-green-500" />
+                          Trust is our #1 value.
+                        </h3>
+                      </div>
+                      <div>
+                        <h3 className="flex items-center text-sm font-medium leading-6 text-gray-900">
+                          <CheckCircle className="mr-2 h-5 w-5 text-green-500" />
+                          Trust is our #1 value.
+                        </h3>
+                      </div>
+                      <div>
+                        <h3 className="flex items-center text-sm font-medium leading-6 text-gray-900">
+                          <CheckCircle className="mr-2 h-5 w-5 text-green-500" />
+                          Trust is our #1 value.
+                        </h3>
+                      </div>
+                      <div>
+                        <h3 className="flex items-center text-sm font-medium leading-6 text-gray-900">
+                          <CheckCircle className="mr-2 h-5 w-5 text-green-500" />
+                          Trust is our #1 value.
+                        </h3>
+                      </div>
+                    </div>
+                  </div>
+                </section>
+              </CardContent>
+            </Card>
+          </TabsContent>
+          <TabsContent value="metrics" className="flex flex-col gap-4">
+            <Card>
+              <CardContent className="pt-10">
+                {metricsHistoryChartPossible.length ? (
+                  <section className="flex flex-col items-stretch justify-start gap-6">
+                    <div className="flex flex-row items-center justify-between gap-4">
+                      <div className="h-px flex-1 rounded-full bg-border"></div>
+                      <h3 className="text-base/none font-bold sm:text-lg/none md:text-xl/none">
+                        Metrics History
+                      </h3>
+                      <div className="h-px flex-1 rounded-full bg-border"></div>
+                    </div>
 
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Name</TableHead>
-                    <TableHead>Title</TableHead>
-                    <TableHead>Email</TableHead>
-                    <TableHead>Personal Email</TableHead>
-                    <TableHead>Social</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {company.founders
-                    .sort((founder) => (founder.isCeo ? -1 : 1))
-                    .map((founder) => (
-                      <TableRow key={founder.id}>
+                    <ScrollArea className="mx-auto max-w-full">
+                      <Tabs
+                        value={selectedMetricsHistoryChart}
+                        onValueChange={setSelectedMetricsHistoryChart}
+                      >
+                        <TabsList>
+                          {metricsHistoryChartPossible.map((key) => {
+                            const filter = FILTERS.find(
+                              (filter) => filter.name === key,
+                            )
+
+                            return (
+                              <TabsTrigger key={key} value={key}>
+                                {filter ? (
+                                  <filter.icon
+                                    size={16}
+                                    className="opacity-50"
+                                  />
+                                ) : null}
+                                <span>{filter ? filter.title : key}</span>
+                              </TabsTrigger>
+                            )
+                          })}
+                        </TabsList>
+                      </Tabs>
+
+                      <ScrollBar orientation="horizontal" />
+                    </ScrollArea>
+
+                    <ResponsiveContainer
+                      width="100%"
+                      height="100%"
+                      className={cn("max-h-[50vh] min-h-[50vh]", {
+                        "blur-sm": hideData,
+                      })}
+                    >
+                      <LineChart
+                        width={320}
+                        height={320}
+                        data={metricsHistoryChartData}
+                      >
+                        <Line
+                          type="monotone"
+                          dataKey="value"
+                          stroke="#000"
+                          name={selectedMetricsHistoryChart}
+                        />
+                        <XAxis
+                          dataKey="capturedAt"
+                          interval="preserveStartEnd"
+                        />
+                        <Tooltip />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </section>
+                ) : null}
+              </CardContent>
+            </Card>
+            {company.fundingHistory.length ? (
+              <section className="flex flex-col items-stretch justify-start gap-6">
+                <div className="flex flex-row items-center justify-between gap-4">
+                  <div className="h-px flex-1 rounded-full bg-border"></div>
+                  <h3 className="text-base/none font-bold sm:text-lg/none md:text-xl/none">
+                    Funding History
+                  </h3>
+                  <div className="h-px flex-1 rounded-full bg-border"></div>
+                </div>
+
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Date</TableHead>
+                      <TableHead>Funding Amount</TableHead>
+                      <TableHead>Round Name</TableHead>
+                      <TableHead>Valuation</TableHead>
+                      <TableHead>Investors</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {company.fundingHistory.map((funding) => (
+                      <TableRow key={funding.id}>
                         <TableCell className="font-medium">
-                          {founder.name}
+                          {new Date(funding.capturedAt).toDateString()}
                         </TableCell>
-                        <TableCell>{founder.title}</TableCell>
-                        <TableCell
-                          className={cn("font-medium", {
-                            "blur-sm": hideData,
-                          })}
-                        >
-                          {founder.email}
+                        <TableCell>
+                          {funding.funding
+                            ? formatNumber(Number(funding.funding))
+                            : "-"}
                         </TableCell>
                         <TableCell
                           className={cn("font-medium", {
                             "blur-sm": hideData,
                           })}
                         >
-                          {founder.personalEmail}
+                          {funding.description
+                            ? funding.description
+                            : "Undisclosed"}
+                        </TableCell>
+                        <TableCell
+                          className={cn("font-medium", {
+                            "blur-sm": hideData,
+                          })}
+                        >
+                          {funding.valuation
+                            ? formatNumber(Number(funding.valuation))
+                            : "-"}
                         </TableCell>
                         <TableCell className="flex flex-row flex-wrap items-center justify-start gap-2">
-                          {founder.linkedIn ? (
-                            <Button asChild variant="link" size="sm" noPadding>
-                              <Link
-                                to={founder.linkedIn}
-                                target="_blank"
-                                rel="noreferrer"
-                              >
-                                <Linkedin size={14} />
-                              </Link>
-                            </Button>
-                          ) : null}
+                          -
                         </TableCell>
                       </TableRow>
                     ))}
-                </TableBody>
-              </Table>
-            </section>
-          ) : null} */}
-
-          {/* {company.fundingHistory.length ? (
-            <section className="flex flex-col items-stretch justify-start gap-6">
-              <div className="flex flex-row items-center justify-between gap-4">
-                <div className="h-px flex-1 rounded-full bg-border"></div>
-                <h3 className="text-base/none font-bold sm:text-lg/none md:text-xl/none">
-                  Funding History
-                </h3>
-                <div className="h-px flex-1 rounded-full bg-border"></div>
-              </div>
-
-              <div className="grid grid-cols-1 gap-x-4 gap-y-8 md:grid-cols-2">
-                <ResponsiveContainer
-                  width="100%"
-                  height="100%"
-                  className={cn("max-h-[50vh] min-h-[50vh]", {
-                    "blur-sm": hideData,
-                  })}
-                >
-                  <LineChart
-                    width={320}
-                    height={320}
-                    data={fundingHistoryChartData}
-                  >
-                    <Line
-                      type="monotone"
-                      dataKey="funding"
-                      stroke="#000"
-                      name="Funding"
-                    />
-                    <XAxis dataKey="capturedAt" interval="preserveStartEnd" />
-                    <Tooltip />
-                  </LineChart>
-                </ResponsiveContainer>
-
-                <ScrollArea className="max-h-[50vh] w-full" type="auto">
-                  <ol
-                    className={cn(
-                      "mx-auto flex w-max flex-col items-stretch justify-start gap-4",
-                      {
-                        "blur-sm": hideData,
-                      },
-                    )}
-                  >
-                    {company.fundingHistory.map((funding) => (
-                      <li
-                        key={funding.capturedAt}
-                        className="flex flex-col items-stretch justify-start gap-2"
-                      >
-                        <h4 className="text-base/none font-medium opacity-75">
-                          {new Date(funding.capturedAt).getFullYear()}
-                        </h4>
-                        <p className="text-sm/none opacity-75">
-                          <span className="font-medium opacity-100">
-                            {formatNumber(Number(funding.funding), true)}
-                          </span>{" "}
-                          at valuation of{" "}
-                          <span className="font-medium opacity-100">
-                            {formatNumber(Number(funding.valuation), true)}
-                          </span>
-                        </p>
-                      </li>
-                    ))}
-                  </ol>
-                </ScrollArea>
-              </div>
-            </section>
-          ) : null} */}
-
-          {metricsHistoryChartPossible.length ? (
-            <section className="flex flex-col items-stretch justify-start gap-6">
-              <div className="flex flex-row items-center justify-between gap-4">
-                <div className="h-px flex-1 rounded-full bg-border"></div>
-                <h3 className="text-base/none font-bold sm:text-lg/none md:text-xl/none">
-                  Metrics History
-                </h3>
-                <div className="h-px flex-1 rounded-full bg-border"></div>
-              </div>
-
-              <ScrollArea className="mx-auto max-w-full">
-                <Tabs
-                  value={selectedMetricsHistoryChart}
-                  onValueChange={setSelectedMetricsHistoryChart}
-                >
-                  <TabsList>
-                    {metricsHistoryChartPossible.map((key) => {
-                      const filter = FILTERS.find(
-                        (filter) => filter.name === key,
-                      )
-
-                      return (
-                        <TabsTrigger key={key} value={key}>
-                          {filter ? (
-                            <filter.icon size={16} className="opacity-50" />
-                          ) : null}
-                          <span>{filter ? filter.title : key}</span>
-                        </TabsTrigger>
-                      )
-                    })}
-                  </TabsList>
-                </Tabs>
-
-                <ScrollBar orientation="horizontal" />
-              </ScrollArea>
-
-              <ResponsiveContainer
-                width="100%"
-                height="100%"
-                className={cn("max-h-[50vh] min-h-[50vh]", {
-                  "blur-sm": hideData,
-                })}
-              >
-                <LineChart
-                  width={320}
-                  height={320}
-                  data={metricsHistoryChartData}
-                >
-                  <Line
-                    type="monotone"
-                    dataKey="value"
-                    stroke="#000"
-                    name={selectedMetricsHistoryChart}
-                  />
-                  <XAxis dataKey="capturedAt" interval="preserveStartEnd" />
-                  <Tooltip />
-                </LineChart>
-              </ResponsiveContainer>
-            </section>
-          ) : null}
-        </div>
+                  </TableBody>
+                </Table>
+              </section>
+            ) : null}
+          </TabsContent>
+        </Tabs>
 
         {company.competitors.length ? (
           <section className="flex flex-col items-stretch justify-start gap-6">

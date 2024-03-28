@@ -137,7 +137,7 @@ export function SuperCombobox({
         <>
           {selectedValues.map((selectedValue) => (
             <input
-              key={selectedValue}
+              key={name}
               type="text"
               name={name}
               value={selectedValue}
@@ -152,7 +152,7 @@ export function SuperCombobox({
       <div className="w-full">
         {/* <PopoverTrigger asChild> */}
         <Button
-          // variant="outline"
+          variant="outline"
           type="button"
           size="sm"
           className={`w-full border-dashed ${isHidden ? "hidden" : "visible"}`}

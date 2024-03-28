@@ -125,7 +125,7 @@ export function SuperRangebox({
           type="button"
           // onClick={}
           size="sm"
-          // variant={"outline"}
+          variant={"outline"}
           className={`w-full border-dashed ${isHidden ? "hidden" : "visible"}`}
           disabled={fetcher.loading}
           {...triggerButtonProps}

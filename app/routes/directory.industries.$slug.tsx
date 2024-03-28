@@ -3,7 +3,13 @@ import {
   type MetaFunction,
   json,
 } from "@remix-run/node"
-import { Link, useFetcher, useLoaderData, useParams } from "@remix-run/react"
+import {
+  Link,
+  useFetcher,
+  useLoaderData,
+  useParams,
+  useSubmit,
+} from "@remix-run/react"
 import { and, desc, eq, isNotNull } from "drizzle-orm"
 import {
   ArrowUpDown,
@@ -23,7 +29,7 @@ import {
   StarIcon,
 } from "lucide-react"
 import { cacheHeader } from "pretty-cache-header"
-import { MutableRefObject, useEffect, useRef } from "react"
+import { MutableRefObject, useEffect, useRef, useState } from "react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -92,9 +98,12 @@ export const meta: MetaFunction = ({ params }) => {
 export default function DirectoryIndustriesIndustry() {
   const loaderData = useLoaderData<typeof loader>()
   const params = useParams()
+  const formRef = useRef(null)
 
   const industry = params.slug
   const fetcher = useFetcher<typeof companiesLoader>()
+
+  const submit = useSubmit()
 
   return (
     <>
@@ -113,7 +122,16 @@ export default function DirectoryIndustriesIndustry() {
         <fetcher.Form
           method="get"
           action="/dashboard/api/companies"
-          className=" hidden max-w-2xl flex-col items-stretch justify-start gap-2 lg:flex"
+          ref={formRef}
+          className="mb-3 max-w-2xl flex-col items-stretch justify-start gap-2 lg:flex"
+          onChange={(e) => {
+            console.log(
+              Object.fromEntries(
+                new FormData(e.currentTarget as HTMLFormElement),
+              ),
+            )
+            fetcher.submit(e.currentTarget)
+          }}
         >
           <fieldset className="contents" disabled={fetcher.state !== "idle"}>
             <div className="flex w-full flex-col items-center justify-between gap-2">
@@ -128,7 +146,7 @@ export default function DirectoryIndustriesIndustry() {
                 <span>Search</span>
               </Button>
             </div>
-            <div className="flex w-full flex-col items-center justify-start gap-2">
+            <div className="hidden w-full flex-col items-center justify-start gap-2 lg:flex">
               <SuperCombobox
                 name="limit"
                 title="Limit"
@@ -156,6 +174,10 @@ export default function DirectoryIndustriesIndustry() {
                 icon={ArrowUpDown}
                 multiple={false}
                 required
+                // onValuesChange={(e) => {
+                //   console.log(e)
+                //   fetcher.submit(formRef.current)
+                // }}
                 options={SORT_OPTIONS}
                 defaultValues={["revenue"]}
                 triggerButtonProps={{
@@ -218,11 +240,11 @@ export default function DirectoryIndustriesIndustry() {
         </fetcher.Form>
 
         {!fetcher.data ? (
-          <div className="flex flex-grow flex-col items-start justify-start gap-6 px-4">
+          <div className="flex flex-grow flex-col items-start justify-start gap-6 px-0 lg:px-4">
             {loaderData.map((company) => (
               <Card
                 key={company.id}
-                className="mx-auto w-full rounded-xl bg-white p-6 shadow-lg dark:bg-gray-800"
+                className="mx-auto w-full rounded-xl bg-white p-2 shadow-lg dark:bg-gray-800 lg:p-6"
               >
                 <CardHeader>
                   <div className="flex flex-col items-start justify-between gap-2 lg:flex-row">
@@ -274,7 +296,7 @@ export default function DirectoryIndustriesIndustry() {
                     </div>
                   </div>
                   <div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex w-full flex-col items-start gap-2 lg:flex-row lg:items-center">
                       <Badge
                         variant={"outline"}
                         className="flex w-fit items-center gap-x-1.5 text-sm"
@@ -285,12 +307,12 @@ export default function DirectoryIndustriesIndustry() {
                         Starting Price: $25.00
                       </div>
                     </div>
-                    <div className="flex items-center space-x-2">
+                    {/* <div className="flex items-center space-x-2">
                       <EyeIcon className="text-blue-500" />
                       <span className="text-sm text-gray-600 dark:text-gray-400">
                         View top Consulting Services for {company.name}
                       </span>
-                    </div>
+                    </div> */}
                   </div>
                 </CardHeader>
                 <CardContent>
@@ -363,12 +385,12 @@ export default function DirectoryIndustriesIndustry() {
         ) : null}
         {fetcher.data ? (
           fetcher.data.companies?.length === 0 ? null : (
-            <div className="flex flex-grow flex-col items-start justify-start gap-6 px-4">
+            <div className="flex flex-grow flex-col items-start justify-start gap-6 px-0 lg:px-4">
               {fetcher.data.companies?.map((company) => {
                 return (
                   <Card
                     key={company.id}
-                    className="mx-auto w-full rounded-xl bg-white p-6 shadow-lg dark:bg-gray-800"
+                    className="mx-auto w-full rounded-xl bg-white p-2 shadow-lg dark:bg-gray-800 lg:p-6"
                   >
                     <CardHeader>
                       <div className="flex flex-col items-start justify-between gap-2 lg:flex-row">
@@ -420,7 +442,7 @@ export default function DirectoryIndustriesIndustry() {
                         </div>
                       </div>
                       <div>
-                        <div className="flex items-center gap-2">
+                        <div className="flex w-full flex-col items-start gap-2 lg:flex-row lg:items-center">
                           <Badge
                             variant={"outline"}
                             className="flex w-fit items-center gap-x-1.5 text-sm"
@@ -431,12 +453,12 @@ export default function DirectoryIndustriesIndustry() {
                             Starting Price: $25.00
                           </div>
                         </div>
-                        <div className="flex items-center space-x-2">
-                          <EyeIcon className="text-blue-500" />
-                          <span className="text-sm text-gray-600 dark:text-gray-400">
-                            View top Consulting Services for {company.name}
-                          </span>
-                        </div>
+                        {/* <div className="flex items-center space-x-2">
+                      <EyeIcon className="text-blue-500" />
+                      <span className="text-sm text-gray-600 dark:text-gray-400">
+                        View top Consulting Services for {company.name}
+                      </span>
+                    </div> */}
                       </div>
                     </CardHeader>
                     <CardContent>
