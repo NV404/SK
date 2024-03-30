@@ -36,6 +36,15 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination"
 import { Separator } from "@/components/ui/separator"
 import { SuperCombobox } from "@/components/ui/super-combobox"
 import { SuperRangebox } from "@/components/ui/super-rangebox"
@@ -382,7 +391,7 @@ export default function DirectoryIndustriesIndustry() {
                           <Button>Try for free</Button>
                         </div>
                       </div>
-                      <div>
+                      <div className="flex items-center justify-between">
                         <div className="flex w-full flex-col items-start gap-2 lg:flex-row lg:items-center">
                           <Badge
                             variant={"outline"}
@@ -394,12 +403,19 @@ export default function DirectoryIndustriesIndustry() {
                             Starting Price: $25.00
                           </div>
                         </div>
-                        {/* <div className="flex items-center space-x-2">
-                      <EyeIcon className="text-blue-500" />
-                      <span className="text-sm text-gray-600 dark:text-gray-400">
-                        View top Consulting Services for {company.name}
-                      </span>
-                    </div> */}
+                        {/* <Card className="flex gap-1 bg-[#ff312b] px-2 py-1">
+                          <p className="w-fit text-center text-lg font-black text-white">
+                            90% Off
+                          </p>
+                          <div className="flex flex-col items-center">
+                            <p className="font-semibold">Only On</p>
+                            <img
+                              src="/saaskart_logo.jpg"
+                              className="filter"
+                              width={80}
+                            />
+                          </div>
+                        </Card> */}
                       </div>
                     </CardHeader>
                     <CardContent>
@@ -475,6 +491,30 @@ export default function DirectoryIndustriesIndustry() {
           )
         ) : null}
       </div>
+      <Pagination>
+        <PaginationContent>
+          <PaginationItem>
+            <PaginationPrevious href="#" />
+          </PaginationItem>
+          <PaginationItem>
+            <PaginationLink href="#" isActive>
+              1
+            </PaginationLink>
+          </PaginationItem>
+          <PaginationItem>
+            <PaginationLink href="#">2</PaginationLink>
+          </PaginationItem>
+          <PaginationItem>
+            <PaginationLink href="#">3</PaginationLink>
+          </PaginationItem>
+          <PaginationItem>
+            <PaginationEllipsis />
+          </PaginationItem>
+          <PaginationItem>
+            <PaginationNext href="#" />
+          </PaginationItem>
+        </PaginationContent>
+      </Pagination>
     </>
   )
 }

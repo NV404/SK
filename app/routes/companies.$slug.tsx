@@ -1175,6 +1175,7 @@ export default function Company() {
                       swipeable
                       infiniteLoop
                       emulateTouch
+                      autoPlay
                       centerSlidePercentage={80}
                     >
                       <div>
@@ -1489,7 +1490,7 @@ export default function Company() {
           </Tabs>
           <div className="w-full lg:w-1/3">
             {company.competitors.length ? (
-              <ScrollArea className="w-full rounded-md border p-2">
+              <ScrollArea className="w-full rounded-md border-2 border-[#ff322b80] p-2">
                 <div className="my-3 flex flex-row items-center justify-between gap-4">
                   <div className="h-px flex-1 rounded-full bg-border"></div>
                   <h3 className="text-base/none font-bold sm:text-lg/none md:text-xl/none">
