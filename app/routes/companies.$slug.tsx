@@ -577,422 +577,767 @@ export default function Company() {
           </div>
         </div>
 
-        <Tabs defaultValue="overview" className="w-full">
-          <TabsList className="grid w-full grid-cols-5">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="pricing">Pricing</TabsTrigger>
-            <TabsTrigger value="features">Features</TabsTrigger>
-            <TabsTrigger value="metrics">Metrics</TabsTrigger>
-            <TabsTrigger value="reviews">Reviews</TabsTrigger>
-          </TabsList>
-          <TabsContent value="overview" className="flex flex-col gap-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Company Overview</CardTitle>
-                <div className="flex flex-row items-center justify-between gap-4 py-4">
-                  <div className="h-px flex-1 rounded-full bg-border"></div>
-                  <h3 className="text-base/none font-bold sm:text-lg/none md:text-xl/none">
-                    About {company.name}
-                  </h3>
-                  <div className="h-px flex-1 rounded-full bg-border"></div>
-                </div>
-                <p>
-                  Salesforce Sales Cloud is the complete platform for
-                  Salesblazers, our community of sellers, sales leaders, and
-                  sales operations professionals, to grow sales and increase
-                  productivity. With the #1 AI Salesforce Sales Cloud is the
-                  complete platform for Salesblazers, our community of sellers,
-                  sales leaders, and sales operations professionals, to grow
-                  sales and increase...
-                </p>
-                <p className="w-fit cursor-pointer text-blue-500">Show More</p>
-              </CardHeader>
-              <CardContent className="space-y-2">
-                <section className="flex flex-col items-stretch justify-start gap-6">
-                  <div className="flex flex-row items-center justify-between gap-4">
-                    <div className="h-px flex-1 rounded-full bg-border"></div>
-                    <h3 className="text-base/none font-bold sm:text-lg/none md:text-xl/none">
-                      {company.name} Details
-                    </h3>
-                    <div className="h-px flex-1 rounded-full bg-border"></div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-4">
-                    {company?.yearOfIncorporation ? (
-                      <InfoCard
-                        label="Founded"
-                        value={company.yearOfIncorporation.toString()}
-                        icon={CalendarClock}
-                        iconClassName="text-yellow-500"
-                      />
-                    ) : null}
-                    {company?.metrics?.revenue ? (
-                      <InfoCard
-                        label="Revenue"
-                        value={formatNumber(
-                          Number(company.metrics.revenue),
-                          true,
-                        )}
-                        icon={Banknote}
-                        iconClassName="text-green-500"
-                      />
-                    ) : null}
-                    {company?.metrics?.mrr ? (
-                      <InfoCard
-                        label="MRR"
-                        value={formatNumber(Number(company.metrics.mrr), true)}
-                        icon={Coins}
-                        valueClassName={hideData ? "blur-sm" : ""}
-                        iconClassName="text-green-500"
-                      />
-                    ) : null}
-                    {company?.metrics?.valuation ? (
-                      <InfoCard
-                        label="Valuation"
-                        value={formatNumber(
-                          Number(company.metrics.valuation),
-                          true,
-                        )}
-                        icon={Gem}
-                        valueClassName={hideData ? "blur-sm" : ""}
-                        iconClassName="text-blue-500"
-                      />
-                    ) : null}
-                    {company?.metrics?.funding ? (
-                      <InfoCard
-                        label="Funding"
-                        value={formatNumber(
-                          Number(company.metrics.funding),
-                          true,
-                        )}
-                        icon={PiggyBank}
-                        iconClassName="text-blue-500"
-                      />
-                    ) : null}
-                    {company.metrics?.profitable ? (
-                      Number(company.metrics.profitable) >= 0 ? (
-                        <InfoCard
-                          icon={TrendingUp}
-                          label="Profitability"
-                          value="Profitable"
-                          valueClassName={hideData ? "blur-sm" : ""}
-                          iconClassName="text-green-500"
-                        />
-                      ) : (
-                        <InfoCard
-                          icon={TrendingDown}
-                          label="Profitability"
-                          value="In Loss"
-                          valueClassName={hideData ? "blur-sm" : ""}
-                          iconClassName="text-red-500"
-                        />
-                      )
-                    ) : null}
-                    {company.metrics?.customersCount ? (
-                      <InfoCard
-                        icon={Users2}
-                        label="Customer Count"
-                        value={formatNumber(
-                          Number(company.metrics.customersCount),
-                        )}
-                        valueClassName={hideData ? "blur-sm" : ""}
-                      />
-                    ) : null}
-                    {company.metrics?.teamSize ? (
-                      <InfoCard
-                        icon={HeartHandshake}
-                        label="Team Size"
-                        value={formatNumber(Number(company.metrics.teamSize))}
-                      />
-                    ) : null}
-                    {company.metrics?.acv ? (
-                      <InfoCard
-                        label="ACV"
-                        value={formatNumber(Number(company.metrics.acv), true)}
-                        valueClassName={hideData ? "blur-sm" : ""}
-                      />
-                    ) : null}
-                    {company.metrics?.arpu ? (
-                      <InfoCard
-                        label="ARPU"
-                        value={formatNumber(Number(company.metrics.arpu), true)}
-                        valueClassName={hideData ? "blur-sm" : ""}
-                      />
-                    ) : null}
-                    {company.metrics?.cac ? (
-                      <InfoCard
-                        label="CAC"
-                        value={formatNumber(Number(company.metrics.cac), true)}
-                        valueClassName={hideData ? "blur-sm" : ""}
-                      />
-                    ) : null}
-                    {company.metrics?.dbc ? (
-                      <InfoCard
-                        label="DBC"
-                        value={formatNumber(Number(company.metrics.dbc), true)}
-                        valueClassName={hideData ? "blur-sm" : ""}
-                      />
-                    ) : null}
-                    {company.metrics?.nrr ? (
-                      <InfoCard
-                        label="NRR"
-                        value={formatNumber(Number(company.metrics.nrr), true)}
-                        valueClassName={hideData ? "blur-sm" : ""}
-                      />
-                    ) : null}
-                    {company.metrics?.grossChurn ? (
-                      <InfoCard
-                        label="Gross Churn"
-                        value={company.metrics.grossChurn}
-                        valueClassName={hideData ? "blur-sm" : ""}
-                      />
-                    ) : null}
-                    {company.metrics?.revenuePerEmployee ? (
-                      <InfoCard
-                        label="Revenue Per Employee"
-                        value={formatNumber(
-                          Number(company.metrics.revenuePerEmployee),
-                          true,
-                        )}
-                      />
-                    ) : null}
-                  </div>
-                </section>
-                <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+        <div className="flex flex-col gap-3 lg:flex-row">
+          <Tabs defaultValue="overview" className="w-full">
+            <TabsList className="sticky top-0 z-10 grid w-full grid-cols-5 shadow-sm">
+              <TabsTrigger value="overview">Overview</TabsTrigger>
+              <TabsTrigger value="pricing">Pricing</TabsTrigger>
+              <TabsTrigger value="features">Features</TabsTrigger>
+              <TabsTrigger value="metrics">Metrics</TabsTrigger>
+              <TabsTrigger value="reviews">Reviews</TabsTrigger>
+            </TabsList>
+            <TabsContent value="overview" className="flex flex-col gap-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Company Overview</CardTitle>
                   <div className="flex flex-row items-center justify-between gap-4 py-4">
                     <div className="h-px flex-1 rounded-full bg-border"></div>
                     <h3 className="text-base/none font-bold sm:text-lg/none md:text-xl/none">
-                      Values & Ethics
+                      About {company.name}
                     </h3>
                     <div className="h-px flex-1 rounded-full bg-border"></div>
                   </div>
-                  <p className="mt-2 text-gray-600">
-                    We believe business is the greatest platform for change and
-                    proudly invite others to join us in taking action for people
-                    and the planet.
+                  <p>
+                    Salesforce Sales Cloud is the complete platform for
+                    Salesblazers, our community of sellers, sales leaders, and
+                    sales operations professionals, to grow sales and increase
+                    productivity. With the #1 AI Salesforce Sales Cloud is the
+                    complete platform for Salesblazers, our community of
+                    sellers, sales leaders, and sales operations professionals,
+                    to grow sales and increase...
                   </p>
-                  <div className="mt-8 grid grid-cols-1 gap-8 md:grid-cols-2">
-                    <div>
-                      <h3 className="flex items-center text-lg font-medium leading-6 text-gray-900">
-                        <ChevronRightIcon className="mr-2 h-5 w-5 text-red-500" />
-                        Trust is our #1 value.
-                      </h3>
-                      <p className="mt-2 text-gray-600">
-                        We build trust with stakeholders by leading with ethics
-                        and through the integrity of our technology.
-                      </p>
-                    </div>
-                    <div>
-                      <h3 className="flex items-center text-lg font-medium leading-6 text-gray-900">
-                        <ChevronRightIcon className="mr-2 h-5 w-5 text-red-500" />
-                        Customer Success
-                      </h3>
-                      <p className="mt-2 text-gray-600">
-                        When our customers succeed, we succeed.
-                      </p>
-                    </div>
-                    <div>
-                      <h3 className="flex items-center text-lg font-medium leading-6 text-gray-900">
-                        <ChevronRightIcon className="mr-2 h-5 w-5 text-red-500" />
-                        Innovation
-                      </h3>
-                      <p className="mt-2 text-gray-600">
-                        Our products are easy-to-use, integrated, scalable, and
-                        deliver fast time to value.
-                      </p>
-                    </div>
-                    <div>
-                      <h3 className="flex items-center text-lg font-medium leading-6 text-gray-900">
-                        <ChevronRightIcon className="mr-2 h-5 w-5 text-red-500" />
-                        Equality
-                      </h3>
-                      <p className="mt-2 text-gray-600">
-                        We are more powerful when we work together.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="flex flex-col gap-4 py-7">
-                <div className="flex flex-row items-center justify-between gap-4 py-4">
-                  <div className="h-px flex-1 rounded-full bg-border"></div>
-                  <h3 className="text-base/none font-bold sm:text-lg/none md:text-xl/none">
-                    Pricing
-                  </h3>
-                  <div className="h-px flex-1 rounded-full bg-border"></div>
-                </div>
-                <div className="grid h-full gap-6 lg:grid-cols-3 lg:gap-12">
-                  <div className="flex h-full flex-col items-center gap-2">
-                    <Card className="p-6 text-center">
-                      <div className="text-2xl font-semibold">Basic</div>
-                      <div className="text-4xl font-extrabold">$29</div>
-                      <div className="text-sm leading-loose text-gray-500">
-                        <p className="inline-block md:block">
-                          The Basic plan is designed for individuals and small
-                          teams looking to get started with the platform. It
-                          provides essential features for seamless collaboration
-                          and deployment.
-                        </p>
-                      </div>
-                      <ul className="my-4 grid gap-2 text-sm">
-                        <li className="flex items-center gap-2">
-                          <CheckIcon className="h-4 w-4" />
-                          Unlimited bandwidth
-                        </li>
-                        <li className="flex items-center gap-2">
-                          <CheckIcon className="h-4 w-4" />
-                          Edge network optimization
-                        </li>
-                        <li className="flex items-center gap-2">
-                          <CheckIcon className="h-4 w-4" />
-                          Serverless functions
-                        </li>
-                      </ul>
-                      <Link to="#">
-                        <Button variant={"outline"}>Get Started</Button>
-                      </Link>
-                    </Card>
-                  </div>
-                  <div className="flex h-full flex-col items-center gap-2">
-                    <Card className="h-full p-6 text-center">
-                      <div className="text-2xl font-semibold">Pro</div>
-                      <div className="text-4xl font-extrabold">$99</div>
-                      <div className="text-sm leading-loose text-gray-500">
-                        <p className="inline-block md:block">
-                          The Pro plan is ideal for growing teams and businesses
-                          that require advanced features for scaling their
-                          applications. It includes all the benefits of the
-                          Basic plan, with additional tools for automation and
-                          optimization.
-                        </p>
-                      </div>
-                      <ul className="my-4 grid gap-2 text-sm">
-                        <li className="flex items-center gap-2">
-                          <CheckIcon className="h-4 w-4" />
-                          Continuous deployment
-                        </li>
-                        <li className="flex items-center gap-2">
-                          <CheckIcon className="h-4 w-4" />
-                          Custom domains
-                        </li>
-                        <li className="flex items-center gap-2">
-                          <CheckIcon className="h-4 w-4" />
-                          Performance analytics
-                        </li>
-                      </ul>
-                      <Link to="#">
-                        <Button variant={"outline"}>Get Started</Button>
-                      </Link>
-                    </Card>
-                  </div>
-                  <div className="flex h-full flex-col items-center gap-2">
-                    <Card className="h-full p-6 text-center">
-                      <div className="text-2xl font-semibold">Enterprise</div>
-                      <div className="text-4xl font-extrabold">$249</div>
-                      <div className="text-sm leading-loose text-gray-500">
-                        <p className="inline-block md:block">
-                          The Enterprise plan is tailored for large
-                          organizations and high-traffic applications that
-                          demand the highest level of security, compliance, and
-                          support. It includes all the features of the Pro plan,
-                          with additional enterprise-grade capabilities.
-                        </p>
-                      </div>
-                      <ul className="my-4 grid gap-2 text-sm">
-                        <li className="flex items-center gap-2">
-                          <CheckIcon className="h-4 w-4" />
-                          Advanced access controls
-                        </li>
-                        <li className="flex items-center gap-2">
-                          <CheckIcon className="h-4 w-4" />
-                          24/7 premium support
-                        </li>
-                        <li className="flex items-center gap-2">
-                          <CheckIcon className="h-4 w-4" />
-                          Performance monitoring
-                        </li>
-                      </ul>
-                      <Link to="#">
-                        <Button variant={"hero"}>Contact Sales</Button>
-                      </Link>
-                    </Card>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="pt-10">
-                {metricsHistoryChartPossible.length ? (
+                  <p className="w-fit cursor-pointer text-blue-500">
+                    Show More
+                  </p>
+                </CardHeader>
+                <CardContent className="space-y-2">
                   <section className="flex flex-col items-stretch justify-start gap-6">
                     <div className="flex flex-row items-center justify-between gap-4">
                       <div className="h-px flex-1 rounded-full bg-border"></div>
                       <h3 className="text-base/none font-bold sm:text-lg/none md:text-xl/none">
-                        Metrics History
+                        {company.name} Details
                       </h3>
                       <div className="h-px flex-1 rounded-full bg-border"></div>
                     </div>
 
-                    <ScrollArea className="mx-auto max-w-full">
-                      <Tabs
-                        value={selectedMetricsHistoryChart}
-                        onValueChange={setSelectedMetricsHistoryChart}
-                      >
-                        <TabsList>
-                          {metricsHistoryChartPossible.map((key) => {
-                            const filter = FILTERS.find(
-                              (filter) => filter.name === key,
-                            )
-
-                            return (
-                              <TabsTrigger key={key} value={key}>
-                                {filter ? (
-                                  <filter.icon
-                                    size={16}
-                                    className="opacity-50"
-                                  />
-                                ) : null}
-                                <span>{filter ? filter.title : key}</span>
-                              </TabsTrigger>
-                            )
-                          })}
-                        </TabsList>
-                      </Tabs>
-
-                      <ScrollBar orientation="horizontal" />
-                    </ScrollArea>
-
-                    <ResponsiveContainer
-                      width="100%"
-                      height="100%"
-                      className={cn("max-h-[50vh] min-h-[50vh]", {
-                        "blur-sm": hideData,
-                      })}
-                    >
-                      <LineChart
-                        width={320}
-                        height={320}
-                        data={metricsHistoryChartData}
-                      >
-                        <Line
-                          type="monotone"
-                          dataKey="value"
-                          stroke="#000"
-                          name={selectedMetricsHistoryChart}
+                    <div className="grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-4">
+                      {company?.yearOfIncorporation ? (
+                        <InfoCard
+                          label="Founded"
+                          value={company.yearOfIncorporation.toString()}
+                          icon={CalendarClock}
+                          iconClassName="text-yellow-500"
                         />
-                        <XAxis
-                          dataKey="capturedAt"
-                          interval="preserveStartEnd"
+                      ) : null}
+                      {company?.metrics?.revenue ? (
+                        <InfoCard
+                          label="Revenue"
+                          value={formatNumber(
+                            Number(company.metrics.revenue),
+                            true,
+                          )}
+                          icon={Banknote}
+                          iconClassName="text-green-500"
                         />
-                        <Tooltip />
-                      </LineChart>
-                    </ResponsiveContainer>
+                      ) : null}
+                      {company?.metrics?.mrr ? (
+                        <InfoCard
+                          label="MRR"
+                          value={formatNumber(
+                            Number(company.metrics.mrr),
+                            true,
+                          )}
+                          icon={Coins}
+                          valueClassName={hideData ? "blur-sm" : ""}
+                          iconClassName="text-green-500"
+                        />
+                      ) : null}
+                      {company?.metrics?.valuation ? (
+                        <InfoCard
+                          label="Valuation"
+                          value={formatNumber(
+                            Number(company.metrics.valuation),
+                            true,
+                          )}
+                          icon={Gem}
+                          valueClassName={hideData ? "blur-sm" : ""}
+                          iconClassName="text-blue-500"
+                        />
+                      ) : null}
+                      {company?.metrics?.funding ? (
+                        <InfoCard
+                          label="Funding"
+                          value={formatNumber(
+                            Number(company.metrics.funding),
+                            true,
+                          )}
+                          icon={PiggyBank}
+                          iconClassName="text-blue-500"
+                        />
+                      ) : null}
+                      {company.metrics?.profitable ? (
+                        Number(company.metrics.profitable) >= 0 ? (
+                          <InfoCard
+                            icon={TrendingUp}
+                            label="Profitability"
+                            value="Profitable"
+                            valueClassName={hideData ? "blur-sm" : ""}
+                            iconClassName="text-green-500"
+                          />
+                        ) : (
+                          <InfoCard
+                            icon={TrendingDown}
+                            label="Profitability"
+                            value="In Loss"
+                            valueClassName={hideData ? "blur-sm" : ""}
+                            iconClassName="text-red-500"
+                          />
+                        )
+                      ) : null}
+                      {company.metrics?.customersCount ? (
+                        <InfoCard
+                          icon={Users2}
+                          label="Customer Count"
+                          value={formatNumber(
+                            Number(company.metrics.customersCount),
+                          )}
+                          valueClassName={hideData ? "blur-sm" : ""}
+                        />
+                      ) : null}
+                      {company.metrics?.teamSize ? (
+                        <InfoCard
+                          icon={HeartHandshake}
+                          label="Team Size"
+                          value={formatNumber(Number(company.metrics.teamSize))}
+                        />
+                      ) : null}
+                      {company.metrics?.acv ? (
+                        <InfoCard
+                          label="ACV"
+                          value={formatNumber(
+                            Number(company.metrics.acv),
+                            true,
+                          )}
+                          valueClassName={hideData ? "blur-sm" : ""}
+                        />
+                      ) : null}
+                      {company.metrics?.arpu ? (
+                        <InfoCard
+                          label="ARPU"
+                          value={formatNumber(
+                            Number(company.metrics.arpu),
+                            true,
+                          )}
+                          valueClassName={hideData ? "blur-sm" : ""}
+                        />
+                      ) : null}
+                      {company.metrics?.cac ? (
+                        <InfoCard
+                          label="CAC"
+                          value={formatNumber(
+                            Number(company.metrics.cac),
+                            true,
+                          )}
+                          valueClassName={hideData ? "blur-sm" : ""}
+                        />
+                      ) : null}
+                      {company.metrics?.dbc ? (
+                        <InfoCard
+                          label="DBC"
+                          value={formatNumber(
+                            Number(company.metrics.dbc),
+                            true,
+                          )}
+                          valueClassName={hideData ? "blur-sm" : ""}
+                        />
+                      ) : null}
+                      {company.metrics?.nrr ? (
+                        <InfoCard
+                          label="NRR"
+                          value={formatNumber(
+                            Number(company.metrics.nrr),
+                            true,
+                          )}
+                          valueClassName={hideData ? "blur-sm" : ""}
+                        />
+                      ) : null}
+                      {company.metrics?.grossChurn ? (
+                        <InfoCard
+                          label="Gross Churn"
+                          value={company.metrics.grossChurn}
+                          valueClassName={hideData ? "blur-sm" : ""}
+                        />
+                      ) : null}
+                      {company.metrics?.revenuePerEmployee ? (
+                        <InfoCard
+                          label="Revenue Per Employee"
+                          value={formatNumber(
+                            Number(company.metrics.revenuePerEmployee),
+                            true,
+                          )}
+                        />
+                      ) : null}
+                    </div>
+                  </section>
+                  <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+                    <div className="flex flex-row items-center justify-between gap-4 py-4">
+                      <div className="h-px flex-1 rounded-full bg-border"></div>
+                      <h3 className="text-base/none font-bold sm:text-lg/none md:text-xl/none">
+                        Values & Ethics
+                      </h3>
+                      <div className="h-px flex-1 rounded-full bg-border"></div>
+                    </div>
+                    <p className="mt-2 text-gray-600">
+                      We believe business is the greatest platform for change
+                      and proudly invite others to join us in taking action for
+                      people and the planet.
+                    </p>
+                    <div className="mt-8 grid grid-cols-1 gap-8 md:grid-cols-2">
+                      <div>
+                        <h3 className="flex items-center text-lg font-medium leading-6 text-gray-900">
+                          <ChevronRightIcon className="mr-2 h-5 w-5 text-red-500" />
+                          Trust is our #1 value.
+                        </h3>
+                        <p className="mt-2 text-gray-600">
+                          We build trust with stakeholders by leading with
+                          ethics and through the integrity of our technology.
+                        </p>
+                      </div>
+                      <div>
+                        <h3 className="flex items-center text-lg font-medium leading-6 text-gray-900">
+                          <ChevronRightIcon className="mr-2 h-5 w-5 text-red-500" />
+                          Customer Success
+                        </h3>
+                        <p className="mt-2 text-gray-600">
+                          When our customers succeed, we succeed.
+                        </p>
+                      </div>
+                      <div>
+                        <h3 className="flex items-center text-lg font-medium leading-6 text-gray-900">
+                          <ChevronRightIcon className="mr-2 h-5 w-5 text-red-500" />
+                          Innovation
+                        </h3>
+                        <p className="mt-2 text-gray-600">
+                          Our products are easy-to-use, integrated, scalable,
+                          and deliver fast time to value.
+                        </p>
+                      </div>
+                      <div>
+                        <h3 className="flex items-center text-lg font-medium leading-6 text-gray-900">
+                          <ChevronRightIcon className="mr-2 h-5 w-5 text-red-500" />
+                          Equality
+                        </h3>
+                        <p className="mt-2 text-gray-600">
+                          We are more powerful when we work together.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="flex flex-col gap-4 py-7">
+                  <div className="flex flex-row items-center justify-between gap-4 py-4">
+                    <div className="h-px flex-1 rounded-full bg-border"></div>
+                    <h3 className="text-base/none font-bold sm:text-lg/none md:text-xl/none">
+                      Pricing
+                    </h3>
+                    <div className="h-px flex-1 rounded-full bg-border"></div>
+                  </div>
+                  <div className="grid h-full gap-6 lg:grid-cols-3 lg:gap-12">
+                    <div className="flex h-full flex-col items-center gap-2">
+                      <Card className="p-6 text-center">
+                        <div className="text-2xl font-semibold">Basic</div>
+                        <div className="text-4xl font-extrabold">$29</div>
+                        <div className="text-sm leading-loose text-gray-500">
+                          <p className="inline-block md:block">
+                            The Basic plan is designed for individuals and small
+                            teams looking to get started with the platform. It
+                            provides essential features for seamless
+                            collaboration and deployment.
+                          </p>
+                        </div>
+                        <ul className="my-4 grid gap-2 text-sm">
+                          <li className="flex items-center gap-2">
+                            <CheckIcon className="h-4 w-4" />
+                            Unlimited bandwidth
+                          </li>
+                          <li className="flex items-center gap-2">
+                            <CheckIcon className="h-4 w-4" />
+                            Edge network optimization
+                          </li>
+                          <li className="flex items-center gap-2">
+                            <CheckIcon className="h-4 w-4" />
+                            Serverless functions
+                          </li>
+                        </ul>
+                        <Link to="#">
+                          <Button variant={"outline"}>Get Started</Button>
+                        </Link>
+                      </Card>
+                    </div>
+                    <div className="flex h-full flex-col items-center gap-2">
+                      <Card className="h-full p-6 text-center">
+                        <div className="text-2xl font-semibold">Pro</div>
+                        <div className="text-4xl font-extrabold">$99</div>
+                        <div className="text-sm leading-loose text-gray-500">
+                          <p className="inline-block md:block">
+                            The Pro plan is ideal for growing teams and
+                            businesses that require advanced features for
+                            scaling their applications. It includes all the
+                            benefits of the Basic plan, with additional tools
+                            for automation and optimization.
+                          </p>
+                        </div>
+                        <ul className="my-4 grid gap-2 text-sm">
+                          <li className="flex items-center gap-2">
+                            <CheckIcon className="h-4 w-4" />
+                            Continuous deployment
+                          </li>
+                          <li className="flex items-center gap-2">
+                            <CheckIcon className="h-4 w-4" />
+                            Custom domains
+                          </li>
+                          <li className="flex items-center gap-2">
+                            <CheckIcon className="h-4 w-4" />
+                            Performance analytics
+                          </li>
+                        </ul>
+                        <Link to="#">
+                          <Button variant={"outline"}>Get Started</Button>
+                        </Link>
+                      </Card>
+                    </div>
+                    <div className="flex h-full flex-col items-center gap-2">
+                      <Card className="h-full p-6 text-center">
+                        <div className="text-2xl font-semibold">Enterprise</div>
+                        <div className="text-4xl font-extrabold">$249</div>
+                        <div className="text-sm leading-loose text-gray-500">
+                          <p className="inline-block md:block">
+                            The Enterprise plan is tailored for large
+                            organizations and high-traffic applications that
+                            demand the highest level of security, compliance,
+                            and support. It includes all the features of the Pro
+                            plan, with additional enterprise-grade capabilities.
+                          </p>
+                        </div>
+                        <ul className="my-4 grid gap-2 text-sm">
+                          <li className="flex items-center gap-2">
+                            <CheckIcon className="h-4 w-4" />
+                            Advanced access controls
+                          </li>
+                          <li className="flex items-center gap-2">
+                            <CheckIcon className="h-4 w-4" />
+                            24/7 premium support
+                          </li>
+                          <li className="flex items-center gap-2">
+                            <CheckIcon className="h-4 w-4" />
+                            Performance monitoring
+                          </li>
+                        </ul>
+                        <Link to="#">
+                          <Button variant={"hero"}>Contact Sales</Button>
+                        </Link>
+                      </Card>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="pt-10">
+                  {metricsHistoryChartPossible.length ? (
+                    <section className="flex flex-col items-stretch justify-start gap-6">
+                      <div className="flex flex-row items-center justify-between gap-4">
+                        <div className="h-px flex-1 rounded-full bg-border"></div>
+                        <h3 className="text-base/none font-bold sm:text-lg/none md:text-xl/none">
+                          Metrics History
+                        </h3>
+                        <div className="h-px flex-1 rounded-full bg-border"></div>
+                      </div>
+
+                      <ScrollArea className="mx-auto max-w-full">
+                        <Tabs
+                          value={selectedMetricsHistoryChart}
+                          onValueChange={setSelectedMetricsHistoryChart}
+                        >
+                          <TabsList>
+                            {metricsHistoryChartPossible.map((key) => {
+                              const filter = FILTERS.find(
+                                (filter) => filter.name === key,
+                              )
+
+                              return (
+                                <TabsTrigger key={key} value={key}>
+                                  {filter ? (
+                                    <filter.icon
+                                      size={16}
+                                      className="opacity-50"
+                                    />
+                                  ) : null}
+                                  <span>{filter ? filter.title : key}</span>
+                                </TabsTrigger>
+                              )
+                            })}
+                          </TabsList>
+                        </Tabs>
+
+                        <ScrollBar orientation="horizontal" />
+                      </ScrollArea>
+
+                      <ResponsiveContainer
+                        width="100%"
+                        height="100%"
+                        className={cn("max-h-[50vh] min-h-[50vh]", {
+                          "blur-sm": hideData,
+                        })}
+                      >
+                        <LineChart
+                          width={320}
+                          height={320}
+                          data={metricsHistoryChartData}
+                        >
+                          <Line
+                            type="monotone"
+                            dataKey="value"
+                            stroke="#000"
+                            name={selectedMetricsHistoryChart}
+                          />
+                          <XAxis
+                            dataKey="capturedAt"
+                            interval="preserveStartEnd"
+                          />
+                          <Tooltip />
+                        </LineChart>
+                      </ResponsiveContainer>
+                    </section>
+                  ) : null}
+                </CardContent>
+              </Card>
+              <div className="flex flex-col items-stretch justify-start gap-8">
+                {company.fundingHistory.length ? (
+                  <section className="flex flex-col items-stretch justify-start gap-6">
+                    <div className="flex flex-row items-center justify-between gap-4">
+                      <div className="h-px flex-1 rounded-full bg-border"></div>
+                      <h3 className="text-base/none font-bold sm:text-lg/none md:text-xl/none">
+                        Funding History
+                      </h3>
+                      <div className="h-px flex-1 rounded-full bg-border"></div>
+                    </div>
+
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Date</TableHead>
+                          <TableHead>Funding Amount</TableHead>
+                          <TableHead>Round Name</TableHead>
+                          <TableHead>Valuation</TableHead>
+                          <TableHead>Investors</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {company.fundingHistory.map((funding) => (
+                          <TableRow key={funding.id}>
+                            <TableCell className="font-medium">
+                              {new Date(funding.capturedAt).toDateString()}
+                            </TableCell>
+                            <TableCell>
+                              {funding.funding
+                                ? formatNumber(Number(funding.funding))
+                                : "-"}
+                            </TableCell>
+                            <TableCell
+                              className={cn("font-medium", {
+                                "blur-sm": hideData,
+                              })}
+                            >
+                              {funding.description
+                                ? funding.description
+                                : "Undisclosed"}
+                            </TableCell>
+                            <TableCell
+                              className={cn("font-medium", {
+                                "blur-sm": hideData,
+                              })}
+                            >
+                              {funding.valuation
+                                ? formatNumber(Number(funding.valuation))
+                                : "-"}
+                            </TableCell>
+                            <TableCell className="flex flex-row flex-wrap items-center justify-start gap-2">
+                              -
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
                   </section>
                 ) : null}
-              </CardContent>
-            </Card>
-            <div className="flex flex-col items-stretch justify-start gap-8">
+
+                <div className="flex flex-col items-stretch justify-start gap-8">
+                  <section className="flex flex-col items-stretch justify-start gap-6">
+                    <div className="flex flex-row items-center justify-between gap-4">
+                      <div className="h-px flex-1 rounded-full bg-border"></div>
+                      <h3 className="text-base/none font-bold sm:text-lg/none md:text-xl/none">
+                        Product Images
+                      </h3>
+                      <div className="h-px flex-1 rounded-full bg-border"></div>
+                    </div>
+                    <Carousel
+                      swipeable
+                      infiniteLoop
+                      emulateTouch
+                      centerSlidePercentage={80}
+                    >
+                      <div>
+                        <img
+                          alt=""
+                          src="https://images.ctfassets.net/hrltx12pl8hq/28ECAQiPJZ78hxatLTa7Ts/2f695d869736ae3b0de3e56ceaca3958/free-nature-images.jpg?fit=fill&w=1200&h=630"
+                        />
+                      </div>
+                      <div>
+                        <img
+                          alt=""
+                          src="https://images.ctfassets.net/hrltx12pl8hq/28ECAQiPJZ78hxatLTa7Ts/2f695d869736ae3b0de3e56ceaca3958/free-nature-images.jpg?fit=fill&w=1200&h=630"
+                        />
+                      </div>
+                      <div>
+                        <img
+                          alt=""
+                          src="https://images.ctfassets.net/hrltx12pl8hq/28ECAQiPJZ78hxatLTa7Ts/2f695d869736ae3b0de3e56ceaca3958/free-nature-images.jpg?fit=fill&w=1200&h=630"
+                        />
+                      </div>
+                    </Carousel>
+                  </section>
+                </div>
+              </div>
+            </TabsContent>
+            <TabsContent value="pricing" className="flex flex-col gap-4">
+              <Card>
+                <CardContent className="flex flex-col gap-4 py-7">
+                  <div className="flex flex-row items-center justify-between gap-4 py-4">
+                    <div className="h-px flex-1 rounded-full bg-border"></div>
+                    <h3 className="text-base/none font-bold sm:text-lg/none md:text-xl/none">
+                      Pricing
+                    </h3>
+                    <div className="h-px flex-1 rounded-full bg-border"></div>
+                  </div>
+                  <div className="grid h-full gap-6 lg:grid-cols-3 lg:gap-12">
+                    <div className="flex h-full flex-col items-center gap-2">
+                      <Card className="p-6 text-center">
+                        <div className="text-2xl font-semibold">Basic</div>
+                        <div className="text-4xl font-extrabold">$29</div>
+                        <div className="text-sm leading-loose text-gray-500">
+                          <p className="inline-block md:block">
+                            The Basic plan is designed for individuals and small
+                            teams looking to get started with the platform. It
+                            provides essential features for seamless
+                            collaboration and deployment.
+                          </p>
+                        </div>
+                        <ul className="my-4 grid gap-2 text-sm">
+                          <li className="flex items-center gap-2">
+                            <CheckIcon className="h-4 w-4" />
+                            Unlimited bandwidth
+                          </li>
+                          <li className="flex items-center gap-2">
+                            <CheckIcon className="h-4 w-4" />
+                            Edge network optimization
+                          </li>
+                          <li className="flex items-center gap-2">
+                            <CheckIcon className="h-4 w-4" />
+                            Serverless functions
+                          </li>
+                        </ul>
+                        <Link to="#">
+                          <Button variant={"outline"}>Get Started</Button>
+                        </Link>
+                      </Card>
+                    </div>
+                    <div className="flex h-full flex-col items-center gap-2">
+                      <Card className="h-full p-6 text-center">
+                        <div className="text-2xl font-semibold">Pro</div>
+                        <div className="text-4xl font-extrabold">$99</div>
+                        <div className="text-sm leading-loose text-gray-500">
+                          <p className="inline-block md:block">
+                            The Pro plan is ideal for growing teams and
+                            businesses that require advanced features for
+                            scaling their applications. It includes all the
+                            benefits of the Basic plan, with additional tools
+                            for automation and optimization.
+                          </p>
+                        </div>
+                        <ul className="my-4 grid gap-2 text-sm">
+                          <li className="flex items-center gap-2">
+                            <CheckIcon className="h-4 w-4" />
+                            Continuous deployment
+                          </li>
+                          <li className="flex items-center gap-2">
+                            <CheckIcon className="h-4 w-4" />
+                            Custom domains
+                          </li>
+                          <li className="flex items-center gap-2">
+                            <CheckIcon className="h-4 w-4" />
+                            Performance analytics
+                          </li>
+                        </ul>
+                        <Link to="#">
+                          <Button variant={"outline"}>Get Started</Button>
+                        </Link>
+                      </Card>
+                    </div>
+                    <div className="flex h-full flex-col items-center gap-2">
+                      <Card className="h-full p-6 text-center">
+                        <div className="text-2xl font-semibold">Enterprise</div>
+                        <div className="text-4xl font-extrabold">$249</div>
+                        <div className="text-sm leading-loose text-gray-500">
+                          <p className="inline-block md:block">
+                            The Enterprise plan is tailored for large
+                            organizations and high-traffic applications that
+                            demand the highest level of security, compliance,
+                            and support. It includes all the features of the Pro
+                            plan, with additional enterprise-grade capabilities.
+                          </p>
+                        </div>
+                        <ul className="my-4 grid gap-2 text-sm">
+                          <li className="flex items-center gap-2">
+                            <CheckIcon className="h-4 w-4" />
+                            Advanced access controls
+                          </li>
+                          <li className="flex items-center gap-2">
+                            <CheckIcon className="h-4 w-4" />
+                            24/7 premium support
+                          </li>
+                          <li className="flex items-center gap-2">
+                            <CheckIcon className="h-4 w-4" />
+                            Performance monitoring
+                          </li>
+                        </ul>
+                        <Link to="#">
+                          <Button variant={"hero"}>Contact Sales</Button>
+                        </Link>
+                      </Card>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+            <TabsContent value="features" className="flex flex-col gap-4">
+              <Card>
+                <CardHeader>
+                  <div className="flex flex-row items-center justify-between gap-4">
+                    <div className="h-px flex-1 rounded-full bg-border"></div>
+                    <h3 className="text-base/none font-bold sm:text-lg/none md:text-xl/none">
+                      {company.name} Features
+                    </h3>
+                    <div className="h-px flex-1 rounded-full bg-border"></div>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <section className="flex flex-col items-stretch justify-start gap-4">
+                    <div>
+                      <h2 className="text-lg font-bold">Tasks</h2>
+                      <div className="mt-2 grid grid-cols-1 gap-4 md:grid-cols-3">
+                        <div>
+                          <h3 className="flex items-center text-sm font-medium leading-6 text-gray-900">
+                            <CheckCircle className="mr-2 h-5 w-5 text-green-500" />
+                            Trust is our #1 value.
+                          </h3>
+                        </div>
+                        <div>
+                          <h3 className="flex items-center text-sm font-medium leading-6 text-gray-900">
+                            <CheckCircle className="mr-2 h-5 w-5 text-green-500" />
+                            Trust is our #1 value.
+                          </h3>
+                        </div>
+                        <div>
+                          <h3 className="flex items-center text-sm font-medium leading-6 text-gray-900">
+                            <CheckCircle className="mr-2 h-5 w-5 text-green-500" />
+                            Trust is our #1 value.
+                          </h3>
+                        </div>
+                        <div>
+                          <h3 className="flex items-center text-sm font-medium leading-6 text-gray-900">
+                            <CheckCircle className="mr-2 h-5 w-5 text-green-500" />
+                            Trust is our #1 value.
+                          </h3>
+                        </div>
+                      </div>
+                    </div>
+                  </section>
+                </CardContent>
+              </Card>
+            </TabsContent>
+            <TabsContent value="metrics" className="flex flex-col gap-4">
+              <Card>
+                <CardContent className="pt-10">
+                  {metricsHistoryChartPossible.length ? (
+                    <section className="flex flex-col items-stretch justify-start gap-6">
+                      <div className="flex flex-row items-center justify-between gap-4">
+                        <div className="h-px flex-1 rounded-full bg-border"></div>
+                        <h3 className="text-base/none font-bold sm:text-lg/none md:text-xl/none">
+                          Metrics History
+                        </h3>
+                        <div className="h-px flex-1 rounded-full bg-border"></div>
+                      </div>
+
+                      <ScrollArea className="mx-auto max-w-full">
+                        <Tabs
+                          value={selectedMetricsHistoryChart}
+                          onValueChange={setSelectedMetricsHistoryChart}
+                        >
+                          <TabsList>
+                            {metricsHistoryChartPossible.map((key) => {
+                              const filter = FILTERS.find(
+                                (filter) => filter.name === key,
+                              )
+
+                              return (
+                                <TabsTrigger key={key} value={key}>
+                                  {filter ? (
+                                    <filter.icon
+                                      size={16}
+                                      className="opacity-50"
+                                    />
+                                  ) : null}
+                                  <span>{filter ? filter.title : key}</span>
+                                </TabsTrigger>
+                              )
+                            })}
+                          </TabsList>
+                        </Tabs>
+
+                        <ScrollBar orientation="horizontal" />
+                      </ScrollArea>
+
+                      <ResponsiveContainer
+                        width="100%"
+                        height="100%"
+                        className={cn("max-h-[50vh] min-h-[50vh]", {
+                          "blur-sm": hideData,
+                        })}
+                      >
+                        <LineChart
+                          width={320}
+                          height={320}
+                          data={metricsHistoryChartData}
+                        >
+                          <Line
+                            type="monotone"
+                            dataKey="value"
+                            stroke="#000"
+                            name={selectedMetricsHistoryChart}
+                          />
+                          <XAxis
+                            dataKey="capturedAt"
+                            interval="preserveStartEnd"
+                          />
+                          <Tooltip />
+                        </LineChart>
+                      </ResponsiveContainer>
+                    </section>
+                  ) : null}
+                </CardContent>
+              </Card>
               {company.fundingHistory.length ? (
                 <section className="flex flex-col items-stretch justify-start gap-6">
                   <div className="flex flex-row items-center justify-between gap-4">
@@ -1051,386 +1396,61 @@ export default function Company() {
                   </Table>
                 </section>
               ) : null}
-
-              <div className="flex flex-col items-stretch justify-start gap-8">
-                <section className="flex flex-col items-stretch justify-start gap-6">
-                  <div className="flex flex-row items-center justify-between gap-4">
-                    <div className="h-px flex-1 rounded-full bg-border"></div>
-                    <h3 className="text-base/none font-bold sm:text-lg/none md:text-xl/none">
-                      Product Images
-                    </h3>
-                    <div className="h-px flex-1 rounded-full bg-border"></div>
-                  </div>
-                  <Carousel
-                    swipeable
-                    infiniteLoop
-                    emulateTouch
-                    centerSlidePercentage={80}
-                  >
-                    <div>
-                      <img
-                        alt=""
-                        src="https://images.ctfassets.net/hrltx12pl8hq/28ECAQiPJZ78hxatLTa7Ts/2f695d869736ae3b0de3e56ceaca3958/free-nature-images.jpg?fit=fill&w=1200&h=630"
-                      />
-                    </div>
-                    <div>
-                      <img
-                        alt=""
-                        src="https://images.ctfassets.net/hrltx12pl8hq/28ECAQiPJZ78hxatLTa7Ts/2f695d869736ae3b0de3e56ceaca3958/free-nature-images.jpg?fit=fill&w=1200&h=630"
-                      />
-                    </div>
-                    <div>
-                      <img
-                        alt=""
-                        src="https://images.ctfassets.net/hrltx12pl8hq/28ECAQiPJZ78hxatLTa7Ts/2f695d869736ae3b0de3e56ceaca3958/free-nature-images.jpg?fit=fill&w=1200&h=630"
-                      />
-                    </div>
-                  </Carousel>
-                </section>
-              </div>
-            </div>
-          </TabsContent>
-          <TabsContent value="pricing" className="flex flex-col gap-4">
-            <Card>
-              <CardContent className="flex flex-col gap-4 py-7">
-                <div className="flex flex-row items-center justify-between gap-4 py-4">
+            </TabsContent>
+          </Tabs>
+          <div className="w-full lg:w-1/3">
+            {company.competitors.length ? (
+              <ScrollArea className="w-full rounded-md border p-2">
+                <div className="my-3 flex flex-row items-center justify-between gap-4">
                   <div className="h-px flex-1 rounded-full bg-border"></div>
                   <h3 className="text-base/none font-bold sm:text-lg/none md:text-xl/none">
-                    Pricing
+                    Similar Companies
                   </h3>
                   <div className="h-px flex-1 rounded-full bg-border"></div>
                 </div>
-                <div className="grid h-full gap-6 lg:grid-cols-3 lg:gap-12">
-                  <div className="flex h-full flex-col items-center gap-2">
-                    <Card className="p-6 text-center">
-                      <div className="text-2xl font-semibold">Basic</div>
-                      <div className="text-4xl font-extrabold">$29</div>
-                      <div className="text-sm leading-loose text-gray-500">
-                        <p className="inline-block md:block">
-                          The Basic plan is designed for individuals and small
-                          teams looking to get started with the platform. It
-                          provides essential features for seamless collaboration
-                          and deployment.
-                        </p>
-                      </div>
-                      <ul className="my-4 grid gap-2 text-sm">
-                        <li className="flex items-center gap-2">
-                          <CheckIcon className="h-4 w-4" />
-                          Unlimited bandwidth
-                        </li>
-                        <li className="flex items-center gap-2">
-                          <CheckIcon className="h-4 w-4" />
-                          Edge network optimization
-                        </li>
-                        <li className="flex items-center gap-2">
-                          <CheckIcon className="h-4 w-4" />
-                          Serverless functions
-                        </li>
-                      </ul>
-                      <Link to="#">
-                        <Button variant={"outline"}>Get Started</Button>
-                      </Link>
-                    </Card>
-                  </div>
-                  <div className="flex h-full flex-col items-center gap-2">
-                    <Card className="h-full p-6 text-center">
-                      <div className="text-2xl font-semibold">Pro</div>
-                      <div className="text-4xl font-extrabold">$99</div>
-                      <div className="text-sm leading-loose text-gray-500">
-                        <p className="inline-block md:block">
-                          The Pro plan is ideal for growing teams and businesses
-                          that require advanced features for scaling their
-                          applications. It includes all the benefits of the
-                          Basic plan, with additional tools for automation and
-                          optimization.
-                        </p>
-                      </div>
-                      <ul className="my-4 grid gap-2 text-sm">
-                        <li className="flex items-center gap-2">
-                          <CheckIcon className="h-4 w-4" />
-                          Continuous deployment
-                        </li>
-                        <li className="flex items-center gap-2">
-                          <CheckIcon className="h-4 w-4" />
-                          Custom domains
-                        </li>
-                        <li className="flex items-center gap-2">
-                          <CheckIcon className="h-4 w-4" />
-                          Performance analytics
-                        </li>
-                      </ul>
-                      <Link to="#">
-                        <Button variant={"outline"}>Get Started</Button>
-                      </Link>
-                    </Card>
-                  </div>
-                  <div className="flex h-full flex-col items-center gap-2">
-                    <Card className="h-full p-6 text-center">
-                      <div className="text-2xl font-semibold">Enterprise</div>
-                      <div className="text-4xl font-extrabold">$249</div>
-                      <div className="text-sm leading-loose text-gray-500">
-                        <p className="inline-block md:block">
-                          The Enterprise plan is tailored for large
-                          organizations and high-traffic applications that
-                          demand the highest level of security, compliance, and
-                          support. It includes all the features of the Pro plan,
-                          with additional enterprise-grade capabilities.
-                        </p>
-                      </div>
-                      <ul className="my-4 grid gap-2 text-sm">
-                        <li className="flex items-center gap-2">
-                          <CheckIcon className="h-4 w-4" />
-                          Advanced access controls
-                        </li>
-                        <li className="flex items-center gap-2">
-                          <CheckIcon className="h-4 w-4" />
-                          24/7 premium support
-                        </li>
-                        <li className="flex items-center gap-2">
-                          <CheckIcon className="h-4 w-4" />
-                          Performance monitoring
-                        </li>
-                      </ul>
-                      <Link to="#">
-                        <Button variant={"hero"}>Contact Sales</Button>
-                      </Link>
-                    </Card>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-          <TabsContent value="features" className="flex flex-col gap-4">
-            <Card>
-              <CardHeader>
-                <div className="flex flex-row items-center justify-between gap-4">
-                  <div className="h-px flex-1 rounded-full bg-border"></div>
-                  <h3 className="text-base/none font-bold sm:text-lg/none md:text-xl/none">
-                    {company.name} Features
-                  </h3>
-                  <div className="h-px flex-1 rounded-full bg-border"></div>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <section className="flex flex-col items-stretch justify-start gap-4">
-                  <div>
-                    <h2 className="text-lg font-bold">Tasks</h2>
-                    <div className="mt-2 grid grid-cols-1 gap-4 md:grid-cols-3">
-                      <div>
-                        <h3 className="flex items-center text-sm font-medium leading-6 text-gray-900">
-                          <CheckCircle className="mr-2 h-5 w-5 text-green-500" />
-                          Trust is our #1 value.
-                        </h3>
-                      </div>
-                      <div>
-                        <h3 className="flex items-center text-sm font-medium leading-6 text-gray-900">
-                          <CheckCircle className="mr-2 h-5 w-5 text-green-500" />
-                          Trust is our #1 value.
-                        </h3>
-                      </div>
-                      <div>
-                        <h3 className="flex items-center text-sm font-medium leading-6 text-gray-900">
-                          <CheckCircle className="mr-2 h-5 w-5 text-green-500" />
-                          Trust is our #1 value.
-                        </h3>
-                      </div>
-                      <div>
-                        <h3 className="flex items-center text-sm font-medium leading-6 text-gray-900">
-                          <CheckCircle className="mr-2 h-5 w-5 text-green-500" />
-                          Trust is our #1 value.
-                        </h3>
-                      </div>
-                    </div>
-                  </div>
-                </section>
-              </CardContent>
-            </Card>
-          </TabsContent>
-          <TabsContent value="metrics" className="flex flex-col gap-4">
-            <Card>
-              <CardContent className="pt-10">
-                {metricsHistoryChartPossible.length ? (
-                  <section className="flex flex-col items-stretch justify-start gap-6">
-                    <div className="flex flex-row items-center justify-between gap-4">
-                      <div className="h-px flex-1 rounded-full bg-border"></div>
-                      <h3 className="text-base/none font-bold sm:text-lg/none md:text-xl/none">
-                        Metrics History
-                      </h3>
-                      <div className="h-px flex-1 rounded-full bg-border"></div>
-                    </div>
-
-                    <ScrollArea className="mx-auto max-w-full">
-                      <Tabs
-                        value={selectedMetricsHistoryChart}
-                        onValueChange={setSelectedMetricsHistoryChart}
+                <div className="flex flex-col items-stretch justify-start gap-4">
+                  {company.competitors.map((competitor) => {
+                    return (
+                      <Link
+                        key={competitor.id}
+                        to={`/companies/${competitor.id}`}
+                        className="flex flex-col items-stretch justify-start gap-2 rounded-lg border border-border p-4 hover:bg-secondary"
                       >
-                        <TabsList>
-                          {metricsHistoryChartPossible.map((key) => {
-                            const filter = FILTERS.find(
-                              (filter) => filter.name === key,
-                            )
+                        <div className="flex flex-row items-center justify-start gap-2">
+                          {competitor.logo ? (
+                            <img
+                              src={competitor.logo}
+                              alt=""
+                              width={16}
+                              height={16}
+                              loading="lazy"
+                              decoding="async"
+                            />
+                          ) : (
+                            <CircleOff size={16} />
+                          )}
 
-                            return (
-                              <TabsTrigger key={key} value={key}>
-                                {filter ? (
-                                  <filter.icon
-                                    size={16}
-                                    className="opacity-50"
-                                  />
-                                ) : null}
-                                <span>{filter ? filter.title : key}</span>
-                              </TabsTrigger>
-                            )
-                          })}
-                        </TabsList>
-                      </Tabs>
-
-                      <ScrollBar orientation="horizontal" />
-                    </ScrollArea>
-
-                    <ResponsiveContainer
-                      width="100%"
-                      height="100%"
-                      className={cn("max-h-[50vh] min-h-[50vh]", {
-                        "blur-sm": hideData,
-                      })}
-                    >
-                      <LineChart
-                        width={320}
-                        height={320}
-                        data={metricsHistoryChartData}
-                      >
-                        <Line
-                          type="monotone"
-                          dataKey="value"
-                          stroke="#000"
-                          name={selectedMetricsHistoryChart}
-                        />
-                        <XAxis
-                          dataKey="capturedAt"
-                          interval="preserveStartEnd"
-                        />
-                        <Tooltip />
-                      </LineChart>
-                    </ResponsiveContainer>
-                  </section>
-                ) : null}
-              </CardContent>
-            </Card>
-            {company.fundingHistory.length ? (
-              <section className="flex flex-col items-stretch justify-start gap-6">
-                <div className="flex flex-row items-center justify-between gap-4">
-                  <div className="h-px flex-1 rounded-full bg-border"></div>
-                  <h3 className="text-base/none font-bold sm:text-lg/none md:text-xl/none">
-                    Funding History
-                  </h3>
-                  <div className="h-px flex-1 rounded-full bg-border"></div>
-                </div>
-
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Date</TableHead>
-                      <TableHead>Funding Amount</TableHead>
-                      <TableHead>Round Name</TableHead>
-                      <TableHead>Valuation</TableHead>
-                      <TableHead>Investors</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {company.fundingHistory.map((funding) => (
-                      <TableRow key={funding.id}>
-                        <TableCell className="font-medium">
-                          {new Date(funding.capturedAt).toDateString()}
-                        </TableCell>
-                        <TableCell>
-                          {funding.funding
-                            ? formatNumber(Number(funding.funding))
-                            : "-"}
-                        </TableCell>
-                        <TableCell
-                          className={cn("font-medium", {
-                            "blur-sm": hideData,
-                          })}
-                        >
-                          {funding.description
-                            ? funding.description
-                            : "Undisclosed"}
-                        </TableCell>
-                        <TableCell
-                          className={cn("font-medium", {
-                            "blur-sm": hideData,
-                          })}
-                        >
-                          {funding.valuation
-                            ? formatNumber(Number(funding.valuation))
-                            : "-"}
-                        </TableCell>
-                        <TableCell className="flex flex-row flex-wrap items-center justify-start gap-2">
-                          -
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </section>
-            ) : null}
-          </TabsContent>
-        </Tabs>
-
-        {company.competitors.length ? (
-          <section className="flex flex-col items-stretch justify-start gap-6">
-            <div className="flex flex-row items-center justify-between gap-4">
-              <div className="h-px flex-1 rounded-full bg-border"></div>
-              <h3 className="text-base/none font-bold sm:text-lg/none md:text-xl/none">
-                Similar Companies
-              </h3>
-              <div className="h-px flex-1 rounded-full bg-border"></div>
-            </div>
-
-            <ScrollArea className="w-full">
-              <div className="flex w-max flex-row items-stretch justify-start gap-4">
-                {company.competitors.map((competitor) => {
-                  return (
-                    <Link
-                      key={competitor.id}
-                      to={`/companies/${competitor.id}`}
-                      className="flex flex-col items-stretch justify-start gap-2 rounded-lg border border-border p-4 hover:bg-secondary"
-                    >
-                      <div className="flex flex-row items-center justify-start gap-2">
-                        {competitor.logo ? (
-                          <img
-                            src={competitor.logo}
-                            alt=""
-                            width={16}
-                            height={16}
-                            loading="lazy"
-                            decoding="async"
-                          />
-                        ) : (
-                          <CircleOff size={16} />
-                        )}
-
-                        <p className="text-base/none font-semibold">
-                          {competitor.name}
-                        </p>
-                      </div>
-                      {competitor.industry ? (
-                        <div className="mt-auto flex flex-row items-center justify-start gap-2">
-                          <Boxes size={14} className="opacity-50" />
-                          <p className="text-sm/none font-medium">
-                            {competitor.industry.name}
+                          <p className="text-base/none font-semibold">
+                            {competitor.name}
                           </p>
                         </div>
-                      ) : null}
-                    </Link>
-                  )
-                })}
-              </div>
-              <ScrollBar orientation="horizontal" />
-            </ScrollArea>
-          </section>
-        ) : null}
+                        {competitor.industry ? (
+                          <div className="mt-auto flex flex-row items-center justify-start gap-2">
+                            <Boxes size={14} className="opacity-50" />
+                            <p className="text-sm/none font-medium">
+                              {competitor.industry.name}
+                            </p>
+                          </div>
+                        ) : null}
+                      </Link>
+                    )
+                  })}
+                </div>
+                <ScrollBar orientation="horizontal" />
+              </ScrollArea>
+            ) : null}
+          </div>
+        </div>
       </div>
 
       {/* {hideData ? (

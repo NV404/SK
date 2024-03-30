@@ -3,6 +3,7 @@ import {
   Link,
   NavLink,
   useFetcher,
+  useNavigate,
   useRouteLoaderData,
   useSearchParams,
 } from "@remix-run/react"
@@ -12,10 +13,12 @@ import {
   Home,
   LifeBuoy,
   LogOut,
+  LucideAlignJustify,
+  Search,
   Settings2,
   Wallet,
 } from "lucide-react"
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { type loader as rootLoaderData } from "~/root"
 import { type action as authenticationAction } from "~/routes/api.authentication"
 
@@ -30,6 +33,14 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 
+import { type loader as directoryCompaniesLoader } from "../../app/routes/api.directory.companies"
+import {
+  Command,
+  CommandInput,
+  CommandItem,
+  CommandList,
+  CommandLoading,
+} from "./ui/command"
 import {
   Dialog,
   DialogContent,
@@ -41,6 +52,15 @@ import {
 } from "./ui/dialog"
 import { Input } from "./ui/input"
 import { Separator } from "./ui/separator"
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "./ui/sheet"
 import { useToast } from "./ui/use-toast"
 
 export function NavbarPublic() {
@@ -67,14 +87,69 @@ export function NavbarPublic() {
     authenticationFetcher.data && "email" in authenticationFetcher.data,
   )
 
-  return (
-    <nav className="container flex flex-row items-center justify-between gap-4 px-4">
-      <Link to="/" className="flex flex-row items-center justify-start gap-2">
-        <img src="/saaskart_logo.jpg" alt="logo" width={150} />
-      </Link>
+  const navigate = useNavigate()
+  const [searchQuery, setSearchQuery] = useState("")
 
-      <div className="flex flex-row items-center justify-start gap-2">
-        <Button
+  const fetcher = useFetcher<typeof directoryCompaniesLoader>()
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      fetcher.load(`/api/directory/companies?query=${searchQuery}`)
+    }, 500)
+
+    return () => clearTimeout(timer)
+  }, [searchQuery])
+
+  return (
+    <>
+      <nav className="container hidden flex-row items-center justify-between gap-4 px-4 lg:flex">
+        <div className="flex items-center gap-3">
+          <Link
+            to="/"
+            className="flex flex-row items-center justify-start gap-2"
+          >
+            <img src="/saaskart_logo.jpg" alt="logo" width={150} />
+          </Link>
+          <Command className="relative overflow-visible rounded-lg border">
+            <CommandInput
+              placeholder="Search companies..."
+              value={searchQuery}
+              onValueChange={setSearchQuery}
+            />
+            <CommandList className="absolute left-0 top-14 z-50 w-full rounded-lg bg-white shadow-xl">
+              {/* <CommandEmpty>No results found.</CommandEmpty> */}
+              {fetcher.state === "loading" ? (
+                <CommandLoading>Loading...</CommandLoading>
+              ) : null}
+              {(fetcher.data ?? []).map((company) => (
+                <CommandItem
+                  key={company.id}
+                  value={company.name}
+                  className="gap-2"
+                  onSelect={() => {
+                    navigate(`/companies/${company.id}`)
+                    setSearchQuery("")
+                  }}
+                >
+                  {company.logo ? (
+                    <img
+                      src={company.logo}
+                      alt={`${company.name} logo`}
+                      width={16}
+                      height={16}
+                    />
+                  ) : (
+                    <div className="h-4 w-4"></div>
+                  )}
+                  <span>{company.name}</span>
+                </CommandItem>
+              ))}
+            </CommandList>
+          </Command>
+        </div>
+
+        <div className="flex flex-row items-center justify-start gap-2">
+          {/* <Button
           variant="secondary"
           size="sm"
           asChild
@@ -84,38 +159,50 @@ export function NavbarPublic() {
             <Home size={14} className="opacity-50" />
             <span className="sr-only">Home</span>
           </NavLink>
-        </Button>
+        </Button> */}
 
-        <Dialog defaultOpen={isDefaultOpen}>
-          <DialogTrigger asChild>
-            <Button variant="secondary" size="sm">
-              <Fingerprint size={14} className="opacity-50" />
-              <span>Login</span>
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <authenticationFetcher.Form
-              // action="/api/authentication"
-              method="post"
-              className="contents"
-            >
-              <fieldset
-                disabled={authenticationFetcher.state !== "idle"}
+          <Button variant={"link"}>Software</Button>
+
+          <Button variant={"link"}>Services</Button>
+
+          <Button variant={"link"}>Solutions</Button>
+
+          <Button variant={"link"}>Pricing</Button>
+
+          <Button variant={"link"}>Resources</Button>
+
+          <Button variant={"link"}>Marketplace</Button>
+
+          <Dialog defaultOpen={isDefaultOpen}>
+            <DialogTrigger asChild>
+              <Button variant="secondary" size="sm">
+                <Fingerprint size={14} className="opacity-50" />
+                <span>Login</span>
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <authenticationFetcher.Form
+                // action="/api/authentication"
+                method="post"
                 className="contents"
               >
-                <DialogHeader>
-                  <DialogTitle>Login</DialogTitle>
-                  <DialogDescription>
-                    Authenticate with the email you used to buy the product.
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="flex flex-col items-stretch justify-start gap-2">
-                  <Button variant={"outline"}>Login with Google</Button>
-                  <Button variant={"outline"}>Login with Linkedin</Button>
-                  <Separator className="m-2" />
-                  <Button variant={"secondary"}>Use Business Email</Button>
-                </div>
-                {/* <div className="flex flex-col items-stretch justify-start gap-2">
+                <fieldset
+                  disabled={authenticationFetcher.state !== "idle"}
+                  className="contents"
+                >
+                  <DialogHeader>
+                    <DialogTitle>Login</DialogTitle>
+                    <DialogDescription>
+                      Authenticate with the email you used to buy the product.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="flex flex-col items-stretch justify-start gap-2">
+                    <Button variant={"outline"}>Login with Google</Button>
+                    <Button variant={"outline"}>Login with Linkedin</Button>
+                    <Separator className="m-2" />
+                    <Button variant={"secondary"}>Use Business Email</Button>
+                  </div>
+                  {/* <div className="flex flex-col items-stretch justify-start gap-2">
                   <Input
                     type="email"
                     name="email"
@@ -141,7 +228,7 @@ export function NavbarPublic() {
                     />
                   ) : null}
                 </div> */}
-                {/* <DialogFooter>
+                  {/* <DialogFooter>
                   {isOTPSent ? (
                     <Button variant="hero" type="submit">
                       <Check size={16} className="opacity-50" />
@@ -154,12 +241,173 @@ export function NavbarPublic() {
                     </Button>
                   )}
                 </DialogFooter> */}
-              </fieldset>
-            </authenticationFetcher.Form>
-          </DialogContent>
-        </Dialog>
-      </div>
-    </nav>
+                </fieldset>
+              </authenticationFetcher.Form>
+            </DialogContent>
+          </Dialog>
+        </div>
+      </nav>
+      <nav className="container flex flex-row items-center justify-between gap-4 px-4 lg:hidden">
+        <div className="flex items-center gap-3">
+          <Link
+            to="/"
+            className="flex flex-row items-center justify-start gap-2"
+          >
+            <img src="/saaskart_logo.jpg" alt="logo" width={150} />
+          </Link>
+        </div>
+        <Sheet>
+          <SheetTrigger asChild>
+            <Button variant={"secondary"}>
+              <LucideAlignJustify />
+            </Button>
+          </SheetTrigger>
+          <SheetContent>
+            <SheetHeader>
+              <SheetTitle>Menu</SheetTitle>
+              <Command className="relative overflow-visible rounded-lg border">
+                <CommandInput
+                  placeholder="Search companies..."
+                  value={searchQuery}
+                  onValueChange={setSearchQuery}
+                />
+                <CommandList className="absolute left-0 top-14 z-50 w-full rounded-lg bg-white shadow-xl">
+                  {/* <CommandEmpty>No results found.</CommandEmpty> */}
+                  {fetcher.state === "loading" ? (
+                    <CommandLoading>Loading...</CommandLoading>
+                  ) : null}
+                  {(fetcher.data ?? []).map((company) => (
+                    <CommandItem
+                      key={company.id}
+                      value={company.name}
+                      className="gap-2"
+                      onSelect={() => {
+                        navigate(`/companies/${company.id}`)
+                        setSearchQuery("")
+                      }}
+                    >
+                      {company.logo ? (
+                        <img
+                          src={company.logo}
+                          alt={`${company.name} logo`}
+                          width={16}
+                          height={16}
+                        />
+                      ) : (
+                        <div className="h-4 w-4"></div>
+                      )}
+                      <span>{company.name}</span>
+                    </CommandItem>
+                  ))}
+                </CommandList>
+              </Command>
+            </SheetHeader>
+            <div className="flex flex-col items-start justify-start gap-4 py-5">
+              {/* <Button
+          variant="secondary"
+          size="sm"
+          asChild
+          className="[&.active]:hidden"
+        >
+          <NavLink to="/" end>
+            <Home size={14} className="opacity-50" />
+            <span className="sr-only">Home</span>
+          </NavLink>
+        </Button> */}
+
+              <Button variant={"link"}>Software</Button>
+              <Separator />
+              <Button variant={"link"}>Services</Button>
+              <Separator />
+              <Button variant={"link"}>Solutions</Button>
+              <Separator />
+              <Button variant={"link"}>Pricing</Button>
+              <Separator />
+              <Button variant={"link"}>Resources</Button>
+              <Separator />
+              <Button variant={"link"}>Marketplace</Button>
+            </div>
+            <SheetFooter>
+              <Dialog defaultOpen={isDefaultOpen}>
+                <DialogTrigger asChild>
+                  <Button variant="secondary" size="sm">
+                    <Fingerprint size={14} className="opacity-50" />
+                    <span>Login</span>
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <authenticationFetcher.Form
+                    // action="/api/authentication"
+                    method="post"
+                    className="contents"
+                  >
+                    <fieldset
+                      disabled={authenticationFetcher.state !== "idle"}
+                      className="contents"
+                    >
+                      <DialogHeader>
+                        <DialogTitle>Login</DialogTitle>
+                        <DialogDescription>
+                          Authenticate with the email you used to buy the
+                          product.
+                        </DialogDescription>
+                      </DialogHeader>
+                      <div className="flex flex-col items-stretch justify-start gap-2">
+                        <Button variant={"outline"}>Login with Google</Button>
+                        <Button variant={"outline"}>Login with Linkedin</Button>
+                        <Separator className="m-2" />
+                        <Button variant={"secondary"}>
+                          Use Business Email
+                        </Button>
+                      </div>
+                      {/* <div className="flex flex-col items-stretch justify-start gap-2">
+                  <Input
+                    type="email"
+                    name="email"
+                    placeholder="Email"
+                    required
+                    readOnly={isOTPSent}
+                    autoFocus
+                  />
+                  {!isOTPSent ? (
+                    <Input
+                      type="text"
+                      name="lifetimeRedeemCode"
+                      placeholder="Redeem Code? (optional)"
+                    />
+                  ) : null}
+                  {isOTPSent ? (
+                    <Input
+                      type="text"
+                      name="otp"
+                      placeholder="One Time Password"
+                      required
+                      autoFocus
+                    />
+                  ) : null}
+                </div> */}
+                      {/* <DialogFooter>
+                  {isOTPSent ? (
+                    <Button variant="hero" type="submit">
+                      <Check size={16} className="opacity-50" />
+                      <span>Confirm</span>
+                    </Button>
+                  ) : (
+                    <Button type="submit">
+                      <Fingerprint size={16} className="opacity-50" />
+                      <span>Continue</span>
+                    </Button>
+                  )}
+                </DialogFooter> */}
+                    </fieldset>
+                  </authenticationFetcher.Form>
+                </DialogContent>
+              </Dialog>
+            </SheetFooter>
+          </SheetContent>
+        </Sheet>
+      </nav>
+    </>
   )
 }
 

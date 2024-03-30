@@ -176,9 +176,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   }
 
   return json(
-    {
-      companies,
-    },
+    { companies },
     {
       headers: {
         "Cache-Control": cacheHeader({

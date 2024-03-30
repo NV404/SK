@@ -14,7 +14,8 @@ import {
   useLoaderData,
   useLocation,
 } from "@remix-run/react"
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
+import TopBarProgress from "react-topbar-progress-indicator"
 import tailwindCssHref from "~/styles/tailwind.css"
 
 import { Toaster } from "@/components/ui/toaster"
@@ -63,6 +64,20 @@ export const links: LinksFunction = () => [
 export default function Root() {
   const location = useLocation()
   const { GA_TRACKING_ID } = useLoaderData<typeof loader>()
+  const [progress, setProgress] = useState(false)
+  const [prevLoc, setPrevLoc] = useState("")
+
+  useEffect(() => {
+    setProgress(true)
+    setPrevLoc(location.pathname)
+    if (location.pathname === prevLoc) {
+      setPrevLoc("")
+    }
+  }, [location])
+
+  useEffect(() => {
+    setProgress(false)
+  }, [prevLoc])
 
   useEffect(() => {
     if (GA_TRACKING_ID?.length) {
@@ -115,6 +130,8 @@ export default function Root() {
             />
           </>
         )}
+
+        {progress && <TopBarProgress />}
 
         <Outlet />
         <Toaster />
