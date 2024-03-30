@@ -22,6 +22,7 @@ import { type loader as companiesLoader } from "./dashboard.api.companies"
 
 export default function Marketplace() {
   const fetcher = useFetcher<typeof companiesLoader>()
+  const [sort, setSort] = useState("saaskart")
 
   return (
     <div className="relative flex min-h-screen flex-col items-stretch gap-8 py-4 sm:py-8">
@@ -74,10 +75,18 @@ export default function Marketplace() {
                   </div>
                 </div>
                 <div className="ml-auto flex items-center gap-2">
-                  <Button className="rounded-full" variant="hero">
+                  <Button
+                    onClick={() => setSort("saaskart")}
+                    className="rounded-full"
+                    variant={sort === "saaskart" ? "hero" : "outline"}
+                  >
                     SaasKart Pick
                   </Button>
-                  <Button className="rounded-full" variant="outline">
+                  <Button
+                    onClick={() => setSort("new")}
+                    className="rounded-full"
+                    variant={sort === "new" ? "hero" : "outline"}
+                  >
                     New
                   </Button>
                 </div>
@@ -106,7 +115,7 @@ const OfferCard = () => {
               <p>SaasKart Verified</p>
             </Badge>
             <Link
-              to={`/directory/industries/some`}
+              to={`/directory/industries/e-commerce-software`}
               className="flex items-center gap-1 text-sm font-semibold opacity-75 hover:underline"
             >
               <FactoryIcon size={15} />
@@ -128,7 +137,7 @@ const OfferCard = () => {
           />
           <div className="flex flex-col justify-between">
             <Link
-              to={`/directory/industries/some`}
+              to={`/companies/epicor-software-corporation`}
               className="flex items-center gap-1 font-bold hover:underline"
             >
               Epicor Software Corporation

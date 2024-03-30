@@ -48,42 +48,42 @@ import { FILTERS, LIMIT_OPTIONS, SORT_OPTIONS } from "@/config/options"
 
 import { type loader as companiesLoader } from "./dashboard.api.companies"
 
-export async function loader({ request, params }: LoaderFunctionArgs) {
-  const industryId = params.slug ?? ""
+// export async function loader({ request, params }: LoaderFunctionArgs) {
+//   const industryId = params.slug ?? ""
 
-  return json(
-    (
-      await db
-        .select()
-        .from(schema.companies)
-        .leftJoin(
-          schema.companies_metrics,
-          eq(schema.companies.id, schema.companies_metrics.companyId),
-        )
-        .where((columns) =>
-          and(
-            eq(columns.companies.industryId, industryId),
-            isNotNull(columns.companies_metrics.revenue),
-          ),
-        )
-        .limit(10)
-        .orderBy((columns) => desc(columns.companies_metrics.revenue))
-    ).map(({ companies, companies_metrics }) => ({
-      id: companies.id,
-      logo: companies.logo,
-      name: companies.name,
-    })),
-    // {
-    //   headers: {
-    //     "Cache-Control": cacheHeader({
-    //       public: true,
-    //       maxAge: "12weeks",
-    //       staleWhileRevalidate: "24weeks",
-    //     }),
-    //   },
-    // },
-  )
-}
+//   return json(
+//     (
+//       await db
+//         .select()
+//         .from(schema.companies)
+//         .leftJoin(
+//           schema.companies_metrics,
+//           eq(schema.companies.id, schema.companies_metrics.companyId),
+//         )
+//         .where((columns) =>
+//           and(
+//             eq(columns.companies.industryId, industryId),
+//             isNotNull(columns.companies_metrics.revenue),
+//           ),
+//         )
+//         .limit(10)
+//         .orderBy((columns) => desc(columns.companies_metrics.revenue))
+//     ).map(({ companies, companies_metrics }) => ({
+//       id: companies.id,
+//       logo: companies.logo,
+//       name: companies.name,
+//     })),
+//     // {
+//     //   headers: {
+//     //     "Cache-Control": cacheHeader({
+//     //       public: true,
+//     //       maxAge: "12weeks",
+//     //       staleWhileRevalidate: "24weeks",
+//     //     }),
+//     //   },
+//     // },
+//   )
+// }
 
 export const meta: MetaFunction = ({ params }) => {
   const industry = params.slug
@@ -97,12 +97,12 @@ export const meta: MetaFunction = ({ params }) => {
 }
 
 export default function DirectoryIndustriesIndustry() {
-  const loaderData = useLoaderData<typeof loader>()
+  // const loaderData = useLoaderData<typeof loader>()
   const params = useParams()
   const formRef = useRef(null)
   const startingValues = {
     query: "",
-    limit: "25",
+    limit: "10",
     sort: "revenue",
     revenue: "0-40359000000",
     mrr: "4-3363250000",
@@ -212,7 +212,7 @@ export default function DirectoryIndustriesIndustry() {
                 title="Limit"
                 icon={HashIcon}
                 options={LIMIT_OPTIONS}
-                defaultValues={["25"]}
+                defaultValues={["10"]}
                 multiple={false}
                 required
                 showTitle={false}
@@ -339,7 +339,7 @@ export default function DirectoryIndustriesIndustry() {
                           <Link to={`/companies/${company.id}`}>
                             <img
                               alt="Salesforce logo"
-                              className="min-h-20 min-w-20 mr-4 rounded-lg"
+                              className="mr-4 min-h-20 min-w-20 rounded-lg"
                               height="80"
                               src={company.logo as string}
                               style={{
