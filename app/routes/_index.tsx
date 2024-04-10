@@ -1,4 +1,9 @@
-import { type LoaderFunctionArgs, json, redirect } from "@remix-run/node"
+import {
+  ActionFunction,
+  type LoaderFunctionArgs,
+  json,
+  redirect,
+} from "@remix-run/node"
 import { Link, useLoaderData } from "@remix-run/react"
 import { eq } from "drizzle-orm"
 import {
@@ -29,52 +34,43 @@ import {
 } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 
+// import { authenticator } from "@/lib/auth.server"
 import { desc } from "@/lib/drizzle.server"
 import { getUserId } from "@/lib/session.server"
 
 import { db, schema } from "@/db/index.server"
 
-export async function loader({ request }: LoaderFunctionArgs) {
-  const userId = await getUserId(request)
+// export async function loader({ request }: LoaderFunctionArgs) {
+//   const userId = await getUserId(request)
 
-  if (userId) {
-    return redirect("/dashboard")
-  }
+//   if (userId) {
+//     return redirect("/dashboard")
+//   }
 
-  return json(
-    {
-      publicCompanies: (
-        await db
-          .select()
-          .from(schema.companies)
-          .leftJoin(
-            schema.companies_metrics,
-            eq(schema.companies.id, schema.companies_metrics.companyId),
-          )
-          .where((columns) => eq(columns.companies.public, true))
-          .orderBy((columns) => desc(columns.companies_metrics.revenue))
-      ).map(({ companies, companies_metrics }) => ({
-        id: companies.id,
-        logo: companies.logo,
-        name: companies.name,
-      })),
-    },
-    {
-      headers: {
-        "Cache-Control": cacheHeader({
-          public: true,
-          maxAge: "1day",
-          staleWhileRevalidate: "2days",
-        }),
-      },
-    },
-  )
-}
+//   return json({
+//     headers: {
+//       "Cache-Control": cacheHeader({
+//         public: true,
+//         maxAge: "1day",
+//         staleWhileRevalidate: "2days",
+//       }),
+//     },
+//   })
+// }
+
+// export const action: ActionFunction = async ({ request, context }) => {
+//   // call my authenticator
+//   const resp = await authenticator.authenticate("form", request, {
+//     successRedirect: "/",
+//     failureRedirect: "/",
+//     throwOnError: true,
+//     context,
+//   })
+//   console.log(resp)
+//   return resp
+// }
 
 export default function Index() {
-  const loaderData = useLoaderData<typeof loader>()
-  const publicCompanies = loaderData.publicCompanies
-
   return (
     <div
       id="top"
@@ -103,7 +99,7 @@ export default function Index() {
         </div> */}
         <div className="flex flex-row flex-wrap items-center justify-center gap-2">
           <Button asChild variant="secondary" size="lg">
-            <Link to="/directory/industries">
+            <Link to="/directory/category">
               <Compass size={18} className="opacity-50" />
               <span>Categories</span>
             </Link>

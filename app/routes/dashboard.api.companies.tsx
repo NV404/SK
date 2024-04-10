@@ -1,5 +1,5 @@
 import { type LoaderFunctionArgs, json } from "@remix-run/node"
-import { type SQL, and, between, eq, ilike, inArray } from "drizzle-orm"
+import { type SQL, and, between, eq, ilike, inArray, or } from "drizzle-orm"
 import { cacheHeader } from "pretty-cache-header"
 
 import { asc, desc } from "@/lib/drizzle.server"
@@ -7,10 +7,11 @@ import { getRangeConfigFromValue, searchParamsToObject } from "@/lib/utils"
 
 import { db, schema } from "@/db/index.server"
 import {
+  type Category,
   type Company,
   type CompanyMetrics,
   type CompanySocials,
-  type Industry,
+  CompinesToCategory,
 } from "@/db/schema"
 
 import { FILTERS_CONST, type SORT_OPTIONS_CONST } from "@/config/options"
@@ -54,10 +55,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
       const query = `%${encodeURIComponent(value.toLowerCase())}%`
 
       conditions.push(
-        // or(
-        ilike(schema.companies.name, query),
-        // ilike(schema.companies.description, query),
-        // ),
+        or(
+          ilike(schema.companies.name, query),
+          ilike(schema.companies.description, query),
+        ),
       )
     } else if (part.name === "countries") {
       let value = formDataObject[part.name]
@@ -72,7 +73,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
       value = maybeArrayToArray(value)
 
-      conditions.push(inArray(schema.companies.industryId, value))
+      conditions.push(inArray(schema.compinesToCategories.categoryId, value))
     } else if (
       part.name === "revenue" ||
       part.name === "mrr" ||
@@ -97,24 +98,32 @@ export async function loader({ request }: LoaderFunctionArgs) {
     }
   })
 
-  const query = db
+  const industriesId = formDataObject["industries"] as string
+
+  // console.log(JSON.stringify(conditions), "conditionsconditionsconditions")
+  const query = await db
     .select()
     .from(schema.companies)
+    // .leftJoin(
+    //   schema.companies_socials,
+    //   eq(schema.companies.id, schema.companies_socials.companyId),
+    // )
     .leftJoin(
-      schema.companies_socials,
-      eq(schema.companies.id, schema.companies_socials.companyId),
+      schema.compinesToCategories,
+      eq(schema.companies.id, schema.compinesToCategories.companyId),
     )
     .leftJoin(
-      schema.industries,
-      eq(schema.companies.industryId, schema.industries.id),
+      schema.categories,
+      eq(schema.categories.id, schema.compinesToCategories.categoryId),
     )
     .leftJoin(
       schema.companies_metrics,
       eq(schema.companies.id, schema.companies_metrics.companyId),
     )
-    .where((columns) => {
-      return and(...conditions, ...metricsConditions)
-    })
+    // .where((columns) => {
+    //   return and(...conditions, ...metricsConditions)
+    // })
+    .where(eq(schema.compinesToCategories.categoryId, industriesId))
     .orderBy((columns) => {
       const sortValue = formDataObject[
         "sort"
@@ -125,7 +134,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
       }
 
       if (sortValue === "industries") {
-        return asc(schema.industries.name)
+        return asc(schema.compinesToCategories.categoryId)
       }
 
       if (
@@ -145,33 +154,17 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   const companies: (Company & {
     socials: CompanySocials | null
-    industry: Industry | null
+    categories: Category | null
     metrics: CompanyMetrics | null
-    founders: {
-      id: string
-      personalEmail: string | null
-      email: string | null
-    }[]
   })[] = []
 
-  for (const row of await query) {
+  console.log(query, "queryquerymain")
+  for (const row of query) {
     companies.push({
       ...row.companies,
-      socials: row.companies_socials,
-      industry: row.industries,
+      socials: null,
+      categories: row.categories,
       metrics: row.companies_metrics,
-      founders: await db.query.founders.findMany({
-        columns: {
-          id: true,
-          personalEmail: true,
-          email: true,
-        },
-        where: () =>
-          // and(
-          eq(schema.founders.companyId, row.companies.id),
-        // eq(schema.founders.isCeo, true),
-        // ),
-      }),
     })
   }
 

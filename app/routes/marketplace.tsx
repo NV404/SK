@@ -106,7 +106,7 @@ const OfferCard = () => {
               <p>SaasKart Verified</p>
             </Badge>
             <Link
-              to={`/directory/industries/some`}
+              to={`/directory/category/some`}
               className="flex items-center gap-1 text-sm font-semibold opacity-75 hover:underline"
             >
               <FactoryIcon size={15} />
@@ -128,7 +128,7 @@ const OfferCard = () => {
           />
           <div className="flex flex-col justify-between">
             <Link
-              to={`/directory/industries/some`}
+              to={`/directory/category/some`}
               className="flex items-center gap-1 font-bold hover:underline"
             >
               Epicor Software Corporation

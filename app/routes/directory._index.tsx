@@ -57,7 +57,7 @@ export default function DirectoryHome() {
           </Link>
         </Button>
         <Button asChild variant="secondary">
-          <Link to="/directory/industries">
+          <Link to="/directory/category">
             <Boxes size={16} className="opacity-50" />
             <span>All Industries</span>
           </Link>

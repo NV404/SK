@@ -49,7 +49,7 @@ import { FILTERS, LIMIT_OPTIONS, SORT_OPTIONS } from "@/config/options"
 import { type loader as companiesLoader } from "./dashboard.api.companies"
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
-  const industryId = params.slug ?? ""
+  const categoryId = params.slug ?? ""
 
   return json(
     (
@@ -60,11 +60,12 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
           schema.companies_metrics,
           eq(schema.companies.id, schema.companies_metrics.companyId),
         )
+        .leftJoin(
+          schema.compinesToCategories,
+          eq(schema.compinesToCategories.categoryId, categoryId),
+        )
         .where((columns) =>
-          and(
-            eq(columns.companies.industryId, industryId),
-            isNotNull(columns.companies_metrics.revenue),
-          ),
+          and(eq(columns["compines-to-categories"].categoryId, categoryId)),
         )
         .limit(10)
         .orderBy((columns) => desc(columns.companies_metrics.revenue))
@@ -97,20 +98,20 @@ export const meta: MetaFunction = ({ params }) => {
 }
 
 export default function DirectoryIndustriesIndustry() {
-  const loaderData = useLoaderData<typeof loader>()
+  // const loaderData = useLoaderData<typeof loader>()
   const params = useParams()
   const formRef = useRef(null)
   const startingValues = {
     query: "",
     limit: "25",
     sort: "revenue",
-    revenue: "0-40359000000",
-    mrr: "4-3363250000",
-    valuation: "0-151000000000",
-    funding: "0-35219250000",
-    customersCount: "0-25000000000",
-    teamSize: "0-118555",
-    industries: "e-commerce-software",
+    revenue: "0-0",
+    mrr: "4-0",
+    valuation: "0-0",
+    funding: "0-0",
+    customersCount: "0-0",
+    teamSize: "0-0",
+    industries: "6e632c6f-3fcd-4ab1-b205-832b8b981d43",
   }
   const [defaultValues, setDefaultValues] = useState(startingValues)
 
@@ -157,7 +158,7 @@ export default function DirectoryIndustriesIndustry() {
     <>
       <div className="container flex flex-row flex-wrap items-center justify-start gap-4 px-4">
         {/* <Button asChild variant="outline">
-          <Link to="/directory/industries">
+          <Link to="/directory/category">
             <Boxes size={16} className="opacity-50" />
             <span>All Industries</span>
           </Link>

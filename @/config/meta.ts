@@ -113,7 +113,7 @@ export function getMetaTags(
     },
     {
       property: "twitter:image:alt",
-      content: "SaaSData.app og header",
+      content: "saaskart.co og header",
     },
 
     ...(more ?? []),

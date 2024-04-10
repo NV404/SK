@@ -34,8 +34,8 @@ import { useMemo, useState } from "react"
 import { Carousel } from "react-responsive-carousel"
 import "react-responsive-carousel/lib/styles/carousel.min.css"
 import { Line, LineChart, ResponsiveContainer, Tooltip, XAxis } from "recharts"
-import { type action as authenticationAction } from "~/routes/api.authentication"
 
+// import { type action as authenticationAction } from "~/routes/api.authentication"
 import { Footer, NavbarDashboard, NavbarPublic } from "@/components/layout"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -78,16 +78,15 @@ import { getMetaTags } from "@/config/meta"
 import { FILTERS } from "@/config/options"
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
-  const slug = params.slug
+  const slug = params.slug as any
 
-  if (!slug) {
-    return redirect("/")
-  }
+  console.log(slug, "slugslug")
+
+  // if (!slug) {
+  //   return redirect("/")
+  // }
 
   let company = await db.query.companies.findFirst({
-    columns: {
-      description: false,
-    },
     where: (company, { eq }) => eq(company.id, slug),
     with: {
       socials: {
@@ -97,18 +96,14 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
           website: false,
         },
       },
-      industry: true,
-      founders: {
-        columns: {
-          additionalInformation: false,
-          biography: false,
-        },
-      },
+      // industry: true,
       metrics: true,
       metricsHistory: true,
       fundingHistory: true,
     },
   })
+
+  console.log(company, "companycompanycompany")
 
   if (!company) {
     return redirect("/")
@@ -124,7 +119,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
             logo: true,
           },
           with: {
-            industry: true,
+            compinesToCategories: true,
           },
         },
       },
@@ -143,11 +138,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   }
 
   if (hideData) {
-    company.founders = company.founders.map((founder) => ({
-      ...founder,
-      email: fuzzy(founder.email),
-      personalEmail: fuzzy(founder.personalEmail),
-    }))
     company.metrics = {
       ...company.metrics,
       acv: fuzzy(company.metrics.acv),
@@ -187,9 +177,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 }
 
 function getCompanyDescription({ company }: SerializeFrom<typeof loader>) {
-  return `${
-    company.name
-  } is a ${company.industry?.name?.toLowerCase()} company based in ${
+  return `${company.name} is a company based in ${
     company.country
   }. It was founded in ${company.yearOfIncorporation}${
     company.metrics?.revenue
@@ -315,9 +303,9 @@ export default function Company() {
   }
 
   const [contactForm, setForm] = useState(false)
-  const authenticationFetcher = useFetcher<typeof authenticationAction>({
-    key: "authentication",
-  })
+  // const authenticationFetcher = useFetcher<typeof authenticationAction>({
+  //   key: "authentication",
+  // })
 
   return (
     <div className="relative flex min-h-screen flex-col items-stretch gap-8 py-4 sm:py-8">
@@ -375,7 +363,7 @@ export default function Company() {
                       </div>
                     </DialogTrigger>
                     <DialogContent>
-                      <authenticationFetcher.Form
+                      {/* <authenticationFetcher.Form
                         // action="/api/authentication"
                         method="post"
                         className="contents"
@@ -402,8 +390,8 @@ export default function Company() {
                             <Button variant={"secondary"}>
                               Use Business Email
                             </Button>
-                          </div>
-                          {/* <div className="flex flex-col items-stretch justify-start gap-2">
+                          </div> */}
+                      {/* <div className="flex flex-col items-stretch justify-start gap-2">
                   <Input
                     type="email"
                     name="email"
@@ -429,7 +417,7 @@ export default function Company() {
                     />
                   ) : null}
                 </div> */}
-                          {/* <DialogFooter>
+                      {/* <DialogFooter>
                   {isOTPSent ? (
                     <Button variant="hero" type="submit">
                       <Check size={16} className="opacity-50" />
@@ -442,20 +430,20 @@ export default function Company() {
                     </Button>
                   )}
                 </DialogFooter> */}
-                        </fieldset>
-                      </authenticationFetcher.Form>
+                      {/* </fieldset>
+                      </authenticationFetcher.Form> */}
                     </DialogContent>
                   </Dialog>
                   <div className="font-semibold text-gray-400">|</div>
-                  {company.industry?.name ? (
+                  {/* {company.industry?.name ? (
                     <Link
-                      to={`/directory/industries/${company.industry.id}`}
+                      to={`/directory/category/${company.industry.id}`}
                       className="flex items-center gap-2 text-base/none font-semibold opacity-75 hover:underline sm:text-lg/none"
                     >
                       <FactoryIcon size={18} />
                       {company.industry.name}
                     </Link>
-                  ) : null}
+                  ) : null} */}
                 </div>
                 {company.country ? (
                   <Link
@@ -550,15 +538,15 @@ export default function Company() {
                 </Badge>
               </div>
               <div className="font-semibold text-gray-400">|</div>
-              {company.industry?.name ? (
+              {/* {company.industry?.name ? (
                 <Link
-                  to={`/directory/industries/${company.industry.id}`}
+                  to={`/directory/category/${company.industry.id}`}
                   className="flex items-center gap-2 text-base/none font-semibold opacity-75 hover:underline sm:text-lg/none"
                 >
                   <FactoryIcon size={18} />
                   {company.industry.name}
                 </Link>
-              ) : null}
+              ) : null} */}
             </div>
             {company.country ? (
               <Link
@@ -1434,14 +1422,14 @@ export default function Company() {
                             {competitor.name}
                           </p>
                         </div>
-                        {competitor.industry ? (
+                        {/* {competitor.industry ? (
                           <div className="mt-auto flex flex-row items-center justify-start gap-2">
                             <Boxes size={14} className="opacity-50" />
                             <p className="text-sm/none font-medium">
                               {competitor.industry.name}
                             </p>
                           </div>
-                        ) : null}
+                        ) : null} */}
                       </Link>
                     )
                   })}

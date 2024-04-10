@@ -1,8 +1,11 @@
+import { TabsContent } from "@radix-ui/react-tabs"
+import { ActionFunction, LoaderFunction, json } from "@remix-run/node"
 import {
   Form,
   Link,
   NavLink,
-  useFetcher,
+  useFetcher, // useFetcher,
+  useLoaderData,
   useNavigate,
   useRouteLoaderData,
   useSearchParams,
@@ -21,7 +24,9 @@ import {
 import { useEffect, useState } from "react"
 import { type loader as rootLoaderData } from "~/root"
 import { type action as authenticationAction } from "~/routes/api.authentication"
+import { type loader as directoryCompaniesLoader } from "~/routes/api.directory.companies"
 
+// import { type action as authenticationAction } from "~/routes/api.authentication"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -33,7 +38,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 
-import { type loader as directoryCompaniesLoader } from "../../app/routes/api.directory.companies"
 import {
   Command,
   CommandInput,
@@ -61,36 +65,50 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "./ui/sheet"
+import { Tabs, TabsList, TabsTrigger } from "./ui/tabs"
 import { useToast } from "./ui/use-toast"
+
+export const loader: LoaderFunction = async ({ request }) => {
+  const session = await sessionStorage.getSession(request.headers.get("Cookie"))
+
+  const error = session.get("sessionErrorKey")
+  return json<any>({ error })
+}
 
 export function NavbarPublic() {
   const [searchParams] = useSearchParams()
   const isDefaultOpen = searchParams.get("login") === "true"
+  const loaderData = useLoaderData() as any
 
-  const authenticationFetcher = useFetcher<typeof authenticationAction>({
-    key: "authentication",
-  })
+  console.log(loaderData, "loaderData")
+
+  // const authenticationFetcher = useFetcher<typeof authenticationAction>({
+  //   key: "authentication",
+  // })
 
   const { toast } = useToast()
 
-  useEffect(() => {
-    if (authenticationFetcher.data && "error" in authenticationFetcher.data) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: authenticationFetcher.data.error.message,
-      })
-    }
-  }, [toast, authenticationFetcher.data])
+  // useEffect(() => {
+  //   if (authenticationFetcher.data && "error" in authenticationFetcher.data) {
+  //     toast({
+  //       variant: "destructive",
+  //       title: "Error",
+  //       description: authenticationFetcher.data.error.message,
+  //     })
+  //   }
+  // }, [toast, authenticationFetcher.data])
 
-  const isOTPSent = Boolean(
-    authenticationFetcher.data && "email" in authenticationFetcher.data,
-  )
+  // const isOTPSent = Boolean(
+  //   authenticationFetcher.data && "email" in authenticationFetcher.data,
+  // )
 
   const navigate = useNavigate()
   const [searchQuery, setSearchQuery] = useState("")
 
   const fetcher = useFetcher<typeof directoryCompaniesLoader>()
+  const authenticationFetcher = useFetcher<typeof authenticationAction>({
+    key: "authentication",
+  })
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -103,14 +121,14 @@ export function NavbarPublic() {
   return (
     <>
       <nav className="container hidden flex-row items-center justify-between gap-4 px-4 lg:flex">
-        <div className="flex items-center gap-3">
+        <div className="flex flex-grow items-center gap-3">
           <Link
             to="/"
-            className="flex flex-row items-center justify-start gap-2"
+            className="flex flex-grow flex-row items-center justify-start gap-2"
           >
             <img src="/saaskart_logo.jpg" alt="logo" width={150} />
           </Link>
-          <Command className="relative overflow-visible rounded-lg border">
+          <Command className="relative flex-grow overflow-visible rounded-lg border">
             <CommandInput
               placeholder="Search companies..."
               value={searchQuery}
@@ -175,34 +193,121 @@ export function NavbarPublic() {
 
           <Dialog defaultOpen={isDefaultOpen}>
             <DialogTrigger asChild>
-              <Button variant="secondary" size="sm">
+              <Button variant="hero" size="sm">
                 <Fingerprint size={14} className="opacity-50" />
-                <span>Login</span>
+                <span>Login / Signup</span>
               </Button>
             </DialogTrigger>
             <DialogContent>
-              <authenticationFetcher.Form
+              {/* <form
                 // action="/api/authentication"
                 method="post"
                 className="contents"
-              >
-                <fieldset
-                  disabled={authenticationFetcher.state !== "idle"}
-                  className="contents"
-                >
-                  <DialogHeader>
-                    <DialogTitle>Login</DialogTitle>
-                    <DialogDescription>
-                      Authenticate with the email you used to buy the product.
-                    </DialogDescription>
-                  </DialogHeader>
-                  <div className="flex flex-col items-stretch justify-start gap-2">
-                    <Button variant={"outline"}>Login with Google</Button>
-                    <Button variant={"outline"}>Login with Linkedin</Button>
-                    <Separator className="m-2" />
-                    <Button variant={"secondary"}>Use Business Email</Button>
-                  </div>
-                  {/* <div className="flex flex-col items-stretch justify-start gap-2">
+              > */}
+              <fieldset>
+                <DialogHeader>
+                  <DialogTitle>Login & signup</DialogTitle>
+                  <DialogDescription>
+                    Authenticate to start reviewing products.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="flex flex-col items-stretch justify-start gap-2">
+                  <Tabs defaultValue="login">
+                    <TabsList className="my-2 grid w-full grid-cols-2 shadow-sm">
+                      <TabsTrigger value="login">Log In</TabsTrigger>
+                      <TabsTrigger value="signup">Sign Up</TabsTrigger>
+                    </TabsList>
+                    <TabsContent
+                      value="login"
+                      className="flex flex-col items-stretch justify-start gap-2"
+                    >
+                      <Button variant={"outline"}>Login with Google</Button>
+                      <Button variant={"outline"}>Login with Linkedin</Button>
+                      <Separator className="m-2" />
+                      <form
+                        method="post"
+                        className="flex w-full flex-col gap-2"
+                      >
+                        <p className="text-lg font-semibold">
+                          Login using email
+                        </p>
+                        <Input
+                          type="email"
+                          name="email"
+                          placeholder="Email"
+                          required
+                          autoFocus
+                        />
+                        <Input
+                          type="password"
+                          name="password"
+                          placeholder="password"
+                          required
+                          autoFocus
+                        />
+                        <input type="hidden" name="action" value="login" />
+                        <Button className="w-full" variant={"hero"}>
+                          Log In
+                        </Button>
+                      </form>
+                    </TabsContent>
+                    <TabsContent
+                      value="signup"
+                      className="flex flex-col items-stretch justify-start gap-2"
+                    >
+                      <Button variant={"outline"}>Login with Google</Button>
+                      <Button variant={"outline"}>Login with Linkedin</Button>
+                      <Separator className="m-2" />
+                      <authenticationFetcher.Form
+                        action="/api/authentication"
+                        method="post"
+                        className="flex w-full flex-col gap-2"
+                      >
+                        <p className="text-lg font-semibold">
+                          Sign Up using email
+                        </p>
+                        <Input
+                          type="email"
+                          name="email"
+                          placeholder="Email"
+                          required
+                          autoFocus
+                        />
+                        <Input
+                          type="password"
+                          name="password"
+                          placeholder="password"
+                          required
+                          autoFocus
+                        />
+                        <input type="hidden" name="action" value="signup" />
+                        {/* <Input
+                            type="confirmPassword"
+                            name="confirmPassword"
+                            placeholder="password"
+                            required
+                            autoFocus
+                          /> */}
+                        <Button
+                          className="w-full"
+                          type="submit"
+                          variant={"hero"}
+                          disabled={authenticationFetcher.state !== "idle"}
+                        >
+                          Sign Up
+                        </Button>
+                      </authenticationFetcher.Form>
+                      <div>
+                        {authenticationFetcher.data?.error ? (
+                          <p className="text-center font-semibold text-red-500">
+                            ERROR: {authenticationFetcher.data?.error}
+                          </p>
+                        ) : null}
+                      </div>
+                    </TabsContent>
+                  </Tabs>
+                </div>
+                {/* <div className="flex flex-col items-stretch justify-start gap-2">
                   <Input
                     type="email"
                     name="email"
@@ -228,7 +333,7 @@ export function NavbarPublic() {
                     />
                   ) : null}
                 </div> */}
-                  {/* <DialogFooter>
+                {/* <DialogFooter>
                   {isOTPSent ? (
                     <Button variant="hero" type="submit">
                       <Check size={16} className="opacity-50" />
@@ -241,8 +346,8 @@ export function NavbarPublic() {
                     </Button>
                   )}
                 </DialogFooter> */}
-                </fieldset>
-              </authenticationFetcher.Form>
+              </fieldset>
+              {/* </form> */}
             </DialogContent>
           </Dialog>
         </div>
@@ -336,15 +441,12 @@ export function NavbarPublic() {
                   </Button>
                 </DialogTrigger>
                 <DialogContent>
-                  <authenticationFetcher.Form
+                  <form
                     // action="/api/authentication"
                     method="post"
                     className="contents"
                   >
-                    <fieldset
-                      disabled={authenticationFetcher.state !== "idle"}
-                      className="contents"
-                    >
+                    <fieldset>
                       <DialogHeader>
                         <DialogTitle>Login</DialogTitle>
                         <DialogDescription>
@@ -400,7 +502,7 @@ export function NavbarPublic() {
                   )}
                 </DialogFooter> */}
                     </fieldset>
-                  </authenticationFetcher.Form>
+                  </form>
                 </DialogContent>
               </Dialog>
             </SheetFooter>
@@ -420,7 +522,7 @@ export function NavbarDashboard() {
     <nav className="container flex flex-row items-center justify-between gap-4 px-4">
       <Link to="/" className="flex flex-row items-center justify-start gap-2">
         <img src="/logo.svg" alt="logo" width={20} height={20} />
-        <span className="text-xl/none font-bold">SaaSData</span>
+        <span className="text-xl/none font-bold">saaskart</span>
       </Link>
 
       <Form id="logoutForm" action="/logout" method="post" />
@@ -451,13 +553,13 @@ export function NavbarDashboard() {
                   <p className="text-sm/none font-medium">
                     {loaderData.user.email}
                   </p>
-                  <p className="text-xs/none opacity-75">
+                  {/* <p className="text-xs/none opacity-75">
                     {loaderData.user.isLifetime
                       ? "Lifetime"
                       : loaderData.user.subscriptionId
                         ? "Subscription"
                         : "Unknown"}
-                  </p>
+                  </p> */}
                 </div>
               </div>
             </DropdownMenuLabel>
@@ -469,7 +571,7 @@ export function NavbarDashboard() {
                   <span>Dashboard</span>
                 </Link>
               </DropdownMenuItem>
-              {loaderData.user.subscriptionId ? (
+              {/* {loaderData.user.subscriptionId ? (
                 <DropdownMenuItem asChild>
                   <Link
                     to="https://buy.saasdata.app/billing"
@@ -480,7 +582,7 @@ export function NavbarDashboard() {
                     <span>Billing</span>
                   </Link>
                 </DropdownMenuItem>
-              ) : null}
+              ) : null} */}
               <DropdownMenuItem asChild>
                 <Link to="/legal#contact">
                   <LifeBuoy size={14} className="opacity-50" />

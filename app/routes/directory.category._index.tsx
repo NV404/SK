@@ -13,7 +13,7 @@ import { db } from "@/db/index.server"
 import { getMetaTags } from "@/config/meta"
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  return json(await db.query.industries.findMany(), {
+  return json(await db.query.categories.findMany(), {
     headers: {
       "Cache-Control": cacheHeader({
         public: true,

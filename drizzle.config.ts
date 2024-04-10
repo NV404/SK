@@ -1,6 +1,6 @@
+import * as dotenv from "dotenv"
 import type { Config } from "drizzle-kit"
 
-import * as dotenv from "dotenv"
 dotenv.config()
 
 const DATABASE_URL = process.env.DATABASE_URL
@@ -16,5 +16,5 @@ export default {
   dbCredentials: {
     connectionString: DATABASE_URL,
   },
-  tablesFilter: ["saasdata_*"],
+  tablesFilter: ["saaskart_*"],
 } satisfies Config

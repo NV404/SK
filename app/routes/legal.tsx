@@ -18,7 +18,7 @@ export const meta: MetaFunction = () => {
     ...getMetaTags({
       title: ["Legal"],
       description:
-        "Contact information, privacy policy & terms of service for SaaSData.app",
+        "Contact information, privacy policy & terms of service for saaskart.co",
     }),
   ]
 }
@@ -35,7 +35,7 @@ export default function Legal() {
         </Button>
         <Link to="/" className="flex flex-row items-center justify-start gap-2">
           <img src="/logo.svg" alt="logo" width={20} height={20} />
-          <span className="text-xl/none font-bold">SaaSData</span>
+          <span className="text-xl/none font-bold">saaskart</span>
           <p className="text-xl/none font-medium opacity-75">Legal</p>
         </Link>
       </div>
@@ -73,7 +73,7 @@ const sections: Array<{
         <p>For any inquiries or assistance, please contact us at:</p>
 
         <p>
-          SaaSData
+          saaskart
           {/* <br />
           [Your Company Address]
           <br />
@@ -96,7 +96,7 @@ const sections: Array<{
         </p>
 
         <p>
-          At SaaSData, we are committed to protecting the privacy of our users.
+          At saaskart, we are committed to protecting the privacy of our users.
           This Privacy Policy outlines how we collect, use, and safeguard your
           information when you use our website.
         </p>
@@ -130,7 +130,7 @@ const sections: Array<{
         </p>
 
         <h3>Terms of Service:</h3>
-        <p>By using SaaSData, you agree to our Terms of Service.</p>
+        <p>By using saaskart, you agree to our Terms of Service.</p>
 
         <h3>Changes to Privacy Policy:</h3>
         <p>
@@ -150,7 +150,7 @@ const sections: Array<{
         </p>
 
         <p>
-          By accessing and using SaaSData, you agree to be bound by these Terms
+          By accessing and using saaskart, you agree to be bound by these Terms
           of Service.
         </p>
 
@@ -178,7 +178,7 @@ const sections: Array<{
 
         <h3>Disclaimer:</h3>
         <p>
-          SaaSData is provided "as is" without any warranty. We are not
+          saaskart is provided "as is" without any warranty. We are not
           responsible for any inaccuracies or errors in the data.
         </p>
 

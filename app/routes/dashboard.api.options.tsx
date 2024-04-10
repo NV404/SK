@@ -34,10 +34,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
   if (name === "industries") {
     response = await db
       .selectDistinct({
-        value: schema.industries.id,
-        label: schema.industries.name,
+        value: schema.categories.id,
+        label: schema.categories.name,
       })
-      .from(schema.industries)
+      .from(schema.categories)
   }
 
   if (

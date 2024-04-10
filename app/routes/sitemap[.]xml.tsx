@@ -2,7 +2,7 @@ import { cacheHeader } from "pretty-cache-header"
 
 import { db } from "@/db/index.server"
 
-const SITE = "https://www.saasdata.app"
+const SITE = "https://www.saaskart.co"
 
 const START = `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">`
 const END = `</urlset>`
@@ -17,7 +17,7 @@ export async function loader() {
   urls.push(getURLEntry(`/`))
   urls.push(getURLEntry(`/directory`))
   urls.push(getURLEntry(`/directory/countries`))
-  urls.push(getURLEntry(`/directory/industries`))
+  urls.push(getURLEntry(`/directory/category`))
   urls.push(getURLEntry(`/legal`))
 
   try {
@@ -25,7 +25,7 @@ export async function loader() {
       columns: {
         id: true,
         country: true,
-        industryId: true,
+        // industryId: true,
       },
     })
 
@@ -34,7 +34,7 @@ export async function loader() {
 
     _companies.forEach((company) => {
       if (company.country) countries.add(company.country)
-      if (company.industryId) industries.add(company.industryId)
+      // if (company.industryId) industries.add(company.industryId)
 
       urls.push(getURLEntry(`/companies/${company.id}`))
     })
@@ -46,7 +46,7 @@ export async function loader() {
     })
     industries.forEach(function (industry) {
       urls.push(
-        getURLEntry(`/directory/industries/${encodeURIComponent(industry)}`),
+        getURLEntry(`/directory/category/${encodeURIComponent(industry)}`),
       )
     })
   } catch (error) {

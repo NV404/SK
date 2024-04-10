@@ -6,7 +6,6 @@ import {
 import {
   boolean,
   decimal,
-  jsonb,
   pgTableCreator,
   primaryKey,
   smallint,
@@ -15,34 +14,20 @@ import {
   uuid,
 } from "drizzle-orm/pg-core"
 
-const pgTable = pgTableCreator((name) => `saasdata_${name}`)
-
-export const lifetimeRedeemCodes = pgTable("lifetime_redeem_codes", {
-  code: uuid("code").primaryKey().defaultRandom(),
-  usedBy: uuid("used_by"),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-})
-
-export type LifetimeRedeemCode = InferSelectModel<typeof lifetimeRedeemCodes>
-export type LifetimeRedeemCodeInsert = InferInsertModel<
-  typeof lifetimeRedeemCodes
->
+const pgTable = pgTableCreator((name) => `saaskart_${name}`)
 
 export const users = pgTable("users", {
   id: uuid("id").primaryKey().defaultRandom(),
   email: text("email").unique().notNull(),
 
-  isLifetime: boolean("is_lifetime").notNull().default(false),
-  subscriptionId: text("subscription_id"),
-  customerId: text("customer_id"),
-  variantId: text("variant_id"),
-  currentPeriodEnd: text("current_period_end"),
+  isAdmin: boolean("is_admin").notNull().default(false),
+  name: text("name"),
+  phoneNumber: text("phone_number"),
 
-  otp: text("otp"),
-  otpSentAt: timestamp("otp_sent_at"),
+  linkedinLink: text("linkedin_link"),
+  profileImage: text("profile_image"),
 
-  cancelled: boolean("cancelled").notNull().default(false),
-  expired: boolean("expired").notNull().default(false),
+  passwordHash: text("password_hash").notNull(),
 
   createdAt: timestamp("created_at").notNull().defaultNow(),
 })
@@ -51,17 +36,18 @@ export type User = InferSelectModel<typeof users>
 export type UserInsert = InferInsertModel<typeof users>
 
 export const companies = pgTable("companies", {
-  id: text("id").primaryKey(),
+  id: uuid("id").primaryKey().defaultRandom(),
 
   name: text("name").notNull(),
   description: text("description"),
   yearOfIncorporation: smallint("year_of_incorporation"),
+  claimed_status: text("claimed_status"),
+  banner_image: text("banner_image"),
 
   logo: text("logo"),
-  domain: text("domain").notNull(),
+  domain: text("domain"),
 
-  socialsId: text("socials_id"),
-  industryId: text("industry_id"),
+  socialsId: uuid("socials_id"),
 
   country: text("country"),
   state: text("state"),
@@ -69,20 +55,35 @@ export const companies = pgTable("companies", {
   street: text("street"),
   postal: text("postal"),
 
-  metricsId: text("metrics_id").notNull(),
+  metricsId: uuid("metrics_id").notNull(),
 
   sources: text("sources").array(),
 
   updatedAt: timestamp("updated_at"),
-
-  public: boolean("public").notNull().default(false),
 })
 
 export type Company = InferSelectModel<typeof companies>
 export type CompanyInsert = InferInsertModel<typeof companies>
 
+export const company_pricing = pgTable("company_pricing", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  companyId: uuid("company_id"),
+
+  name: text("name"),
+
+  pricing: text("pricing"),
+  description: text("description"),
+  details: text("details").array(),
+
+  hasOffer: boolean("hasOffer").default(false),
+  offerTitle: text("offerTitle"),
+  offerDiscriptoin: text("offerDiscriptoin"),
+  offerLink: text("offerLink"),
+  offerCoupon: text("offerCoupon"),
+})
+
 export const companies_socials = pgTable("companies_socials", {
-  companyId: text("company_id").primaryKey(),
+  companyId: uuid("company_id").primaryKey(),
 
   website: text("website"),
   linkedIn: text("linkedIn"),
@@ -96,7 +97,7 @@ export type CompanySocials = InferSelectModel<typeof companies_socials>
 export type CompanySocialsInsert = InferInsertModel<typeof companies_socials>
 
 export const companies_metrics = pgTable("companies_metrics", {
-  companyId: text("company_id").primaryKey(),
+  companyId: uuid("company_id").primaryKey(),
 
   funding: decimal("funding").notNull(),
   valuation: decimal("valuation").notNull(),
@@ -129,7 +130,7 @@ export type CompanyMetricsInsert = InferInsertModel<typeof companies_metrics>
 
 export const companies_metrics_history = pgTable("companies_metrics_history", {
   id: uuid("id").primaryKey().defaultRandom(),
-  companyId: text("company_id").notNull(),
+  companyId: uuid("company_id").notNull(),
 
   name: text("name").notNull(),
   value: decimal("value").notNull(),
@@ -146,7 +147,7 @@ export type CompanyMetricsHistoryInsert = InferInsertModel<
 
 export const companies_funding_history = pgTable("companies_funding_history", {
   id: uuid("id").primaryKey().defaultRandom(),
-  companyId: text("company_id").notNull(),
+  companyId: uuid("company_id").notNull(),
 
   funding: decimal("funding"),
   valuation: decimal("valuation"),
@@ -165,8 +166,8 @@ export type CompanyFundingHistoryInsert = InferInsertModel<
 export const competitors = pgTable(
   "competitors",
   {
-    companyId: text("company_id").notNull(),
-    competitorId: text("competitor_id").notNull(),
+    companyId: uuid("company_id").notNull(),
+    competitorId: uuid("competitor_id").notNull(),
   },
   (table) => {
     return {
@@ -181,54 +182,59 @@ export const competitors = pgTable(
 export type Competitor = InferSelectModel<typeof competitors>
 export type CompetitorInsert = InferInsertModel<typeof competitors>
 
-export const industries = pgTable("industries", {
-  id: text("id").primaryKey(),
-  name: text("name").notNull(),
-})
-
-export type Industry = InferSelectModel<typeof industries>
-export type IndustryInsert = InferInsertModel<typeof industries>
-
-export const founders = pgTable("founders", {
-  id: text("id").primaryKey(),
-  companyId: text("company_id").notNull(),
+export const categories = pgTable("categories", {
+  id: uuid("id").primaryKey().defaultRandom(),
 
   name: text("name").notNull(),
-  yob: smallint("year_of_birth"),
-  biography: text("biography"),
+  slug: text("slug").notNull(),
 
-  email: text("email"),
-  personalEmail: text("personal_email"),
-  linkedIn: text("linkedin"),
-
-  title: text("title").notNull(),
-  isCeo: boolean("is_ceo").notNull(),
-
-  additionalInformation: jsonb("additional_information").$type<{
-    sleepHours?: string | null
-
-    favoriteCeo?: string | null
-    favoriteBook?: string | null
-    favoriteTool?: string | null
-
-    adviceTo20Yo?: string | null
-
-    married?: boolean | null
-    kids?: string | null
-  }>(),
+  parent_category: text("parent_category"),
+  category_title: text("category_title"),
+  category_header: text("category_header"),
+  category_footer: text("category_footer"),
 })
 
-export type Founder = InferSelectModel<typeof founders>
-export type FounderInsert = InferInsertModel<typeof founders>
+export type Category = InferSelectModel<typeof categories>
+export type CategoryInsert = InferInsertModel<typeof categories>
+
+export const compinesToCategories = pgTable(
+  "compines-to-categories",
+  {
+    categoryId: uuid("category_id")
+      .notNull()
+      .references(() => categories.id),
+    companyId: uuid("company_id")
+      .notNull()
+      .references(() => companies.id),
+  },
+  (t) => ({
+    pk: primaryKey({ columns: [t.categoryId, t.companyId] }),
+  }),
+)
+
+export type CompinesToCategory = InferSelectModel<typeof compinesToCategories>
+export type CompinesToCategoryInsert = InferInsertModel<
+  typeof compinesToCategories
+>
+
+export const compinesToCategoriesRelations = relations(
+  compinesToCategories,
+  ({ one }) => ({
+    category: one(categories, {
+      fields: [compinesToCategories.categoryId],
+      references: [categories.id],
+    }),
+    company: one(companies, {
+      fields: [compinesToCategories.companyId],
+      references: [companies.id],
+    }),
+  }),
+)
 
 export const companiesRelations = relations(companies, ({ one, many }) => ({
   socials: one(companies_socials, {
     fields: [companies.socialsId],
     references: [companies_socials.companyId],
-  }),
-  industry: one(industries, {
-    fields: [companies.industryId],
-    references: [industries.id],
   }),
   metrics: one(companies_metrics, {
     fields: [companies.metricsId],
@@ -236,7 +242,8 @@ export const companiesRelations = relations(companies, ({ one, many }) => ({
   }),
   metricsHistory: many(companies_metrics_history),
   fundingHistory: many(companies_funding_history),
-  founders: many(founders),
+  pricings: many(company_pricing),
+  compinesToCategories: many(compinesToCategories),
 }))
 
 export const companiesSocialsRelations = relations(
@@ -260,8 +267,8 @@ export const competitorsRelations = relations(competitors, ({ one, many }) => ({
   }),
 }))
 
-export const industriesRelations = relations(industries, ({ one, many }) => ({
-  companies: many(companies),
+export const categoriesRelations = relations(categories, ({ one, many }) => ({
+  compinesToCategories: many(compinesToCategories),
 }))
 
 export const companiesMetricsRelations = relations(
@@ -294,9 +301,12 @@ export const companiesFundingHistoryRelations = relations(
   }),
 )
 
-export const foundersRelations = relations(founders, ({ one, many }) => ({
-  company: one(companies, {
-    fields: [founders.companyId],
-    references: [companies.id],
+export const companiesPricingRelations = relations(
+  company_pricing,
+  ({ one, many }) => ({
+    company: one(companies, {
+      fields: [company_pricing.companyId],
+      references: [companies.id],
+    }),
   }),
-}))
+)

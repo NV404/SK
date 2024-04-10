@@ -15,34 +15,13 @@ import {
   uuid,
 } from "drizzle-orm/pg-core"
 
-const pgTable = pgTableCreator((name) => `saasdata_${name}`)
-
-export const lifetimeRedeemCodes = pgTable("lifetime_redeem_codes", {
-  code: uuid("code").primaryKey().defaultRandom(),
-  usedBy: uuid("used_by"),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-})
-
-export type LifetimeRedeemCode = InferSelectModel<typeof lifetimeRedeemCodes>
-export type LifetimeRedeemCodeInsert = InferInsertModel<
-  typeof lifetimeRedeemCodes
->
+const pgTable = pgTableCreator((name) => `saaskart_${name}`)
 
 export const users = pgTable("users", {
   id: uuid("id").primaryKey().defaultRandom(),
   email: text("email").unique().notNull(),
 
-  isLifetime: boolean("is_lifetime").notNull().default(false),
-  subscriptionId: text("subscription_id"),
-  customerId: text("customer_id"),
-  variantId: text("variant_id"),
-  currentPeriodEnd: text("current_period_end"),
-
-  otp: text("otp"),
-  otpSentAt: timestamp("otp_sent_at"),
-
-  cancelled: boolean("cancelled").notNull().default(false),
-  expired: boolean("expired").notNull().default(false),
+  //edit
 
   createdAt: timestamp("created_at").notNull().defaultNow(),
 })
@@ -60,7 +39,7 @@ export const companies = pgTable("companies", {
   banner_image: text("banner_image"),
 
   logo: text("logo"),
-  domain: text("domain").notNull(),
+  domain: text("domain"),
 
   socialsId: text("socials_id"),
   industryId: text("industry_id"),
@@ -76,8 +55,6 @@ export const companies = pgTable("companies", {
   sources: text("sources").array(),
 
   updatedAt: timestamp("updated_at"),
-
-  public: boolean("public").notNull().default(false),
 })
 
 export type Company = InferSelectModel<typeof companies>
@@ -87,11 +64,16 @@ export const company_pricing = pgTable("company_pricing", {
   companyId: text("company_id").primaryKey(),
 
   name: text("name"),
-  pricing_user: text("pricing_user"),
-  
+
   pricing: text("pricing"),
   description: text("description"),
   details: text("details").array(),
+
+  hasOffer: boolean("hasOffer").default(false),
+  offerTitle: text("offerTitle"),
+  offerDiscriptoin: text("offerDiscriptoin"),
+  offerLink: text("offerLink"),
+  offerCoupon: text("offerCoupon"),
 })
 
 export const companies_socials = pgTable("companies_socials", {
@@ -198,44 +180,12 @@ export const industries = pgTable("industries", {
   id: text("id").primaryKey(),
   name: text("name").notNull(),
   category_title: text("category_title"),
-  about_category: text("about_category"),
-  parent_industry: text("parent_industry"),
+  category_header: text("category_header"),
+  category_footer: text("category_footer"),
 })
 
 export type Industry = InferSelectModel<typeof industries>
 export type IndustryInsert = InferInsertModel<typeof industries>
-
-export const founders = pgTable("founders", {
-  id: text("id").primaryKey(),
-  companyId: text("company_id").notNull(),
-
-  name: text("name").notNull(),
-  yob: smallint("year_of_birth"),
-  biography: text("biography"),
-
-  email: text("email"),
-  personalEmail: text("personal_email"),
-  linkedIn: text("linkedin"),
-
-  title: text("title").notNull(),
-  isCeo: boolean("is_ceo").notNull(),
-
-  additionalInformation: jsonb("additional_information").$type<{
-    sleepHours?: string | null
-
-    favoriteCeo?: string | null
-    favoriteBook?: string | null
-    favoriteTool?: string | null
-
-    adviceTo20Yo?: string | null
-
-    married?: boolean | null
-    kids?: string | null
-  }>(),
-})
-
-export type Founder = InferSelectModel<typeof founders>
-export type FounderInsert = InferInsertModel<typeof founders>
 
 export const companiesRelations = relations(companies, ({ one, many }) => ({
   socials: one(companies_socials, {
@@ -252,8 +202,7 @@ export const companiesRelations = relations(companies, ({ one, many }) => ({
   }),
   metricsHistory: many(companies_metrics_history),
   fundingHistory: many(companies_funding_history),
-  founders: many(founders),
-  pricings: many(company_pricing)
+  pricings: many(company_pricing),
 }))
 
 export const companiesSocialsRelations = relations(
@@ -310,10 +259,3 @@ export const companiesFundingHistoryRelations = relations(
     }),
   }),
 )
-
-export const foundersRelations = relations(founders, ({ one, many }) => ({
-  company: one(companies, {
-    fields: [founders.companyId],
-    references: [companies.id],
-  }),
-}))

@@ -1,5 +1,6 @@
 import { createCookieSessionStorage, redirect } from "@remix-run/node"
-import { eq } from "drizzle-orm"
+import bcrypt from "bcryptjs"
+import { and, eq } from "drizzle-orm"
 
 import { db } from "@/db/index.server"
 import { users } from "@/db/schema"
@@ -9,7 +10,7 @@ if (!sessionSecret) {
   throw new Error("SESSION_SECRET must be set")
 }
 
-const storage = createCookieSessionStorage({
+export const storage = createCookieSessionStorage({
   cookie: {
     name: "RJ_session",
     // normally you want this to be `secure: true`
@@ -63,6 +64,45 @@ export async function getUser(request: Request, autoLogout: boolean = true) {
   }
 
   return user
+}
+
+export async function login(email: string, password: string) {
+  const [user] = await db.select().from(users).where(eq(users.email, email))
+
+  if (!user) {
+    return { error: "user not found!", user }
+  }
+
+  const isCorrectPassword = await bcrypt.compare(password, user.passwordHash)
+  if (!isCorrectPassword) {
+    return { error: "password is incorrect!!", user }
+  }
+
+  return { user }
+}
+
+export async function signup(email: string, password: string) {
+  const passwordHash = await bcrypt.hash(password, 10)
+  if (password.length < 6) {
+    return { error: "password is too short!!", user: null }
+  }
+  const [userCheck] = await db
+    .select()
+    .from(users)
+    .where(eq(users.email, email))
+  if (userCheck) {
+    console.log(userCheck, "userCheck")
+    return { error: "user with this email already exists!!", user: null }
+  }
+  const [user] = await db
+    .insert(users)
+    .values({
+      email: email,
+      passwordHash: passwordHash,
+    })
+    .returning()
+
+  return { user }
 }
 
 export async function logout(request: Request) {
