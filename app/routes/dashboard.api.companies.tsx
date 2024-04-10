@@ -173,9 +173,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
     {
       headers: {
         "Cache-Control": cacheHeader({
-          private: true,
-          maxAge: "1weeks",
-          staleWhileRevalidate: "2weeks",
+          noCache: true,
+          noStore: true,
         }),
       },
     },

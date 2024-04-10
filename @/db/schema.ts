@@ -6,6 +6,7 @@ import {
 import {
   boolean,
   decimal,
+  jsonb,
   pgTableCreator,
   primaryKey,
   smallint,
@@ -54,6 +55,11 @@ export const companies = pgTable("companies", {
   city: text("city"),
   street: text("street"),
   postal: text("postal"),
+
+  productImages: text("product_images").array(),
+  companyValues: text("company_values").array(),
+  companyFeatures: jsonb("company_features").array(),
+  saaskartThink: text("saaskart_think"),
 
   metricsId: uuid("metrics_id").notNull(),
 

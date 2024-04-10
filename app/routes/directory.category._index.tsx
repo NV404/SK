@@ -44,7 +44,10 @@ export default function DirectoryIndustriesHome() {
       <div className="container flex flex-row flex-wrap items-center justify-start gap-4 px-4">
         {loaderData.map((industry) => (
           <Button key={industry.id} asChild variant="outline" size="sm">
-            <Link key={industry.id} to={`./${industry.id}`}>
+            <Link
+              key={industry.id}
+              to={`./${industry.id}?name=${industry.name}`}
+            >
               {industry.name}
             </Link>
           </Button>

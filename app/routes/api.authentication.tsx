@@ -1,6 +1,14 @@
-import { type ActionFunctionArgs } from "@remix-run/node"
+import { type ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node"
 
-import { createUserSession, login, signup } from "@/lib/session.server"
+import { createUserSession, getUser, login, signup } from "@/lib/session.server"
+
+export async function loader({ request }: LoaderFunctionArgs) {
+  const user = await getUser(request)
+  if (!user) {
+    return null
+  }
+  return { user }
+}
 
 export async function action({ request }: ActionFunctionArgs) {
   const form = await request.formData()

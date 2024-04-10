@@ -107,6 +107,11 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       metrics: true,
       metricsHistory: true,
       fundingHistory: true,
+      compinesToCategories: {
+        with: {
+          category: true,
+        },
+      },
     },
   })
 
@@ -423,7 +428,7 @@ export default function Company() {
             ) : (
               <CircleOff size={90} className="opacity-50" />
             )}
-            <div className="flex w-full flex-col items-center justify-between lg:flex-row">
+            <div className="flex w-full flex-col items-center justify-between pb-6 lg:flex-row">
               <div className="flex flex-1 flex-col items-start justify-start gap-2">
                 <h1 className="text-xl/none font-extrabold sm:text-2xl/none md:text-3xl/none">
                   {company.name}
@@ -524,20 +529,21 @@ export default function Company() {
                     </DialogContent>
                   </Dialog>
                   <div className="font-semibold text-gray-400">|</div>
-                  {/* {company.industry?.name ? (
+                  {company.compinesToCategories &&
+                  company.compinesToCategories.length > 0 ? (
                     <Link
-                      to={`/directory/category/${company.industry.id}`}
+                      to={`/directory/category/${company.compinesToCategories[0].category.id}?name=${company.compinesToCategories[0].category.name}`}
                       className="flex items-center gap-2 text-base/none font-semibold opacity-75 hover:underline sm:text-lg/none"
                     >
                       <FactoryIcon size={18} />
-                      {company.industry.name}
+                      {company.compinesToCategories[0].category.name}
                     </Link>
-                  ) : null} */}
+                  ) : null}
                 </div>
                 {company.country ? (
                   <Link
                     to={`/directory/countries/${company.country}`}
-                    className="mb-6 hidden text-sm/none font-medium opacity-75 sm:text-base/none md:text-lg/none lg:block"
+                    className="hidden text-sm/none font-medium opacity-75 sm:text-base/none md:text-lg/none lg:block"
                   >
                     {[
                       company.street,
@@ -656,12 +662,27 @@ export default function Company() {
 
         <div className="flex flex-col gap-3 lg:flex-row">
           <Tabs defaultValue="overview" className="w-full">
-            <TabsList className="sticky top-0 z-10 grid w-full grid-cols-5 shadow-sm">
-              <TabsTrigger value="overview">Overview</TabsTrigger>
-              <TabsTrigger value="pricing">Pricing</TabsTrigger>
-              <TabsTrigger value="features">Features</TabsTrigger>
-              <TabsTrigger value="metrics">Metrics</TabsTrigger>
-              <TabsTrigger value="reviews">Reviews</TabsTrigger>
+            <TabsList className="sticky top-0 z-10 flex w-full items-center shadow-sm">
+              <TabsTrigger value="overview" className="w-full">
+                Overview
+              </TabsTrigger>
+              {/* <TabsTrigger value="pricing" className="w-full">
+                Pricing
+              </TabsTrigger> */}
+              {company.companyFeatures && company.companyFeatures.length > 0 ? (
+                <TabsTrigger value="features" className="w-full">
+                  Features
+                </TabsTrigger>
+              ) : null}
+              {metricsHistoryChartPossible.length ? (
+                <TabsTrigger value="metrics" className="w-full">
+                  Metrics
+                </TabsTrigger>
+              ) : null}
+              {/* // TODO */}
+              {/* <TabsTrigger value="reviews" className="w-full">
+                Reviews
+              </TabsTrigger> */}
             </TabsList>
             <TabsContent value="overview" className="flex flex-col gap-4">
               <Card>
@@ -674,18 +695,10 @@ export default function Company() {
                     </h3>
                     <div className="h-px flex-1 rounded-full bg-border"></div>
                   </div>
-                  <p>
-                    Salesforce Sales Cloud is the complete platform for
-                    Salesblazers, our community of sellers, sales leaders, and
-                    sales operations professionals, to grow sales and increase
-                    productivity. With the #1 AI Salesforce Sales Cloud is the
-                    complete platform for Salesblazers, our community of
-                    sellers, sales leaders, and sales operations professionals,
-                    to grow sales and increase...
-                  </p>
-                  <p className="w-fit cursor-pointer text-blue-500">
+                  <p>{company.description}</p>
+                  {/* <p className="w-fit cursor-pointer text-blue-500">
                     Show More
-                  </p>
+                  </p> */}
                 </CardHeader>
                 <CardContent className="space-y-2">
                   <section className="flex flex-col items-stretch justify-start gap-6">
@@ -856,63 +869,38 @@ export default function Company() {
                       ) : null}
                     </div>
                   </section>
-                  <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-                    <div className="flex flex-row items-center justify-between gap-4 py-4">
-                      <div className="h-px flex-1 rounded-full bg-border"></div>
-                      <h3 className="text-base/none font-bold sm:text-lg/none md:text-xl/none">
-                        Values & Ethics
-                      </h3>
-                      <div className="h-px flex-1 rounded-full bg-border"></div>
-                    </div>
-                    <p className="mt-2 text-gray-600">
-                      We believe business is the greatest platform for change
-                      and proudly invite others to join us in taking action for
-                      people and the planet.
-                    </p>
-                    <div className="mt-8 grid grid-cols-1 gap-8 md:grid-cols-2">
-                      <div>
-                        <h3 className="flex items-center text-lg font-medium leading-6 text-gray-900">
-                          <ChevronRightIcon className="mr-2 h-5 w-5 text-red-500" />
-                          Trust is our #1 value.
+                  {company?.companyValues &&
+                  company?.companyValues?.length > 0 ? (
+                    <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+                      <div className="flex flex-row items-center justify-between gap-4 py-4">
+                        <div className="h-px flex-1 rounded-full bg-border"></div>
+                        <h3 className="text-base/none font-bold sm:text-lg/none md:text-xl/none">
+                          Values & Ethics
                         </h3>
-                        <p className="mt-2 text-gray-600">
-                          We build trust with stakeholders by leading with
-                          ethics and through the integrity of our technology.
-                        </p>
+                        <div className="h-px flex-1 rounded-full bg-border"></div>
                       </div>
-                      <div>
-                        <h3 className="flex items-center text-lg font-medium leading-6 text-gray-900">
-                          <ChevronRightIcon className="mr-2 h-5 w-5 text-red-500" />
-                          Customer Success
-                        </h3>
-                        <p className="mt-2 text-gray-600">
-                          When our customers succeed, we succeed.
-                        </p>
-                      </div>
-                      <div>
-                        <h3 className="flex items-center text-lg font-medium leading-6 text-gray-900">
-                          <ChevronRightIcon className="mr-2 h-5 w-5 text-red-500" />
-                          Innovation
-                        </h3>
-                        <p className="mt-2 text-gray-600">
-                          Our products are easy-to-use, integrated, scalable,
-                          and deliver fast time to value.
-                        </p>
-                      </div>
-                      <div>
-                        <h3 className="flex items-center text-lg font-medium leading-6 text-gray-900">
-                          <ChevronRightIcon className="mr-2 h-5 w-5 text-red-500" />
-                          Equality
-                        </h3>
-                        <p className="mt-2 text-gray-600">
-                          We are more powerful when we work together.
-                        </p>
+                      <p className="mt-2 text-gray-600">
+                        We believe business is the greatest platform for change
+                        and proudly invite others to join us in taking action
+                        for people and the planet.
+                      </p>
+                      <div className="mt-8 grid grid-cols-1 gap-8 md:grid-cols-2">
+                        {company.companyValues.map((value: string) => (
+                          <div>
+                            <h3 className="flex items-center text-lg font-medium leading-6 text-gray-900">
+                              <ChevronRightIcon className="mr-2 h-5 w-5 text-red-500" />
+                              {value}
+                            </h3>
+                          </div>
+                        ))}
                       </div>
                     </div>
-                  </div>
+                  ) : null}
                 </CardContent>
               </Card>
-              <Card>
+
+              {/* Pricing Card */}
+              {/* <Card>
                 <CardContent className="flex flex-col gap-4 py-7">
                   <div className="flex flex-row items-center justify-between gap-4 py-4">
                     <div className="h-px flex-1 rounded-full bg-border"></div>
@@ -1019,10 +1007,10 @@ export default function Company() {
                     </div>
                   </div>
                 </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="pt-10">
-                  {metricsHistoryChartPossible.length ? (
+              </Card> */}
+              {metricsHistoryChartPossible.length ? (
+                <Card>
+                  <CardContent className="pt-10">
                     <section className="flex flex-col items-stretch justify-start gap-6">
                       <div className="flex flex-row items-center justify-between gap-4">
                         <div className="h-px flex-1 rounded-full bg-border"></div>
@@ -1087,9 +1075,9 @@ export default function Company() {
                         </LineChart>
                       </ResponsiveContainer>
                     </section>
-                  ) : null}
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
+              ) : null}
               <div className="flex flex-col items-stretch justify-start gap-8">
                 {company.fundingHistory.length ? (
                   <section className="flex flex-col items-stretch justify-start gap-6">
@@ -1150,44 +1138,41 @@ export default function Company() {
                   </section>
                 ) : null}
 
-                <div className="flex flex-col items-stretch justify-start gap-8">
-                  <section className="flex flex-col items-stretch justify-start gap-6">
-                    <div className="flex flex-row items-center justify-between gap-4">
-                      <div className="h-px flex-1 rounded-full bg-border"></div>
-                      <h3 className="text-base/none font-bold sm:text-lg/none md:text-xl/none">
-                        Product Images
-                      </h3>
-                      <div className="h-px flex-1 rounded-full bg-border"></div>
-                    </div>
-                    <Carousel
-                      swipeable
-                      infiniteLoop
-                      emulateTouch
-                      autoPlay
-                      centerSlidePercentage={80}
-                    >
-                      <div>
-                        <img
-                          alt=""
-                          src="https://images.ctfassets.net/hrltx12pl8hq/28ECAQiPJZ78hxatLTa7Ts/2f695d869736ae3b0de3e56ceaca3958/free-nature-images.jpg?fit=fill&w=1200&h=630"
-                        />
+                {company.productImages && company.productImages.length > 0 ? (
+                  <div className="flex flex-col items-stretch justify-start gap-8">
+                    <section className="flex flex-col items-stretch justify-start gap-6">
+                      <div className="flex flex-row items-center justify-between gap-4">
+                        <div className="h-px flex-1 rounded-full bg-border"></div>
+                        <h3 className="text-base/none font-bold sm:text-lg/none md:text-xl/none">
+                          Product Images
+                        </h3>
+                        <div className="h-px flex-1 rounded-full bg-border"></div>
                       </div>
-                      <div>
-                        <img
-                          alt=""
-                          src="https://images.ctfassets.net/hrltx12pl8hq/28ECAQiPJZ78hxatLTa7Ts/2f695d869736ae3b0de3e56ceaca3958/free-nature-images.jpg?fit=fill&w=1200&h=630"
-                        />
-                      </div>
-                      <div>
-                        <img
-                          alt=""
-                          src="https://images.ctfassets.net/hrltx12pl8hq/28ECAQiPJZ78hxatLTa7Ts/2f695d869736ae3b0de3e56ceaca3958/free-nature-images.jpg?fit=fill&w=1200&h=630"
-                        />
-                      </div>
-                    </Carousel>
-                  </section>
-                </div>
+                      <Carousel
+                        swipeable
+                        infiniteLoop
+                        emulateTouch
+                        autoPlay
+                        centerSlidePercentage={80}
+                      >
+                        {company.productImages.map((image: string) => (
+                          <div>
+                            <img alt="" src={image} />
+                          </div>
+                        ))}
+                      </Carousel>
+                    </section>
+                  </div>
+                ) : null}
               </div>
+            </TabsContent>
+            <TabsContent value="overview" className="flex flex-col gap-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Reviews</CardTitle>
+                </CardHeader>
+                <CardContent></CardContent>
+              </Card>
             </TabsContent>
             <TabsContent value="pricing" className="flex flex-col gap-4">
               <Card>
@@ -1310,39 +1295,30 @@ export default function Company() {
                     <div className="h-px flex-1 rounded-full bg-border"></div>
                   </div>
                 </CardHeader>
-                <CardContent>
-                  <section className="flex flex-col items-stretch justify-start gap-4">
-                    <div>
-                      <h2 className="text-lg font-bold">Tasks</h2>
-                      <div className="mt-2 grid grid-cols-1 gap-4 md:grid-cols-3">
+                {company.companyFeatures &&
+                company.companyFeatures.length > 0 ? (
+                  <CardContent>
+                    <section className="flex flex-col items-stretch justify-start gap-4">
+                      {company.companyFeatures.map((feature: any) => (
                         <div>
-                          <h3 className="flex items-center text-sm font-medium leading-6 text-gray-900">
-                            <CheckCircle className="mr-2 h-5 w-5 text-green-500" />
-                            Trust is our #1 value.
-                          </h3>
+                          <h2 className="text-lg font-bold">
+                            {feature.Heading}
+                          </h2>
+                          <div className="mt-2 grid grid-cols-1 gap-4 md:grid-cols-3">
+                            {feature.Points.map((point: string) => (
+                              <div>
+                                <h3 className="flex items-center text-sm font-medium leading-6 text-gray-900">
+                                  <CheckCircle className="mr-2 h-5 w-5 text-green-500" />
+                                  {point}
+                                </h3>
+                              </div>
+                            ))}
+                          </div>
                         </div>
-                        <div>
-                          <h3 className="flex items-center text-sm font-medium leading-6 text-gray-900">
-                            <CheckCircle className="mr-2 h-5 w-5 text-green-500" />
-                            Trust is our #1 value.
-                          </h3>
-                        </div>
-                        <div>
-                          <h3 className="flex items-center text-sm font-medium leading-6 text-gray-900">
-                            <CheckCircle className="mr-2 h-5 w-5 text-green-500" />
-                            Trust is our #1 value.
-                          </h3>
-                        </div>
-                        <div>
-                          <h3 className="flex items-center text-sm font-medium leading-6 text-gray-900">
-                            <CheckCircle className="mr-2 h-5 w-5 text-green-500" />
-                            Trust is our #1 value.
-                          </h3>
-                        </div>
-                      </div>
-                    </div>
-                  </section>
-                </CardContent>
+                      ))}
+                    </section>
+                  </CardContent>
+                ) : null}
               </Card>
             </TabsContent>
             <TabsContent value="metrics" className="flex flex-col gap-4">

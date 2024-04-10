@@ -25,6 +25,7 @@ import {
 import { useEffect, useState } from "react"
 import { type loader as rootLoaderData } from "~/root"
 import { type action as authenticationAction } from "~/routes/api.authentication"
+import { type loader as authenticationLoader } from "~/routes/api.authentication"
 import { type loader as directoryCompaniesLoader } from "~/routes/api.directory.companies"
 
 // import { type action as authenticationAction } from "~/routes/api.authentication"
@@ -38,6 +39,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+
+import { User } from "@/db/schema"
 
 import { Card } from "./ui/card"
 import {
@@ -70,19 +73,12 @@ import {
 import { Tabs, TabsList, TabsTrigger } from "./ui/tabs"
 import { useToast } from "./ui/use-toast"
 
-export const loader: LoaderFunction = async ({ request }) => {
-  const session = await sessionStorage.getSession(request.headers.get("Cookie"))
-
-  const error = session.get("sessionErrorKey")
-  return json<any>({ error })
-}
-
 export function NavbarPublic() {
   const [searchParams] = useSearchParams()
   const isDefaultOpen = searchParams.get("login") === "true"
-  const loaderData = useLoaderData() as any
+  // const loaderData = useLoaderData() as any
 
-  console.log(loaderData, "loaderData")
+  // console.log(loaderData, "loaderData")
 
   // const authenticationFetcher = useFetcher<typeof authenticationAction>({
   //   key: "authentication",
@@ -106,11 +102,25 @@ export function NavbarPublic() {
 
   const navigate = useNavigate()
   const [searchQuery, setSearchQuery] = useState("")
+  const [user, setUser] = useState<User>(null)
 
   const fetcher = useFetcher<typeof directoryCompaniesLoader>()
   const authenticationFetcher = useFetcher<typeof authenticationAction>({
     key: "authentication",
   })
+
+  const userFetcher = useFetcher<typeof authenticationLoader>()
+
+  useEffect(() => {
+    userFetcher.load(`/api/authentication`)
+  }, [])
+
+  useEffect(() => {
+    console.log(userFetcher.data, "userFetcher.data")
+    if (userFetcher.data) {
+      setUser()
+    }
+  }, [userFetcher.data])
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -293,11 +303,6 @@ export function NavbarPublic() {
               </Button>
             </DialogTrigger>
             <DialogContent>
-              {/* <form
-                // action="/api/authentication"
-                method="post"
-                className="contents"
-              > */}
               <fieldset>
                 <DialogHeader>
                   <DialogTitle>Login & signup</DialogTitle>
@@ -318,7 +323,8 @@ export function NavbarPublic() {
                       <Button variant={"outline"}>Login with Google</Button>
                       <Button variant={"outline"}>Login with Linkedin</Button>
                       <Separator className="m-2" />
-                      <form
+                      <authenticationFetcher.Form
+                        action="/api/authentication"
                         method="post"
                         className="flex w-full flex-col gap-2"
                       >
@@ -343,7 +349,14 @@ export function NavbarPublic() {
                         <Button className="w-full" variant={"hero"}>
                           Log In
                         </Button>
-                      </form>
+                      </authenticationFetcher.Form>
+                      <div>
+                        {authenticationFetcher.data?.error ? (
+                          <p className="text-center font-semibold text-red-500">
+                            ERROR: {authenticationFetcher.data?.error}
+                          </p>
+                        ) : null}
+                      </div>
                     </TabsContent>
                     <TabsContent
                       value="signup"
@@ -441,7 +454,6 @@ export function NavbarPublic() {
                   )}
                 </DialogFooter> */}
               </fieldset>
-              {/* </form> */}
             </DialogContent>
           </Dialog>
         </div>
