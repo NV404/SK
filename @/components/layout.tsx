@@ -12,6 +12,7 @@ import {
 } from "@remix-run/react"
 import {
   Check,
+  ChevronDown,
   Fingerprint,
   Home,
   LifeBuoy,
@@ -38,6 +39,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 
+import { Card } from "./ui/card"
 import {
   Command,
   CommandInput,
@@ -130,9 +132,10 @@ export function NavbarPublic() {
           </Link>
           <Command className="relative flex-grow overflow-visible rounded-lg border">
             <CommandInput
-              placeholder="Search companies..."
+              placeholder="Search for products"
               value={searchQuery}
               onValueChange={setSearchQuery}
+              className="w-full"
             />
             <CommandList className="absolute left-0 top-14 z-50 w-full rounded-lg bg-white shadow-xl">
               {/* <CommandEmpty>No results found.</CommandEmpty> */}
@@ -179,7 +182,96 @@ export function NavbarPublic() {
           </NavLink>
         </Button> */}
 
-          <Button variant={"link"}>Software</Button>
+          <div className="group/level">
+            <Button
+              variant={"link"}
+              className=" relative flex items-center gap-1"
+            >
+              Software <ChevronDown size={15} />
+            </Button>
+            <Card className="min-w-40 absolute hidden flex-col py-2 group-hover/level:flex">
+              <ul className="py-2 text-sm text-gray-700 dark:text-gray-200">
+                <li>
+                  <a
+                    href="#"
+                    className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                  >
+                    Sales
+                  </a>
+                </li>
+                <li className="group/multi relative">
+                  <button
+                    id="doubleDropdownButton"
+                    data-dropdown-toggle="doubleDropdown"
+                    data-dropdown-placement="right-start"
+                    type="button"
+                    className="flex w-full items-center justify-between px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                  >
+                    Marketing
+                    <svg
+                      className="ms-3 h-2.5 w-2.5 rtl:rotate-180"
+                      aria-hidden="true"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 6 10"
+                    >
+                      <path
+                        stroke="currentColor"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="m1 9 4-4-4-4"
+                      />
+                    </svg>
+                  </button>
+                  <Card className="min-w-60 absolute -top-5 left-[103%] hidden flex-col py-2 group-hover/multi:flex">
+                    <ul className="py-2 text-sm text-gray-700 dark:text-gray-200">
+                      <li>
+                        <a
+                          href="#"
+                          className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                        >
+                          Salesforce
+                        </a>
+                      </li>
+                      <li>
+                        <a
+                          href="#"
+                          className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                        >
+                          Hubspot
+                        </a>
+                      </li>
+                      <li>
+                        <a
+                          href="#"
+                          className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                        >
+                          All Products
+                        </a>
+                      </li>
+                    </ul>
+                  </Card>
+                </li>
+                <li>
+                  <a
+                    href="#"
+                    className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                  >
+                    Tools
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="#"
+                    className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                  >
+                    All category
+                  </a>
+                </li>
+              </ul>
+            </Card>
+          </div>
 
           <Button variant={"link"}>Services</Button>
 
@@ -189,7 +281,9 @@ export function NavbarPublic() {
 
           <Button variant={"link"}>Resources</Button>
 
-          <Button variant={"link"}>Marketplace</Button>
+          <Button variant={"link"}>
+            <Link to="/marketplace">Marketplace</Link>
+          </Button>
 
           <Dialog defaultOpen={isDefaultOpen}>
             <DialogTrigger asChild>
@@ -372,9 +466,10 @@ export function NavbarPublic() {
               <SheetTitle>Menu</SheetTitle>
               <Command className="relative overflow-visible rounded-lg border">
                 <CommandInput
-                  placeholder="Search companies..."
+                  placeholder="Search for products"
                   value={searchQuery}
                   onValueChange={setSearchQuery}
+                  className="w-full"
                 />
                 <CommandList className="absolute left-0 top-14 z-50 w-full rounded-lg bg-white shadow-xl">
                   {/* <CommandEmpty>No results found.</CommandEmpty> */}

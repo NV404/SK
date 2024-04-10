@@ -37,6 +37,12 @@ import { Line, LineChart, ResponsiveContainer, Tooltip, XAxis } from "recharts"
 
 // import { type action as authenticationAction } from "~/routes/api.authentication"
 import { Footer, NavbarDashboard, NavbarPublic } from "@/components/layout"
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
@@ -68,6 +74,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Textarea } from "@/components/ui/textarea"
 
 import { getUser } from "@/lib/session.server"
 import { cn, formatNumber, getRandom, groupBy } from "@/lib/utils"
@@ -310,11 +317,93 @@ export default function Company() {
   return (
     <div className="relative flex min-h-screen flex-col items-stretch gap-8 py-4 sm:py-8">
       <Dialog open={contactForm} onOpenChange={setForm}>
-        <DialogContent>
-          <DialogHeader className="font-bold">Conatct Form</DialogHeader>
-          <div className="flex flex-col gap-2">
-            <Label>Name</Label>
-            <Input type="text" className="w-full"></Input>
+        <DialogContent className="flex w-[50rem] max-w-none gap-2">
+          <div className="flex w-full flex-col gap-3">
+            <DialogHeader className="mb-2 text-xl font-bold">
+              <h3 className="text-base/none font-bold sm:text-lg/none md:text-2xl/none">
+                Contact {company.name}
+              </h3>
+            </DialogHeader>
+            <div className="flex items-center gap-3">
+              <div className="flex flex-col gap-2">
+                <Label>First Name</Label>
+                <Input type="text" className="w-full"></Input>
+              </div>
+              <div className="flex flex-col gap-2">
+                <Label>Last Name</Label>
+                <Input type="text" className="w-full"></Input>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="flex flex-col gap-2">
+                <Label>Your Email</Label>
+                <Input type="text" className="w-full"></Input>
+              </div>
+              <div className="flex flex-col gap-2">
+                <Label>Phone Number</Label>
+                <Input type="text" className="w-full"></Input>
+              </div>
+            </div>
+            <div>
+              <div className="flex flex-col gap-2">
+                <Label>Your message</Label>
+                <Textarea cols={10} />
+              </div>
+            </div>
+            <Button variant={"hero"}>Submit</Button>
+          </div>
+          <div>
+            <Separator
+              orientation="vertical"
+              className="mx-5 h-full w-0.5 text-red-800"
+            />
+          </div>
+          <div className="flex w-full flex-col gap-3">
+            <div className="my-4 flex w-full flex-col gap-2">
+              <div className="flex flex-row items-center justify-between gap-4">
+                <div className="h-px flex-1 rounded-full bg-border"></div>
+                <h3 className="text-base/none font-bold sm:text-lg/none md:text-xl/none">
+                  Request to be contacted
+                </h3>
+                <div className="h-px flex-1 rounded-full bg-border"></div>
+              </div>
+              <p className="text-justify">
+                The contact details you provide, including your email, may be
+                disclosed to the company of the product you inquired about for
+                the purpose of further addressing your interests.
+              </p>
+            </div>
+            <div className="flex w-full flex-col gap-2">
+              <div className="flex flex-row items-center justify-between gap-4">
+                <div className="h-px flex-1 rounded-full bg-border"></div>
+                <h3 className="text-base/none font-bold sm:text-lg/none md:text-xl/none">
+                  FAQ
+                </h3>
+                <div className="h-px flex-1 rounded-full bg-border"></div>
+              </div>
+              <Accordion type="single" collapsible className="w-full">
+                <AccordionItem value="item-1">
+                  <AccordionTrigger>Is it accessible?</AccordionTrigger>
+                  <AccordionContent>
+                    Yes. It adheres to the WAI-ARIA design pattern.
+                  </AccordionContent>
+                </AccordionItem>
+                <AccordionItem value="item-2">
+                  <AccordionTrigger>Is it styled?</AccordionTrigger>
+                  <AccordionContent>
+                    Yes. It comes with default styles that matches the other
+                    components&apos; aesthetic.
+                  </AccordionContent>
+                </AccordionItem>
+                <AccordionItem value="item-3">
+                  <AccordionTrigger>Is it animated?</AccordionTrigger>
+                  <AccordionContent>
+                    Yes. It&apos;s animated by default, but you can disable it
+                    if you prefer.
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
+            </div>
           </div>
         </DialogContent>
       </Dialog>
@@ -1074,6 +1163,7 @@ export default function Company() {
                       swipeable
                       infiniteLoop
                       emulateTouch
+                      autoPlay
                       centerSlidePercentage={80}
                     >
                       <div>
@@ -1388,7 +1478,7 @@ export default function Company() {
           </Tabs>
           <div className="w-full lg:w-1/3">
             {company.competitors.length ? (
-              <ScrollArea className="w-full rounded-md border p-2">
+              <ScrollArea className="w-full rounded-md border-2 border-[#ff322b80] p-2">
                 <div className="my-3 flex flex-row items-center justify-between gap-4">
                   <div className="h-px flex-1 rounded-full bg-border"></div>
                   <h3 className="text-base/none font-bold sm:text-lg/none md:text-xl/none">
