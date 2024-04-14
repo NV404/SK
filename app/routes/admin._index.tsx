@@ -1,15 +1,26 @@
-import { Link } from "@remix-run/react"
+import {
+  ActionFunctionArgs,
+  LoaderFunctionArgs,
+  redirect,
+} from "@remix-run/node"
+import { Form, Link, useLoaderData } from "@remix-run/react"
+import { count, eq } from "drizzle-orm"
 import {
   Activity,
   ArrowUpRight,
+  BuildingIcon,
   CreditCard,
   DollarSign,
+  FileQuestion,
   Menu,
   Package2,
   Search,
+  Settings,
+  User,
   UserCircle2,
   Users,
 } from "lucide-react"
+import { useState } from "react"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
@@ -21,6 +32,14 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -38,7 +57,82 @@ import {
   TableRow,
 } from "@/components/ui/table"
 
+import { getUser } from "@/lib/session.server"
+
+import { db, schema } from "@/db/index.server"
+import { Claim, claims, companies } from "@/db/schema"
+
+export async function loader({ request }: LoaderFunctionArgs) {
+  const user = await getUser(request)
+
+  if (!user) {
+    return redirect("/")
+  }
+
+  if (user.isAdmin === false) {
+    return redirect("/")
+  }
+
+  const [allCompanies] = await db.select({ count: count() }).from(companies)
+  const [claimedCompanies] = await db
+    .select({ count: count() })
+    .from(companies)
+    .where(eq(companies.claimed_status, "claimed"))
+  const [unclaimedCompanies] = await db
+    .select({ count: count() })
+    .from(companies)
+    .where(eq(companies.claimed_status, "unclaimed"))
+
+  const claimRequests = await db.query.claims.findMany({
+    with: {
+      user: true,
+      company: true,
+    },
+  })
+
+  // console.log(claimRequests, "claimRequests")
+
+  return {
+    user,
+    allCompanies,
+    claimedCompanies,
+    unclaimedCompanies,
+    claimRequests,
+  }
+}
+
+export async function action({ request }: ActionFunctionArgs) {
+  const form = await request.formData()
+  const action = form.get("action")
+
+  if (action === "denyClaim") {
+    const claimId = form.get("claimId") as string
+    const deletedClaim = await db
+      .delete(claims)
+      .where(eq(claims.id, claimId))
+      .returning()
+    if (deletedClaim) {
+      return { data: "success" }
+    }
+  }
+
+  if (action === "acceptClaim") {
+    const claimId = form.get("claimId") as string
+    const [deletedClaim] = await db
+      .delete(claims)
+      .where(eq(claims.id, claimId))
+      .returning()
+    if (deletedClaim) {
+      const updateCompany = await db
+        .update(companies)
+        .set({ managerId: deletedClaim.userId, claimed_status: "claimed" })
+      return { data: "success" }
+    }
+  }
+}
+
 export default function Dashboard() {
+  const loaderData = useLoaderData<typeof loader>()
   return (
     <div className="flex min-h-screen w-full flex-col">
       <header className="sticky top-0 flex h-16 items-center gap-4 border-b bg-background px-4 md:px-6">
@@ -150,10 +244,12 @@ export default function Dashboard() {
               <CardTitle className="text-sm font-medium">
                 Total Companies
               </CardTitle>
-              <DollarSign className="h-4 w-4 text-muted-foreground" />
+              <BuildingIcon className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">23987</div>
+              <div className="text-2xl font-bold">
+                {loaderData.allCompanies.count}
+              </div>
             </CardContent>
           </Card>
           <Card x-chunk="dashboard-01-chunk-1">
@@ -161,10 +257,12 @@ export default function Dashboard() {
               <CardTitle className="text-sm font-medium">
                 Unclaimed Companies
               </CardTitle>
-              <Users className="h-4 w-4 text-muted-foreground" />
+              <BuildingIcon className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">13450</div>
+              <div className="text-2xl font-bold">
+                {loaderData.unclaimedCompanies.count}
+              </div>
             </CardContent>
           </Card>
           <Card x-chunk="dashboard-01-chunk-3">
@@ -172,10 +270,12 @@ export default function Dashboard() {
               <CardTitle className="text-sm font-medium">
                 Claimed Companies
               </CardTitle>
-              <Activity className="h-4 w-4 text-muted-foreground" />
+              <BuildingIcon className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">15473</div>
+              <div className="text-2xl font-bold">
+                {loaderData.claimedCompanies.count}
+              </div>
               {/* <p className="text-xs text-muted-foreground">
                 +201 since last hour
               </p> */}
@@ -184,10 +284,10 @@ export default function Dashboard() {
           <Card x-chunk="dashboard-01-chunk-2">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Queries</CardTitle>
-              <CreditCard className="h-4 w-4 text-muted-foreground" />
+              <FileQuestion className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">3346</div>
+              <div className="text-2xl font-bold">0</div>
               {/* <p className="text-xs text-muted-foreground">
                 +19% from last month
               </p> */}
@@ -228,106 +328,9 @@ export default function Dashboard() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  <TableRow>
-                    <TableCell>
-                      <div className="font-medium">Liam Johnson</div>
-                      <div className="hidden text-sm text-muted-foreground md:inline">
-                        liam@example.com
-                      </div>
-                    </TableCell>
-                    <TableCell className="hidden xl:table-column">
-                      Sale
-                    </TableCell>
-                    <TableCell className="hidden xl:table-column">
-                      <Badge className="text-xs" variant="outline">
-                        Approved
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="hidden md:table-cell lg:hidden xl:table-column">
-                      2023-06-23
-                    </TableCell>
-                    <TableCell className="text-right">Salesforce</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell>
-                      <div className="font-medium">Olivia Smith</div>
-                      <div className="hidden text-sm text-muted-foreground md:inline">
-                        olivia@example.com
-                      </div>
-                    </TableCell>
-                    <TableCell className="hidden xl:table-column">
-                      Refund
-                    </TableCell>
-                    <TableCell className="hidden xl:table-column">
-                      <Badge className="text-xs" variant="outline">
-                        Declined
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="hidden md:table-cell lg:hidden xl:table-column">
-                      2023-06-24
-                    </TableCell>
-                    <TableCell className="text-right">Salesforce</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell>
-                      <div className="font-medium">Noah Williams</div>
-                      <div className="hidden text-sm text-muted-foreground md:inline">
-                        noah@example.com
-                      </div>
-                    </TableCell>
-                    <TableCell className="hidden xl:table-column">
-                      Subscription
-                    </TableCell>
-                    <TableCell className="hidden xl:table-column">
-                      <Badge className="text-xs" variant="outline">
-                        Approved
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="hidden md:table-cell lg:hidden xl:table-column">
-                      2023-06-25
-                    </TableCell>
-                    <TableCell className="text-right">Salesforce</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell>
-                      <div className="font-medium">Emma Brown</div>
-                      <div className="hidden text-sm text-muted-foreground md:inline">
-                        emma@example.com
-                      </div>
-                    </TableCell>
-                    <TableCell className="hidden xl:table-column">
-                      Sale
-                    </TableCell>
-                    <TableCell className="hidden xl:table-column">
-                      <Badge className="text-xs" variant="outline">
-                        Approved
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="hidden md:table-cell lg:hidden xl:table-column">
-                      2023-06-26
-                    </TableCell>
-                    <TableCell className="text-right">Salesforce</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell>
-                      <div className="font-medium">Liam Johnson</div>
-                      <div className="hidden text-sm text-muted-foreground md:inline">
-                        liam@example.com
-                      </div>
-                    </TableCell>
-                    <TableCell className="hidden xl:table-column">
-                      Sale
-                    </TableCell>
-                    <TableCell className="hidden xl:table-column">
-                      <Badge className="text-xs" variant="outline">
-                        Approved
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="hidden md:table-cell lg:hidden xl:table-column">
-                      2023-06-27
-                    </TableCell>
-                    <TableCell className="text-right">Salesforce</TableCell>
-                  </TableRow>
+                  {loaderData.claimRequests.map((request: any) => (
+                    <ClaimCard request={request} />
+                  ))}
                 </TableBody>
               </Table>
             </CardContent>
@@ -337,7 +340,10 @@ export default function Dashboard() {
               <CardTitle>Recent Queries</CardTitle>
             </CardHeader>
             <CardContent className="grid gap-8">
-              <div className="flex items-center gap-4">
+              <div className="flex h-40 w-full items-center justify-center">
+                <p>No queries</p>
+              </div>
+              {/* <div className="flex items-center gap-4">
                 <Avatar className="hidden h-9 w-9 sm:flex">
                   <AvatarImage src="/avatars/01.png" alt="Avatar" />
                   <AvatarFallback>OM</AvatarFallback>
@@ -411,11 +417,113 @@ export default function Dashboard() {
                   </p>
                 </div>
                 <div className="ml-auto font-medium">Hubspot</div>
-              </div>
+              </div>*/}
             </CardContent>
           </Card>
         </div>
       </main>
     </div>
+  )
+}
+
+const ClaimCard = ({ request }: { request: any }) => {
+  const [isClaimDetails, setClaimDetails] = useState(false)
+  return (
+    <Dialog>
+      <TableRow>
+        <TableCell>
+          <div className="font-medium">
+            {request.user?.name || "saaskart user"}
+          </div>
+          <div className="hidden text-sm text-muted-foreground md:inline">
+            {request.user?.email}
+          </div>
+        </TableCell>
+        <TableCell className="hidden xl:table-column">Sale</TableCell>
+        <TableCell className="hidden xl:table-column">
+          <Badge className="text-xs" variant="outline">
+            Approved
+          </Badge>
+        </TableCell>
+        <TableCell className="hidden md:table-cell lg:hidden xl:table-column">
+          2023-06-23
+        </TableCell>
+        <TableCell className="text-right">
+          <div className="item flex justify-end gap-2">
+            {request.company.name}
+            <DialogTrigger>
+              <Settings />
+            </DialogTrigger>
+          </div>
+        </TableCell>
+      </TableRow>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Claim Request</DialogTitle>
+        </DialogHeader>
+        <div className="flex flex-col gap-3">
+          <Card>
+            <CardContent className="flex flex-col gap-2">
+              <p className="my-3 flex items-center gap-2 font-bold">
+                <User /> User Details
+              </p>
+              <div className="flex flex-col gap-2">
+                <p>
+                  <span className="font-semibold">Name:</span>{" "}
+                  {request.user?.name || "saaskart user"}
+                </p>
+                <p>
+                  <span className="font-semibold">Email:</span>{" "}
+                  {request.user?.email}
+                </p>
+                <p>
+                  <span className="font-semibold">Number:</span>{" "}
+                  {request.user?.phoneNumber}
+                </p>
+                <p>
+                  <span className="font-semibold">Linkedin:</span>{" "}
+                  <a href={request.user?.linkedinLink}>
+                    {request.user?.linkedinLink}
+                  </a>
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="flex flex-col gap-2">
+              <p className="my-3 flex items-center gap-2 font-bold">
+                <BuildingIcon /> Company Details
+              </p>
+              <div className="flex flex-col gap-2">
+                <p>
+                  <span className="font-semibold">Name:</span>{" "}
+                  {request.company?.name}
+                </p>
+                <p>
+                  <span className="font-semibold">Website:</span>{" "}
+                  <a href={request.company?.domain as any}>
+                    {request.company?.domain}
+                  </a>
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+        <DialogFooter>
+          <div className="flex items-center gap-3">
+            <Form method="post">
+              <Button variant={"hero"}>Approve</Button>
+              <input type="hidden" name="claimId" value={request.id} />
+              <input type="hidden" name="action" value="acceptClaim" />
+            </Form>
+            <Form method="post">
+              <Button variant={"outline"}>Deny</Button>
+              <input type="hidden" name="claimId" value={request.id} />
+              <input type="hidden" name="action" value="denyClaim" />
+            </Form>
+          </div>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   )
 }

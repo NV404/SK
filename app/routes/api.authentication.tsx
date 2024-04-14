@@ -5,9 +5,9 @@ import { createUserSession, getUser, login, signup } from "@/lib/session.server"
 export async function loader({ request }: LoaderFunctionArgs) {
   const user = await getUser(request)
   if (!user) {
-    return null
+    return { error: "User not found", user: null }
   }
-  return { user }
+  return { user, error: null }
 }
 
 export async function action({ request }: ActionFunctionArgs) {

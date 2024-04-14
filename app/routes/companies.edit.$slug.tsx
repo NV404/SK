@@ -23,6 +23,7 @@ import {
   ChevronRightIcon,
   CircleOff,
   Coins,
+  EditIcon,
   FactoryIcon,
   Gem,
   HeartHandshake,
@@ -124,7 +125,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       metrics: true,
       metricsHistory: true,
       fundingHistory: true,
-      reviews: true,
       pricings: true,
       compinesToCategories: {
         with: {
@@ -175,30 +175,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   }
 }
 
-function calculateAverageRating(ratings: any) {
-  // Initialize variables to store the sum and count of ratings
-  let sum = 0
-  let count = 0
-
-  // Iterate through the ratings array
-  ratings.forEach((item: any) => {
-    // Convert rating to a number
-    const rating = Number(item.rating)
-    // Check if the rating is a valid number
-    if (!isNaN(rating)) {
-      // Add the rating to the sum
-      sum += rating
-      // Increase the count of valid ratings
-      count++
-    }
-  })
-
-  // Calculate the average rating
-  const averageRating = count > 0 ? sum / count : 0
-
-  return averageRating
-}
-
 export async function action({ request }: ActionFunctionArgs) {
   const form = await request.formData()
   const action = form.get("action")
@@ -230,61 +206,6 @@ export async function action({ request }: ActionFunctionArgs) {
 
     if (claim) {
       return { data: "success" }
-    }
-  }
-
-  if (action === "review") {
-    const recommend = form.get("recommend") as string
-    const title = form.get("title") as string
-    const challenges = form.get("challenges")
-    const unfavorable = form.get("unfavorable")
-    const appealing = form.get("appealing")
-    const easeRating = form.get("easeRating")
-    const easeImplementation = form.get("easeImplementation")
-    const support = form.get("support")
-    const frequency = form.get("frequency")
-    const features = form.get("features")
-    const integration = form.get("integration")
-    const companyId = form.get("companyId") as string
-
-    const allRatings = [
-      { for: "easeRating", rating: easeRating },
-      { for: "easeImplementation", rating: easeImplementation },
-      { for: "support", rating: support },
-      { for: "frequency", rating: frequency },
-      { for: "features", rating: features },
-      { for: "integration", rating: integration },
-    ]
-
-    const user = await getUser(request)
-
-    if (!user) {
-      return null
-    }
-
-    console.log("action called")
-
-    const [review] = await db
-      .insert(companyReviews)
-      .values({
-        userId: user.id,
-        title: title,
-        companyId: companyId,
-        questionsAnswers: [
-          { question: "recommend", answer: recommend },
-          { question: "challenges", answer: challenges },
-          { question: "unfavorable", answer: unfavorable },
-          { question: "appealing", answer: appealing },
-        ],
-        ratings: allRatings,
-        overallRating: calculateAverageRating(allRatings).toString(),
-      })
-      .returning()
-
-    console.log(review, "review bhai")
-
-    if (review) {
-      return { data: "review-success" }
     }
   }
 
@@ -427,12 +348,7 @@ export default function Company() {
   }
 
   const [contactForm, setForm] = useState(false)
-  const [easeRating, setEaseRating] = useState("")
-  const [implementationRating, setImplementationRating] = useState("")
-  const [supportRating, setSupportRating] = useState("")
-  const [frequencyRating, setFrequencyRating] = useState("")
-  const [featuresRating, setFeaturesRating] = useState("")
-  const [integrationRating, setIntegrationRating] = useState("")
+  const [valuesCount, setValuesCount] = useState(0)
   // const authenticationFetcher = useFetcher<typeof authenticationAction>({
   //   key: "authentication",
   // })
@@ -440,111 +356,8 @@ export default function Company() {
   return (
     <div className="relative flex min-h-screen flex-col items-stretch gap-8 py-4 sm:py-8">
       <Dialog open={contactForm} onOpenChange={setForm}>
-        <DialogContent className="flex w-[50rem] max-w-none gap-2">
-          <Form method="post" className="flex w-full flex-col gap-3">
-            <DialogHeader className="mb-2 text-xl font-bold">
-              <h3 className="text-base/none font-bold sm:text-lg/none md:text-2xl/none">
-                Contact {company.name}
-              </h3>
-            </DialogHeader>
-            <div className="flex items-center gap-3">
-              <div className="flex flex-col gap-2">
-                <Label>First Name *</Label>
-                <Input
-                  name="firstName"
-                  type="text"
-                  className="w-full"
-                  required
-                ></Input>
-              </div>
-              <div className="flex flex-col gap-2">
-                <Label>Last Name *</Label>
-                <Input
-                  name="lastName"
-                  type="text"
-                  className="w-full"
-                  required
-                ></Input>
-              </div>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="flex flex-col gap-2">
-                <Label>Your Email *</Label>
-                <Input
-                  name="email"
-                  type="text"
-                  className="w-full"
-                  required
-                ></Input>
-              </div>
-              <div className="flex flex-col gap-2">
-                <Label>Phone Number *</Label>
-                <Input
-                  name="phonenumber"
-                  type="text"
-                  className="w-full"
-                  required
-                ></Input>
-              </div>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="flex flex-col gap-2">
-                <Label>Company Name</Label>
-                <Input
-                  name="companyname"
-                  type="text"
-                  className="w-full"
-                ></Input>
-              </div>
-              <div className="flex flex-col gap-2">
-                <Label>Company Size</Label>
-                <Select name="companysize">
-                  <SelectTrigger className="w-[180px]">
-                    <SelectValue placeholder="Select size" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectGroup>
-                      <SelectItem value="myself">myself</SelectItem>
-                      <SelectItem value="2">2-10</SelectItem>
-                      <SelectItem value="11">11-50</SelectItem>
-                      <SelectItem value="51">51-200</SelectItem>
-                      <SelectItem value="201">201-500</SelectItem>
-                      <SelectItem value="501">501-1000</SelectItem>
-                      <SelectItem value="1000">1000+</SelectItem>
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            <div>
-              <div className="flex flex-col gap-2">
-                <Label>Your message *</Label>
-                <Textarea cols={10} required />
-              </div>
-            </div>
-            <Button variant={"hero"}>Submit</Button>
-          </Form>
-          <div>
-            <Separator
-              orientation="vertical"
-              className="mx-5 h-full w-0.5 text-red-800"
-            />
-          </div>
-          <div className="flex w-full flex-col gap-3">
-            <div className="my-4 flex w-full flex-col gap-2">
-              <div className="flex flex-row items-center justify-between gap-4">
-                <div className="h-px flex-1 rounded-full bg-border"></div>
-                <h3 className="text-base/none font-bold sm:text-lg/none md:text-xl/none">
-                  Request to be contacted
-                </h3>
-                <div className="h-px flex-1 rounded-full bg-border"></div>
-              </div>
-              <p className="text-justify">
-                The contact details you provide, including your email, may be
-                disclosed to the company of the product you inquired about for
-                the purpose of further addressing your interests.
-              </p>
-            </div>
+        <DialogContent className="max-h-[85%] w-[40rem] max-w-none gap-2 overflow-y-scroll">
+          <div className="mt-4 flex w-full flex-col gap-3">
             <div className="flex w-full flex-col gap-2">
               <div className="flex flex-row items-center justify-between gap-4">
                 <div className="h-px flex-1 rounded-full bg-border"></div>
@@ -553,28 +366,32 @@ export default function Company() {
                 </h3>
                 <div className="h-px flex-1 rounded-full bg-border"></div>
               </div>
-              <Accordion type="single" collapsible className="w-full">
-                <AccordionItem value="item-1">
-                  <AccordionTrigger>Is it accessible?</AccordionTrigger>
-                  <AccordionContent>
-                    Yes. It adheres to the WAI-ARIA design pattern.
-                  </AccordionContent>
-                </AccordionItem>
-                <AccordionItem value="item-2">
-                  <AccordionTrigger>Is it styled?</AccordionTrigger>
-                  <AccordionContent>
-                    Yes. It comes with default styles that matches the other
-                    components&apos; aesthetic.
-                  </AccordionContent>
-                </AccordionItem>
-                <AccordionItem value="item-3">
-                  <AccordionTrigger>Is it animated?</AccordionTrigger>
-                  <AccordionContent>
-                    Yes. It&apos;s animated by default, but you can disable it
-                    if you prefer.
-                  </AccordionContent>
-                </AccordionItem>
-              </Accordion>
+            </div>
+          </div>
+          <div>
+            <div className="flex flex-col gap-3">
+              <div className="flex flex-col gap-4">
+                {[...Array(3)].map((index, idx) => (
+                  <div className="flex flex-col space-y-2" key={idx}>
+                    <Label>FAQ {idx + 1}</Label>
+                    <div>
+                      <Label>Question</Label>
+                      <Input type="text" />
+                    </div>
+                    <div>
+                      <Label>Answer</Label>
+                      <Textarea rows={3} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <Button
+                variant={"outline"}
+                onClick={() => setValuesCount(valuesCount + 1)}
+              >
+                Add
+              </Button>
+              <Button variant={"hero"}>Save</Button>
             </div>
           </div>
         </DialogContent>
@@ -597,8 +414,25 @@ export default function Company() {
             )}
             <div className="flex w-full flex-col items-center justify-between pb-6 lg:flex-row">
               <div className="flex flex-1 flex-col items-start justify-start gap-2">
-                <h1 className="text-xl/none font-extrabold sm:text-2xl/none md:text-3xl/none">
+                <h1 className="flex gap-1 text-xl/none font-extrabold sm:text-2xl/none md:text-3xl/none">
                   {company.name}
+                  <Dialog>
+                    <DialogTrigger className="min-w-fit">
+                      <div className="flex items-center text-sm text-muted-foreground hover:text-black">
+                        (<EditIcon size={10} /> Edit)
+                      </div>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Edit Company Name</DialogTitle>
+                      </DialogHeader>
+                      <div className="flex flex-col space-y-2">
+                        <Label>Name</Label>
+                        <Input placeholder="Name" defaultValue={company.name} />
+                      </div>
+                      <Button variant={"hero"}>Save</Button>
+                    </DialogContent>
+                  </Dialog>
                 </h1>
                 <div className="flex items-center gap-2">
                   <div className="flex items-center gap-1">
@@ -612,290 +446,12 @@ export default function Company() {
                   <div className="font-semibold">198 Reviews</div>
                 </div>
                 <div className="hidden items-center gap-2 lg:flex">
-                  <Dialog defaultOpen={false}>
-                    <div>
-                      {company.claimed_status === "unclaimed" ? (
-                        <DialogTrigger asChild disabled={true}>
-                          <Badge
-                            variant={"outline"}
-                            className="flex cursor-pointer items-center gap-x-1.5 text-sm"
-                          >
-                            unclamied <XCircleIcon color="red" size={12} />
-                          </Badge>
-                        </DialogTrigger>
-                      ) : (
-                        <Badge
-                          variant={"outline"}
-                          className="flex cursor-pointer items-center gap-x-1.5 text-sm"
-                        >
-                          clamied <CheckCircle color="green" size={12} />
-                        </Badge>
-                      )}
-                    </div>
-                    <DialogContent>
-                      {user ? (
-                        <div>
-                          <DialogHeader>
-                            <DialogTitle>Claim this profile</DialogTitle>
-                            <DialogDescription>
-                              Use company mail to get verified faster.
-                            </DialogDescription>
-                          </DialogHeader>
-                          <Form
-                            method="post"
-                            className="flex flex-col gap-2 py-3"
-                          >
-                            {!loaderData.claimStatus && (
-                              <>
-                                <div>
-                                  <Label htmlFor="email">Email</Label>
-                                  <Input
-                                    type="email"
-                                    id="email"
-                                    name="email"
-                                    placeholder="Email"
-                                    defaultValue={user.email}
-                                    required
-                                    readOnly
-                                    autoFocus
-                                  />
-                                </div>
-                                <div>
-                                  <Label htmlFor="number">Phone Number</Label>
-                                  <Input
-                                    type="text"
-                                    id="number"
-                                    name="phonenumber"
-                                    defaultValue={user.phoneNumber || ""}
-                                    placeholder="9999999999"
-                                    required
-                                    autoFocus
-                                  />
-                                </div>
-                                <div>
-                                  <Label htmlFor="linkedin">
-                                    Linkedin profile link
-                                  </Label>
-                                  <Input
-                                    type="text"
-                                    id="linkedin"
-                                    name="linkedin"
-                                    placeholder="Linkedin profile link"
-                                    defaultValue={user.linkedinLink || ""}
-                                    required
-                                    autoFocus
-                                  />
-                                </div>
-                                <input
-                                  type="hidden"
-                                  name="action"
-                                  value="claim"
-                                />
-                                <input
-                                  type="hidden"
-                                  name="companyId"
-                                  value={company.id}
-                                />
-                                <Button
-                                  type="submit"
-                                  variant={"hero"}
-                                  className="mt-3"
-                                >
-                                  Submit for review
-                                </Button>
-                              </>
-                            )}
-
-                            {actionData?.data === "success" ||
-                            loaderData.claimStatus ? (
-                              <div className="flex items-center justify-center gap-2">
-                                <CheckCircleIcon
-                                  size={18}
-                                  className="text-green-500"
-                                />
-                                <p className="text-center font-semibold text-green-500">
-                                  claim request sent! We will contact you
-                                  shortly
-                                </p>
-                              </div>
-                            ) : null}
-                          </Form>
-                        </div>
-                      ) : (
-                        <fieldset>
-                          <DialogHeader>
-                            <DialogTitle>Login & signup</DialogTitle>
-                            <DialogDescription>
-                              Authenticate to start reviewing products.
-                            </DialogDescription>
-                          </DialogHeader>
-                          <div className="flex flex-col items-stretch justify-start gap-2">
-                            <Tabs defaultValue="login">
-                              <TabsList className="my-2 grid w-full grid-cols-2 shadow-sm">
-                                <TabsTrigger value="login">Log In</TabsTrigger>
-                                <TabsTrigger value="signup">
-                                  Sign Up
-                                </TabsTrigger>
-                              </TabsList>
-                              <TabsContent
-                                value="login"
-                                className="flex flex-col items-stretch justify-start gap-2"
-                              >
-                                <Button variant={"outline"}>
-                                  Login with Google
-                                </Button>
-                                <Button variant={"outline"}>
-                                  Login with Linkedin
-                                </Button>
-                                <Separator className="m-2" />
-                                <authenticationFetcher.Form
-                                  action="/api/authentication"
-                                  method="post"
-                                  className="flex w-full flex-col gap-2"
-                                >
-                                  <p className="text-lg font-semibold">
-                                    Login using email
-                                  </p>
-                                  <Input
-                                    type="email"
-                                    name="email"
-                                    placeholder="Email"
-                                    required
-                                    autoFocus
-                                  />
-                                  <Input
-                                    type="password"
-                                    name="password"
-                                    placeholder="password"
-                                    required
-                                    autoFocus
-                                  />
-                                  <input
-                                    type="hidden"
-                                    name="action"
-                                    value="login"
-                                  />
-                                  <Button className="w-full" variant={"hero"}>
-                                    Log In
-                                  </Button>
-                                </authenticationFetcher.Form>
-                                <div>
-                                  {authenticationFetcher.data?.error ? (
-                                    <p className="text-center font-semibold text-red-500">
-                                      ERROR: {authenticationFetcher.data?.error}
-                                    </p>
-                                  ) : null}
-                                </div>
-                              </TabsContent>
-                              <TabsContent
-                                value="signup"
-                                className="flex flex-col items-stretch justify-start gap-2"
-                              >
-                                <Button variant={"outline"}>
-                                  Login with Google
-                                </Button>
-                                <Button variant={"outline"}>
-                                  Login with Linkedin
-                                </Button>
-                                <Separator className="m-2" />
-                                <authenticationFetcher.Form
-                                  action="/api/authentication"
-                                  method="post"
-                                  className="flex w-full flex-col gap-2"
-                                >
-                                  <p className="text-lg font-semibold">
-                                    Sign Up using email
-                                  </p>
-                                  <Input
-                                    type="email"
-                                    name="email"
-                                    placeholder="Email"
-                                    required
-                                    autoFocus
-                                  />
-                                  <Input
-                                    type="password"
-                                    name="password"
-                                    placeholder="password"
-                                    required
-                                    autoFocus
-                                  />
-                                  <input
-                                    type="hidden"
-                                    name="action"
-                                    value="signup"
-                                  />
-                                  {/* <Input
-                            type="confirmPassword"
-                            name="confirmPassword"
-                            placeholder="password"
-                            required
-                            autoFocus
-                          /> */}
-                                  <Button
-                                    className="w-full"
-                                    type="submit"
-                                    variant={"hero"}
-                                    disabled={
-                                      authenticationFetcher.state !== "idle"
-                                    }
-                                  >
-                                    Sign Up
-                                  </Button>
-                                </authenticationFetcher.Form>
-                                <div>
-                                  {authenticationFetcher.data?.error ? (
-                                    <p className="text-center font-semibold text-red-500">
-                                      ERROR: {authenticationFetcher.data?.error}
-                                    </p>
-                                  ) : null}
-                                </div>
-                              </TabsContent>
-                            </Tabs>
-                          </div>
-                          {/* <div className="flex flex-col items-stretch justify-start gap-2">
-                  <Input
-                    type="email"
-                    name="email"
-                    placeholder="Email"
-                    required
-                    readOnly={isOTPSent}
-                    autoFocus
-                  />
-                  {!isOTPSent ? (
-                    <Input
-                      type="text"
-                      name="lifetimeRedeemCode"
-                      placeholder="Redeem Code? (optional)"
-                    />
-                  ) : null}
-                  {isOTPSent ? (
-                    <Input
-                      type="text"
-                      name="otp"
-                      placeholder="One Time Password"
-                      required
-                      autoFocus
-                    />
-                  ) : null}
-                </div> */}
-                          {/* <DialogFooter>
-                  {isOTPSent ? (
-                    <Button variant="hero" type="submit">
-                      <Check size={16} className="opacity-50" />
-                      <span>Confirm</span>
-                    </Button>
-                  ) : (
-                    <Button type="submit">
-                      <Fingerprint size={16} className="opacity-50" />
-                      <span>Continue</span>
-                    </Button>
-                  )}
-                </DialogFooter> */}
-                        </fieldset>
-                      )}
-                    </DialogContent>
-                  </Dialog>
+                  <Badge
+                    variant={"outline"}
+                    className="flex cursor-pointer items-center gap-x-1.5 text-sm"
+                  >
+                    clamied <CheckCircleIcon color="green" size={12} />
+                  </Badge>
                   <div className="font-semibold text-gray-400">|</div>
                   {company.compinesToCategories &&
                   company.compinesToCategories.length > 0 ? (
@@ -984,17 +540,28 @@ export default function Company() {
               </div>
               <div className="mb-3 hidden flex-row gap-3 lg:flex lg:flex-col">
                 <Button variant={"secondary"} onClick={() => setForm(true)}>
-                  Contact {company.name}
+                  Add FAQ's
                 </Button>
-                <a
-                  href={company.domain || "#"}
-                  target="_blank"
-                  className="w-full"
-                >
-                  <Button variant={"hero"} className="w-full">
-                    Visit Website
-                  </Button>
-                </a>
+                <Dialog>
+                  <DialogTrigger className="min-w-fit">
+                    <Button variant={"hero"} className="w-full">
+                      Edit Website Link
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Edit Website link</DialogTitle>
+                    </DialogHeader>
+                    <div className="flex flex-col space-y-2">
+                      <Label>Link</Label>
+                      <Input
+                        placeholder="Link"
+                        defaultValue={company?.domain || ""}
+                      />
+                    </div>
+                    <Button variant={"hero"}>Save</Button>
+                  </DialogContent>
+                </Dialog>
               </div>
             </div>
           </div>
@@ -1045,20 +612,14 @@ export default function Company() {
               {/* <TabsTrigger value="pricing" className="w-full">
                 Pricing
               </TabsTrigger> */}
-              {company.companyFeatures && company.companyFeatures.length > 0 ? (
-                <TabsTrigger value="features" className="w-full">
-                  Features
-                </TabsTrigger>
-              ) : null}
+              <TabsTrigger value="features" className="w-full">
+                Features
+              </TabsTrigger>
               {metricsHistoryChartPossible.length ? (
                 <TabsTrigger value="metrics" className="w-full">
                   Metrics
                 </TabsTrigger>
               ) : null}
-              {/* // TODO: reviews tab and table(table done) */}
-              {/* <TabsTrigger value="reviews" className="w-full">
-                Reviews
-              </TabsTrigger> */}
             </TabsList>
             <TabsContent value="overview" className="flex flex-col gap-4">
               <Card>
@@ -1071,7 +632,29 @@ export default function Company() {
                     </h3>
                     <div className="h-px flex-1 rounded-full bg-border"></div>
                   </div>
-                  <p>{company.description}</p>
+                  <div className="flex gap-3">
+                    <p>{company.description}</p>
+                    <Dialog>
+                      <DialogTrigger className="min-w-fit">
+                        <div className="flex items-center text-sm text-muted-foreground hover:text-black">
+                          (<EditIcon size={10} /> Edit)
+                        </div>
+                      </DialogTrigger>
+                      <DialogContent>
+                        <DialogHeader>
+                          <DialogTitle>Edit Company Description</DialogTitle>
+                        </DialogHeader>
+                        <div className="flex flex-col space-y-2">
+                          <Label>About</Label>
+                          <Textarea
+                            rows={10}
+                            defaultValue={company.description || ""}
+                          />
+                        </div>
+                        <Button variant={"hero"}>Save</Button>
+                      </DialogContent>
+                    </Dialog>
+                  </div>
                   {/* <p className="w-fit cursor-pointer text-blue-500">
                     Show More
                   </p> */}
@@ -1080,8 +663,95 @@ export default function Company() {
                   <section className="flex flex-col items-stretch justify-start gap-6">
                     <div className="flex flex-row items-center justify-between gap-4">
                       <div className="h-px flex-1 rounded-full bg-border"></div>
-                      <h3 className="text-base/none font-bold sm:text-lg/none md:text-xl/none">
+                      <h3 className="flex items-center gap-2 text-base/none font-bold sm:text-lg/none md:text-xl/none">
                         {company.name} Details
+                        <Dialog>
+                          <DialogTrigger>
+                            <Button size={"xs"} variant={"outline"}>
+                              <EditIcon size={10} /> Edit
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent className="w-[54rem] max-w-none">
+                            <DialogHeader>
+                              <DialogTitle>Edit Details</DialogTitle>
+                            </DialogHeader>
+                            <div className="grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-4">
+                              <InfoCardEdit
+                                label="Founded"
+                                value={
+                                  company?.yearOfIncorporation?.toString() || ""
+                                }
+                                icon={CalendarClock}
+                                iconClassName="text-yellow-500"
+                              />
+                              <InfoCardEdit
+                                label="Revenue"
+                                value={company?.metrics?.revenue || ""}
+                                icon={Banknote}
+                                iconClassName="text-green-500"
+                              />
+                              <InfoCardEdit
+                                label="MRR"
+                                value={company?.metrics?.mrr || ""}
+                                icon={Coins}
+                                iconClassName="text-green-500"
+                              />
+                              <InfoCardEdit
+                                label="Valuation"
+                                value={company?.metrics?.valuation || ""}
+                                icon={Gem}
+                                iconClassName="text-blue-500"
+                              />
+                              <InfoCardEdit
+                                label="Funding"
+                                value={company?.metrics?.funding || ""}
+                                icon={PiggyBank}
+                                iconClassName="text-blue-500"
+                              />
+                              <InfoCardEdit
+                                icon={Users2}
+                                label="Customer Count"
+                                value={company?.metrics?.customersCount || ""}
+                              />
+                              <InfoCardEdit
+                                icon={HeartHandshake}
+                                label="Team Size"
+                                value={company?.metrics?.teamSize || ""}
+                              />
+                              <InfoCardEdit
+                                label="ACV"
+                                value={company?.metrics?.acv || ""}
+                              />
+                              <InfoCardEdit
+                                label="ARPU"
+                                value={company?.metrics?.arpu || ""}
+                              />
+                              <InfoCardEdit
+                                label="CAC"
+                                value={company?.metrics?.cac || ""}
+                              />
+                              <InfoCardEdit
+                                label="DBC"
+                                value={company?.metrics?.dbc || ""}
+                              />
+                              <InfoCardEdit
+                                label="NRR"
+                                value={company?.metrics?.nrr || ""}
+                              />
+                              <InfoCardEdit
+                                label="Gross Churn"
+                                value={company?.metrics?.grossChurn || ""}
+                              />
+                              <InfoCardEdit
+                                label="Revenue Per Employee"
+                                value={
+                                  company?.metrics?.revenuePerEmployee || ""
+                                }
+                              />
+                            </div>
+                            <Button variant={"hero"}>Save</Button>
+                          </DialogContent>
+                        </Dialog>
                       </h3>
                       <div className="h-px flex-1 rounded-full bg-border"></div>
                     </div>
@@ -1239,16 +909,50 @@ export default function Company() {
                     <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
                       <div className="flex flex-row items-center justify-between gap-4 py-4">
                         <div className="h-px flex-1 rounded-full bg-border"></div>
-                        <h3 className="text-base/none font-bold sm:text-lg/none md:text-xl/none">
+                        <h3 className="flex items-center gap-2 text-base/none font-bold sm:text-lg/none md:text-xl/none">
                           Values & Ethics
+                          <Dialog>
+                            <DialogTrigger>
+                              <Button size={"xs"} variant={"outline"}>
+                                <EditIcon size={10} /> Edit
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent className="max-h-96 w-[54rem] max-w-none overflow-y-scroll">
+                              <DialogHeader>
+                                <DialogTitle>Edit Details</DialogTitle>
+                              </DialogHeader>
+                              <div className="flex flex-col gap-3">
+                                <div className="flex flex-col gap-3">
+                                  {[...Array(6)].map((index, idx) => (
+                                    <div
+                                      className="flex flex-col space-y-2"
+                                      key={idx}
+                                    >
+                                      <Label>Values & Ethics {idx + 1}</Label>
+                                      <Textarea rows={3} />
+                                    </div>
+                                  ))}
+                                </div>
+                                <Button
+                                  variant={"outline"}
+                                  onClick={() =>
+                                    setValuesCount(valuesCount + 1)
+                                  }
+                                >
+                                  Add
+                                </Button>
+                              </div>
+                              <Button variant={"hero"}>Save</Button>
+                            </DialogContent>
+                          </Dialog>
                         </h3>
                         <div className="h-px flex-1 rounded-full bg-border"></div>
                       </div>
-                      <p className="mt-2 text-gray-600">
+                      {/* <p className="mt-2 text-gray-600">
                         We believe business is the greatest platform for change
                         and proudly invite others to join us in taking action
                         for people and the planet.
-                      </p>
+                      </p> */}
                       <div className="mt-8 grid grid-cols-1 gap-8 md:grid-cols-2">
                         {company.companyValues.map((value: string) => (
                           <div>
@@ -1260,23 +964,79 @@ export default function Company() {
                         ))}
                       </div>
                     </div>
-                  ) : null}
+                  ) : (
+                    <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+                      <div className="flex flex-row items-center justify-between gap-4 py-4">
+                        <div className="h-px flex-1 rounded-full bg-border"></div>
+                        <h3 className="flex items-center gap-2 text-base/none font-bold sm:text-lg/none md:text-xl/none">
+                          Values & Ethics
+                          <Dialog>
+                            <DialogTrigger>
+                              <Button size={"xs"} variant={"outline"}>
+                                <EditIcon size={10} /> Edit
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent className="max-h-96 w-[54rem] max-w-none overflow-y-scroll">
+                              <DialogHeader>
+                                <DialogTitle>Edit Details</DialogTitle>
+                              </DialogHeader>
+                              <div className="flex flex-col gap-3">
+                                <div className="flex flex-col gap-3">
+                                  {[...Array(6)].map((index, idx) => (
+                                    <div
+                                      className="flex flex-col space-y-2"
+                                      key={idx}
+                                    >
+                                      <Label>Values & Ethics {idx + 1}</Label>
+                                      <Textarea rows={3} />
+                                    </div>
+                                  ))}
+                                </div>
+                                <Button
+                                  variant={"outline"}
+                                  onClick={() =>
+                                    setValuesCount(valuesCount + 1)
+                                  }
+                                >
+                                  Add
+                                </Button>
+                              </div>
+                              <Button variant={"hero"}>Save</Button>
+                            </DialogContent>
+                          </Dialog>
+                        </h3>
+                        <div className="h-px flex-1 rounded-full bg-border"></div>
+                      </div>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
 
-              {/* TODO : Pricing Card */}
-              {company.pricings && company.pricings.length > 0 ? (
+              {company?.pricings && company?.pricings?.length > 0 ? (
                 <Card>
                   <CardContent className="flex flex-col gap-4 py-7">
                     <div className="flex flex-row items-center justify-between gap-4 py-4">
                       <div className="h-px flex-1 rounded-full bg-border"></div>
-                      <h3 className="text-base/none font-bold sm:text-lg/none md:text-xl/none">
-                        Pricing
+                      <h3 className="flex items-center gap-2 text-base/none font-bold sm:text-lg/none md:text-xl/none">
+                        Pricing{" "}
+                        <Dialog>
+                          <DialogTrigger>
+                            <Button size={"xs"} variant={"outline"}>
+                              <EditIcon size={10} /> Edit
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent className="w-[54rem] max-w-none">
+                            <DialogHeader>
+                              <DialogTitle>Edit Details</DialogTitle>
+                            </DialogHeader>
+                            <Button variant={"hero"}>Save</Button>
+                          </DialogContent>
+                        </Dialog>
                       </h3>
                       <div className="h-px flex-1 rounded-full bg-border"></div>
                     </div>
                     <div className="flex h-full flex-col gap-4 lg:flex-row">
-                      {company.pricings.map((plan) => (
+                      {company?.pricings?.map((plan: any) => (
                         <div className="flex h-full w-full flex-col items-center gap-2">
                           <Card className="w-full p-6 text-center">
                             <div className="text-2xl font-semibold">
@@ -1291,7 +1051,7 @@ export default function Company() {
                               </p>
                             </div>
                             <ul className="my-4 grid w-full items-center justify-center gap-2 text-sm">
-                              {plan.details?.map((detail) => (
+                              {plan.details?.map((detail: any) => (
                                 <li className="flex items-center gap-2">
                                   <CheckIcon className="h-4 w-4" />
                                   {detail}
@@ -1311,7 +1071,33 @@ export default function Company() {
                     </div>
                   </CardContent>
                 </Card>
-              ) : null}
+              ) : (
+                <Card>
+                  <CardContent className="flex flex-col gap-4 py-7">
+                    <div className="flex flex-row items-center justify-between gap-4 py-4">
+                      <div className="h-px flex-1 rounded-full bg-border"></div>
+                      <h3 className="flex items-center gap-2 text-base/none font-bold sm:text-lg/none md:text-xl/none">
+                        Pricing{" "}
+                        <Dialog>
+                          <DialogTrigger>
+                            <Button size={"xs"} variant={"outline"}>
+                              <EditIcon size={10} /> Edit
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent className="w-[54rem] max-w-none">
+                            <DialogHeader>
+                              <DialogTitle>Edit Details</DialogTitle>
+                            </DialogHeader>
+                            <Button variant={"hero"}>Save</Button>
+                          </DialogContent>
+                        </Dialog>
+                      </h3>
+                      <div className="h-px flex-1 rounded-full bg-border"></div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
               {metricsHistoryChartPossible.length ? (
                 <Card>
                   <CardContent className="pt-10">
@@ -1460,312 +1246,6 @@ export default function Company() {
                 ) : null}
               </div>
             </TabsContent>
-            <TabsContent value="overview" className="flex flex-col gap-4">
-              <Card>
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <CardTitle>Reviews</CardTitle>
-                    <Dialog>
-                      <DialogTrigger>
-                        <Button variant={"hero"}>Leave a review</Button>
-                      </DialogTrigger>
-                      <DialogContent className="max-h-[30rem] w-[60rem] max-w-none overflow-y-scroll">
-                        {actionData?.data &&
-                        actionData?.data === "review-success" ? (
-                          <div className="flex items-center justify-center gap-2">
-                            <CheckCircleIcon
-                              size={18}
-                              className="text-green-500"
-                            />
-                            <p className="text-center font-semibold text-green-500">
-                              Review posted successfully
-                            </p>
-                          </div>
-                        ) : (
-                          <Form method="post">
-                            <DialogHeader className="grid gap-6 p-6">
-                              <div className="space-y-1">
-                                <CardTitle className="text-2xl">
-                                  Leave Review
-                                </CardTitle>
-                              </div>
-                            </DialogHeader>
-                            <div className="grid gap-10 p-6">
-                              <div className="grid gap-2">
-                                <Label
-                                  className="text-base font-semibold"
-                                  htmlFor="title"
-                                >
-                                  Review Title
-                                </Label>
-                                <Textarea
-                                  id="title"
-                                  placeholder="Enter your feedback title."
-                                  name="title"
-                                />
-                              </div>
-                              <div className="grid gap-3">
-                                <Label className="text-base font-semibold">
-                                  How likely is it that you would recommend
-                                  "Product/Service" to a friend or colleague?
-                                </Label>
-                                <div className="flex items-center gap-4 rounded-lg border p-2">
-                                  <div className="w-24 text-center">
-                                    Not at all
-                                    <br />
-                                    likely
-                                  </div>
-                                  <Slider name="recommend" className="flex-1" />
-                                  <div className="w-24 text-center">
-                                    Extremely
-                                  </div>
-                                </div>
-                              </div>
-                              <div className="grid gap-2">
-                                <Label
-                                  className="text-base font-semibold"
-                                  htmlFor="challenges"
-                                >
-                                  What challenges does "Product/Service"
-                                  address, and how does its solution benefit
-                                  you?
-                                </Label>
-                                <Textarea
-                                  id="challenges"
-                                  placeholder="Enter your feedback."
-                                  name="challenges"
-                                />
-                              </div>
-                              <div className="grid gap-2">
-                                <Label
-                                  className="text-base font-semibold"
-                                  htmlFor="unfavorable"
-                                >
-                                  What aspects of "Product/Service" do you find
-                                  unfavorable?
-                                </Label>
-                                <Textarea
-                                  id="unfavorable"
-                                  name="unfavorable"
-                                  placeholder="Enter your feedback."
-                                />
-                              </div>
-                              <div className="grid gap-2">
-                                <Label
-                                  className="text-base font-semibold"
-                                  htmlFor="appealing"
-                                >
-                                  What features of "Product/Service" do you find
-                                  most appealing?
-                                </Label>
-                                <Textarea
-                                  id="appealing"
-                                  name="appealing"
-                                  placeholder="Enter your feedback."
-                                />
-                              </div>
-                              <Label className="text-lg font-semibold">
-                                Ratings
-                              </Label>
-                              <div className="flex">
-                                <div className="flex w-full flex-col gap-8">
-                                  <div className="flex items-center gap-3">
-                                    <p>Ease of Use:</p>
-                                    <div>
-                                      <RadioGroup
-                                        onValueChange={(e) => setEaseRating(e)}
-                                        className="flex gap-1"
-                                        name="easeRating"
-                                      >
-                                        {[...Array(5)].map((_, index) => (
-                                          <div key={index}>
-                                            <RadioGroupItem
-                                              className="hidden"
-                                              value={(index + 1).toString()}
-                                              id={`r1-${index}`}
-                                            />
-                                            <Label htmlFor={`r1-${index}`}>
-                                              {easeRating !== "" &&
-                                              Number(easeRating) > index ? (
-                                                <StarIcon className="fill-yellow-400 text-yellow-400" />
-                                              ) : (
-                                                <StarIcon className="text-yellow-400" />
-                                              )}
-                                            </Label>
-                                          </div>
-                                        ))}
-                                      </RadioGroup>
-                                    </div>
-                                  </div>
-                                  <div className="flex items-center gap-3">
-                                    <p>Ease of Implementation:</p>
-                                    <RadioGroup
-                                      onValueChange={(e) =>
-                                        setImplementationRating(e)
-                                      }
-                                      className="flex gap-1"
-                                      name="easeImplementation"
-                                    >
-                                      {[...Array(5)].map((_, index) => (
-                                        <div key={index}>
-                                          <RadioGroupItem
-                                            className="hidden"
-                                            value={(index + 1).toString()}
-                                            id={`s1-${index}`}
-                                          />
-                                          <Label htmlFor={`s1-${index}`}>
-                                            {implementationRating !== "" &&
-                                            Number(implementationRating) >
-                                              index ? (
-                                              <StarIcon className="fill-yellow-400 text-yellow-400" />
-                                            ) : (
-                                              <StarIcon className="text-yellow-400" />
-                                            )}
-                                          </Label>
-                                        </div>
-                                      ))}
-                                    </RadioGroup>
-                                  </div>
-                                  <div className="flex items-center gap-3">
-                                    <p>Customer Support:</p>
-                                    <RadioGroup
-                                      onValueChange={(e) => setSupportRating(e)}
-                                      className="flex gap-1"
-                                      name="support"
-                                    >
-                                      {[...Array(5)].map((_, index) => (
-                                        <div key={index}>
-                                          <RadioGroupItem
-                                            className="hidden"
-                                            value={(index + 1).toString()}
-                                            id={`t1-${index}`}
-                                          />
-                                          <Label htmlFor={`t1-${index}`}>
-                                            {supportRating !== "" &&
-                                            Number(supportRating) > index ? (
-                                              <StarIcon className="fill-yellow-400 text-yellow-400" />
-                                            ) : (
-                                              <StarIcon className="text-yellow-400" />
-                                            )}
-                                          </Label>
-                                        </div>
-                                      ))}
-                                    </RadioGroup>
-                                  </div>
-                                </div>
-                                <div className="flex w-full flex-col gap-8">
-                                  <div className="flex items-center gap-3">
-                                    <p>Frequency of Use:</p>
-                                    <RadioGroup
-                                      onValueChange={(e) =>
-                                        setFrequencyRating(e)
-                                      }
-                                      className="flex gap-1"
-                                      name="frequency"
-                                    >
-                                      {[...Array(5)].map((_, index) => (
-                                        <div key={index}>
-                                          <RadioGroupItem
-                                            className="hidden"
-                                            value={(index + 1).toString()}
-                                            id={`u1-${index}`}
-                                          />
-                                          <Label htmlFor={`u1-${index}`}>
-                                            {frequencyRating !== "" &&
-                                            Number(frequencyRating) > index ? (
-                                              <StarIcon className="fill-yellow-400 text-yellow-400" />
-                                            ) : (
-                                              <StarIcon className="text-yellow-400" />
-                                            )}
-                                          </Label>
-                                        </div>
-                                      ))}
-                                    </RadioGroup>
-                                  </div>
-                                  <div className="flex items-center gap-3">
-                                    <p>Number of Features:</p>
-                                    <RadioGroup
-                                      onValueChange={(e) =>
-                                        setFeaturesRating(e)
-                                      }
-                                      className="flex gap-1"
-                                      name="features"
-                                    >
-                                      {[...Array(5)].map((_, index) => (
-                                        <div key={index}>
-                                          <RadioGroupItem
-                                            className="hidden"
-                                            value={(index + 1).toString()}
-                                            id={`v1-${index}`}
-                                          />
-                                          <Label htmlFor={`v1-${index}`}>
-                                            {featuresRating !== "" &&
-                                            Number(featuresRating) > index ? (
-                                              <StarIcon className="fill-yellow-400 text-yellow-400" />
-                                            ) : (
-                                              <StarIcon className="text-yellow-400" />
-                                            )}
-                                          </Label>
-                                        </div>
-                                      ))}
-                                    </RadioGroup>
-                                  </div>
-                                  <div className="flex items-center gap-3">
-                                    <p>Ease of Integration:</p>
-                                    <RadioGroup
-                                      onValueChange={(e) =>
-                                        setIntegrationRating(e)
-                                      }
-                                      className="flex gap-1"
-                                      name="integration"
-                                    >
-                                      {[...Array(5)].map((_, index) => (
-                                        <div key={index}>
-                                          <RadioGroupItem
-                                            className="hidden"
-                                            value={(index + 1).toString()}
-                                            id={`w1-${index}`}
-                                          />
-                                          <Label htmlFor={`w1-${index}`}>
-                                            {integrationRating !== "" &&
-                                            Number(integrationRating) >
-                                              index ? (
-                                              <StarIcon className="fill-yellow-400 text-yellow-400" />
-                                            ) : (
-                                              <StarIcon className="text-yellow-400" />
-                                            )}
-                                          </Label>
-                                        </div>
-                                      ))}
-                                    </RadioGroup>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                            <DialogFooter className="justify-end p-6">
-                              <Button type="submit">Submit</Button>
-                            </DialogFooter>
-                            <input type="hidden" name="action" value="review" />
-                            <input
-                              type="hidden"
-                              name="companyId"
-                              value={company.id}
-                            />
-                          </Form>
-                        )}
-                      </DialogContent>
-                    </Dialog>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="felx-col flex h-32 w-full items-center justify-center gap-3">
-                    <p className="text-lg font-bold text-muted-foreground">
-                      There are no reviews yet!!
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
             <TabsContent value="pricing" className="flex flex-col gap-4">
               <Card>
                 <CardContent className="flex flex-col gap-4 py-7">
@@ -1881,8 +1361,20 @@ export default function Company() {
                 <CardHeader>
                   <div className="flex flex-row items-center justify-between gap-4">
                     <div className="h-px flex-1 rounded-full bg-border"></div>
-                    <h3 className="text-base/none font-bold sm:text-lg/none md:text-xl/none">
+                    <h3 className="flex items-center gap-2 text-base/none font-bold sm:text-lg/none md:text-xl/none">
                       {company.name} Features
+                      <Dialog>
+                        <DialogTrigger>
+                          <Button size={"xs"} variant={"outline"}>
+                            <EditIcon size={10} /> Edit
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="w-[54rem] max-w-none">
+                          <DialogHeader>
+                            <DialogTitle>Edit Features</DialogTitle>
+                          </DialogHeader>
+                        </DialogContent>
+                      </Dialog>
                     </h3>
                     <div className="h-px flex-1 rounded-full bg-border"></div>
                   </div>
@@ -2135,6 +1627,37 @@ function InfoCard({
         <p className={cn("text-xl/none font-semibold", valueClassName)}>
           {value}
         </p>
+      </div>
+    </div>
+  )
+}
+
+function InfoCardEdit({
+  label,
+  value,
+  icon: Icon,
+  valueClassName,
+  iconClassName,
+}: {
+  label: string
+  value: string
+  icon?: LucideIcon
+  valueClassName?: string
+  iconClassName?: string
+}) {
+  return (
+    <div className="flex flex-row items-center justify-start gap-4">
+      {Icon ? (
+        <Icon size={24} className={cn("opacity-50", iconClassName)} />
+      ) : (
+        <div className="h-6 w-6"></div>
+      )}
+      <div className="flex flex-1 flex-col items-start justify-start gap-2">
+        <h4 className="text-lg/none font-medium opacity-75">{label}</h4>
+        <p className={cn("text-xl/none font-semibold", valueClassName)}>
+          {value}
+        </p>
+        <Input type="text" defaultValue={value} />
       </div>
     </div>
   )

@@ -319,7 +319,7 @@ export default function DirectoryIndustriesIndustry() {
           )
         ) : null}
       </div>
-      <Pagination>
+      {/* <Pagination>
         <PaginationContent>
           <PaginationItem>
             <PaginationPrevious href="#" />
@@ -342,7 +342,7 @@ export default function DirectoryIndustriesIndustry() {
             <PaginationNext href="#" />
           </PaginationItem>
         </PaginationContent>
-      </Pagination>
+      </Pagination> */}
     </>
   )
 }

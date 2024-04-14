@@ -42,7 +42,7 @@ export const companies = pgTable("companies", {
   name: text("name").notNull(),
   description: text("description"),
   yearOfIncorporation: smallint("year_of_incorporation"),
-  claimed_status: text("claimed_status"),
+  claimed_status: text("claimed_status").default("unclaimed"),
   banner_image: text("banner_image"),
 
   logo: text("logo"),
@@ -55,6 +55,11 @@ export const companies = pgTable("companies", {
   city: text("city"),
   street: text("street"),
   postal: text("postal"),
+
+  managerId: uuid("manager_id"),
+
+  overallRating: decimal("overall_rating"),
+  ratedUserCount: decimal("rated_user_count"),
 
   productImages: text("product_images").array(),
   companyValues: text("company_values").array(),
@@ -80,13 +85,19 @@ export const company_pricing = pgTable("company_pricing", {
   pricing: text("pricing"),
   description: text("description"),
   details: text("details").array(),
+  link: text("link"),
+  highlight: boolean("highlight").default(false),
 
-  hasOffer: boolean("hasOffer").default(false),
-  offerTitle: text("offerTitle"),
-  offerDiscriptoin: text("offerDiscriptoin"),
-  offerLink: text("offerLink"),
-  offerCoupon: text("offerCoupon"),
+  onDeal: boolean("on_deal").default(false),
+  dealTitle: text("deal_title"),
+  dealShortDescription: text("deal_short_description"),
+  aboutDeal: text("about_deal"),
+  dealCoupon: text("deal_coupon"),
+  dealLink: text("deal_link"),
 })
+
+export type CompanyPricing = InferSelectModel<typeof company_pricing>
+export type CompanyPricingInsert = InferInsertModel<typeof company_pricing>
 
 export const companies_socials = pgTable("companies_socials", {
   companyId: uuid("company_id").primaryKey(),
@@ -133,6 +144,22 @@ export const companies_metrics = pgTable("companies_metrics", {
 
 export type CompanyMetrics = InferSelectModel<typeof companies_metrics>
 export type CompanyMetricsInsert = InferInsertModel<typeof companies_metrics>
+
+export const companyReviews = pgTable("company_reviews", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  companyId: uuid("company_id").notNull(),
+  userId: uuid("user_id").notNull(),
+
+  title: text("name").notNull(),
+  overallRating: decimal("overall_rating"),
+  questionsAnswers: jsonb("questionsAnswers").array(),
+  ratings: jsonb("rating").array(),
+
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+})
+
+export type CompanyReview = InferSelectModel<typeof companyReviews>
+export type CompanyReviewInsert = InferInsertModel<typeof companyReviews>
 
 export const companies_metrics_history = pgTable("companies_metrics_history", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -187,6 +214,18 @@ export const competitors = pgTable(
 
 export type Competitor = InferSelectModel<typeof competitors>
 export type CompetitorInsert = InferInsertModel<typeof competitors>
+
+export const claims = pgTable("claims", {
+  id: uuid("id").primaryKey().defaultRandom(),
+
+  userId: uuid("user_id").notNull(),
+  companyId: uuid("company_id").notNull(),
+
+  status: text("status").default("review")
+})
+
+export type Claim = InferSelectModel<typeof claims>
+export type ClaimInsert = InferInsertModel<typeof claims>
 
 export const categories = pgTable("categories", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -246,10 +285,16 @@ export const companiesRelations = relations(companies, ({ one, many }) => ({
     fields: [companies.metricsId],
     references: [companies_metrics.companyId],
   }),
+  user: one(users, {
+    fields: [companies.managerId],
+    references: [users.id],
+  }),
   metricsHistory: many(companies_metrics_history),
   fundingHistory: many(companies_funding_history),
   pricings: many(company_pricing),
   compinesToCategories: many(compinesToCategories),
+  reviews: many(companyReviews),
+  claims: many(claims)
 }))
 
 export const companiesSocialsRelations = relations(
@@ -313,6 +358,42 @@ export const companiesPricingRelations = relations(
     company: one(companies, {
       fields: [company_pricing.companyId],
       references: [companies.id],
+    }),
+  }),
+)
+
+export const userRelations = relations(
+  users,
+  ({ one, many }) => ({
+    companies: many(claims),
+    reviews: many(companyReviews),
+  }),
+)
+
+export const companiesClaimRelations = relations(
+  claims,
+  ({ one, many }) => ({
+    company: one(companies, {
+      fields: [claims.companyId],
+      references: [companies.id],
+    }),
+    user: one(users, {
+      fields: [claims.userId],
+      references: [users.id],
+    }),
+  }),
+)
+
+export const companiesReviewRelations = relations(
+  companyReviews,
+  ({ one, many }) => ({
+    company: one(companies, {
+      fields: [companyReviews.companyId],
+      references: [companies.id],
+    }),
+    user: one(users, {
+      fields: [companyReviews.userId],
+      references: [users.id],
     }),
   }),
 )
