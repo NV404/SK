@@ -21,14 +21,14 @@ export async function action({ request }: ActionFunctionArgs) {
     if (error) {
       return { error }
     }
-    return createUserSession(user?.id, "/profile")
+    return createUserSession(user?.id, "/")
   }
   if (action === "signup") {
     let { user, error } = (await signup(email, password)) as any
     if (error) {
       return { error }
     }
-    return createUserSession(user?.id, "/profile")
+    return createUserSession(user?.id, "/")
   }
   return null
 }
