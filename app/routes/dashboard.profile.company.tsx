@@ -1,5 +1,5 @@
-import { Link } from "@remix-run/react"
-import { Menu, Package2, Search } from "lucide-react"
+import { LoaderFunctionArgs, redirect } from "@remix-run/node"
+import { Link, useLoaderData } from "@remix-run/react"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -11,28 +11,31 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { Textarea } from "@/components/ui/textarea"
 
+import { getUser } from "@/lib/session.server"
+
+import { db } from "@/db/index.server"
+
+export async function loader({ request, params }: LoaderFunctionArgs) {
+  const user = await getUser(request, false)
+
+  if (!user) {
+    return redirect("/")
+  }
+
+  let companies = await db.query.companies.findMany({
+    where: (company, { eq }) => eq(company.managerId, user.id),
+  })
+
+  return { companies }
+}
+
 export default function ProfileCompany() {
+  const loaderData = useLoaderData<typeof loader>()
+
   return (
     <div className="flex h-full w-full flex-col">
       <main className="flex min-h-[calc(100vh_-_theme(spacing.16))] flex-1 flex-col gap-4 bg-muted/40 p-4 md:gap-8 md:p-10">
@@ -66,10 +69,34 @@ export default function ProfileCompany() {
               </CardHeader>
               <CardContent>
                 {/* TODO: add into DB and also create a table or feild */}
-                <div className="flex h-40 w-full items-center justify-center">
-                  <p className="text-lg font-semibold text-muted-foreground">
-                    You don't manage any companies right now
-                  </p>
+                <div className="flex w-full">
+                  {loaderData?.companies && loaderData?.companies.length > 0 ? (
+                    <div className="flex w-full flex-col gap-3">
+                      {loaderData?.companies.map((company) => (
+                        <div className="flex w-full items-center justify-between gap-2 rounded-lg border p-3">
+                          <div className="flex items-center space-x-2">
+                            <img
+                              alt="Company logo"
+                              className="rounded-full"
+                              height={40}
+                              src={company.logo as string}
+                              style={{
+                                aspectRatio: "40/40",
+                                objectFit: "cover",
+                              }}
+                              width={40}
+                            />
+                            <p className="font-semibold">{company.name}</p>
+                          </div>
+                          <Button variant={"hero"}>Edit</Button>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="w-full py-10 text-center text-lg font-semibold text-muted-foreground">
+                      You don't manage any companies right now
+                    </p>
+                  )}
                 </div>
               </CardContent>
               <CardFooter className="border-t px-6 py-4">

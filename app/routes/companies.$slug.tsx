@@ -45,6 +45,7 @@ import "react-responsive-carousel/lib/styles/carousel.min.css"
 import { Line, LineChart, ResponsiveContainer, Tooltip, XAxis } from "recharts"
 import { type action as authenticationAction } from "~/routes/api.authentication"
 
+import StarRating from "@/components/StarRating"
 // import { type action as authenticationAction } from "~/routes/api.authentication"
 import { Footer, NavbarDashboard, NavbarPublic } from "@/components/layout"
 import {
@@ -165,6 +166,14 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       and(eq(claims.companyId, slug), eq(claims.userId, userId)),
   })
 
+  const getUserReview = await db.query.companyReviews.findFirst({
+    where: (reviews, { eq, and }) =>
+      and(eq(reviews.companyId, slug), eq(reviews.userId, userId)),
+    with: {
+      user: true,
+    },
+  })
+
   return {
     user,
     company: {
@@ -172,6 +181,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       competitors,
     },
     claimStatus: getClaimStatus ? true : false,
+    userReview: getUserReview,
   }
 }
 
@@ -1467,7 +1477,11 @@ export default function Company() {
                     <CardTitle>Reviews</CardTitle>
                     <Dialog>
                       <DialogTrigger>
-                        <Button variant={"hero"}>Leave a review</Button>
+                        <Button variant={"hero"}>
+                          {user && loaderData?.userReview
+                            ? "Edit your review"
+                            : "Leave a review"}
+                        </Button>
                       </DialogTrigger>
                       <DialogContent className="max-h-[30rem] w-[60rem] max-w-none overflow-y-scroll">
                         {actionData?.data &&
@@ -1758,10 +1772,90 @@ export default function Company() {
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <div className="felx-col flex h-32 w-full items-center justify-center gap-3">
-                    <p className="text-lg font-bold text-muted-foreground">
-                      There are no reviews yet!!
-                    </p>
+                  <div className="felx-col flex w-full gap-3">
+                    {loaderData?.userReview ? (
+                      <div className="gap flex w-full flex-col gap-2 rounded-lg border p-2">
+                        <div className="flex items-center space-x-2">
+                          <img
+                            alt="user-icon"
+                            className="rounded-full"
+                            height={40}
+                            src={
+                              loaderData?.userReview?.user?.profileImage ||
+                              "https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
+                            }
+                            style={{
+                              aspectRatio: "40/40",
+                              objectFit: "cover",
+                            }}
+                            width={40}
+                          />
+                          <div className="flex flex-col">
+                            <p className="font-semibold">
+                              {loaderData?.userReview?.user.name}
+                            </p>
+                            <p className="text-sm text-gray-500 dark:text-gray-400">
+                              {new Date(
+                                loaderData?.userReview.createdAt,
+                              ).toDateString()}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex gap-1">
+                          <p className="font-semibold">Rating:</p>
+                          <StarRating
+                            rating={Number(
+                              loaderData?.userReview.overallRating,
+                            )}
+                          />
+                        </div>
+                        <p className="text-lg font-semibold">
+                          {loaderData?.userReview.title}
+                        </p>
+                        {loaderData.userReview.questionsAnswers?.map(
+                          (questionAns: any) => {
+                            if (questionAns?.question === "challenges") {
+                              return (
+                                <div className="flex flex-col gap-2">
+                                  <p className="font-semibold">
+                                    Q. What challenges does "Product/Service"
+                                    address, and how does its solution benefit
+                                    you?
+                                  </p>
+                                  <p className="">Ans: {questionAns?.answer}</p>
+                                </div>
+                              )
+                            }
+                            if (questionAns?.question === "unfavorable") {
+                              return (
+                                <div className="flex flex-col gap-2">
+                                  <p className="font-semibold">
+                                    Q. What aspects of "Product/Service" do you
+                                    find unfavorable?
+                                  </p>
+                                  <p className="">Ans: {questionAns?.answer}</p>
+                                </div>
+                              )
+                            }
+                            if (questionAns?.question === "appealing") {
+                              return (
+                                <div className="flex flex-col gap-2">
+                                  <p className="font-semibold">
+                                    Q. What features of "Product/Service" do you
+                                    find most appealing?
+                                  </p>
+                                  <p className="">Ans: {questionAns?.answer}</p>
+                                </div>
+                              )
+                            }
+                          },
+                        )}
+                      </div>
+                    ) : (
+                      <p className="w-full py-10 text-center text-lg font-bold text-muted-foreground">
+                        There are no reviews yet!!
+                      </p>
+                    )}
                   </div>
                 </CardContent>
               </Card>

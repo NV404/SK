@@ -16,6 +16,7 @@ import {
 } from "lucide-react"
 import { cacheHeader } from "pretty-cache-header"
 
+import ChatbotButton from "@/components/ChatbotButton"
 import { Footer, NavbarPublic } from "@/components/layout"
 import {
   Accordion,
@@ -77,6 +78,7 @@ export default function Index() {
       className="relative flex min-h-screen flex-col items-stretch gap-8 overflow-x-hidden py-4 sm:py-8"
     >
       <NavbarPublic />
+      <ChatbotButton />
 
       <header className="container flex min-h-[60vh] flex-col items-center justify-center gap-8 px-4 text-center">
         <div className="flex flex-col items-stretch justify-start gap-4">
