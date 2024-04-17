@@ -4,7 +4,7 @@ import { useState } from "react"
 import { Button } from "./ui/button"
 import { Input } from "./ui/input"
 
-const ChatbotButton = () => {
+const ChatbotButton = ({ apiKey }: { apiKey: string }) => {
   const [showChatbot, setShowChatbot] = useState(false)
   const [inputValue, setInputValue] = useState("")
   const [isLoading, setLoading] = useState(false)
@@ -28,7 +28,7 @@ const ChatbotButton = () => {
     setShowChatbot(!showChatbot)
   }
 
-  const openaiKey = process.env.OPEN_AI_KEY
+  //   const openaiKey = process.env.OPEN_AI_KEY
 
   const GetResult = async () => {
     setLoading(true)
@@ -36,7 +36,7 @@ const ChatbotButton = () => {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${openaiKey}`,
+        Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
         model: "gpt-3.5-turbo",

@@ -41,23 +41,9 @@ import { getUserId } from "@/lib/session.server"
 
 import { db, schema } from "@/db/index.server"
 
-// export async function loader({ request }: LoaderFunctionArgs) {
-//   const userId = await getUserId(request)
-
-//   if (userId) {
-//     return redirect("/dashboard")
-//   }
-
-//   return json({
-//     headers: {
-//       "Cache-Control": cacheHeader({
-//         public: true,
-//         maxAge: "1day",
-//         staleWhileRevalidate: "2days",
-//       }),
-//     },
-//   })
-// }
+export async function loader({ request }: LoaderFunctionArgs) {
+  return json({ apiKey: process.env.OPEN_AI_KEY })
+}
 
 // export const action: ActionFunction = async ({ request, context }) => {
 //   // call my authenticator
@@ -72,13 +58,15 @@ import { db, schema } from "@/db/index.server"
 // }
 
 export default function Index() {
+  let { apiKey } = useLoaderData<typeof loader>()
+
   return (
     <div
       id="top"
       className="relative flex min-h-screen flex-col items-stretch gap-8 overflow-x-hidden py-4 sm:py-8"
     >
       <NavbarPublic />
-      <ChatbotButton />
+      <ChatbotButton apiKey={apiKey as string} />
 
       <header className="container flex min-h-[60vh] flex-col items-center justify-center gap-8 px-4 text-center">
         <div className="flex flex-col items-stretch justify-start gap-4">
