@@ -168,6 +168,12 @@ export default function Dashboard() {
           >
             Queries
           </Link>
+          <Link
+            to="/admin/grants"
+            className="text-muted-foreground transition-colors hover:text-foreground"
+          >
+            Grants
+          </Link>
         </nav>
         <Sheet>
           <SheetTrigger asChild>

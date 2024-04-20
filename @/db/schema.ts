@@ -221,7 +221,7 @@ export const claims = pgTable("claims", {
   userId: uuid("user_id").notNull(),
   companyId: uuid("company_id").notNull(),
 
-  status: text("status").default("review")
+  status: text("status").default("review"),
 })
 
 export type Claim = InferSelectModel<typeof claims>
@@ -241,6 +241,36 @@ export const categories = pgTable("categories", {
 
 export type Category = InferSelectModel<typeof categories>
 export type CategoryInsert = InferInsertModel<typeof categories>
+
+export const grants = pgTable("grants", {
+  id: uuid("id").primaryKey().defaultRandom(),
+
+  title: text("title").notNull(),
+  icon: text("icon"),
+  description: text("description").notNull(),
+
+  from: text("from").notNull(),
+  link: text("link"),
+})
+
+export type Grant = InferSelectModel<typeof grants>
+export type GrantInsert = InferInsertModel<typeof grants>
+
+export const partners = pgTable("partners", {
+  id: uuid("id").primaryKey().defaultRandom(),
+
+  title: text("title").notNull(),
+  icon: text("title"),
+  description: text("description").notNull(),
+
+  from: text("from").notNull(),
+  link: text("link"),
+  city: text("link"),
+  state: text("link"),
+})
+
+export type Partner = InferSelectModel<typeof partners>
+export type PartnerInsert = InferInsertModel<typeof partners>
 
 export const compinesToCategories = pgTable(
   "compines-to-categories",
@@ -294,7 +324,7 @@ export const companiesRelations = relations(companies, ({ one, many }) => ({
   pricings: many(company_pricing),
   compinesToCategories: many(compinesToCategories),
   reviews: many(companyReviews),
-  claims: many(claims)
+  claims: many(claims),
 }))
 
 export const companiesSocialsRelations = relations(
@@ -362,27 +392,21 @@ export const companiesPricingRelations = relations(
   }),
 )
 
-export const userRelations = relations(
-  users,
-  ({ one, many }) => ({
-    companies: many(claims),
-    reviews: many(companyReviews),
-  }),
-)
+export const userRelations = relations(users, ({ one, many }) => ({
+  companies: many(claims),
+  reviews: many(companyReviews),
+}))
 
-export const companiesClaimRelations = relations(
-  claims,
-  ({ one, many }) => ({
-    company: one(companies, {
-      fields: [claims.companyId],
-      references: [companies.id],
-    }),
-    user: one(users, {
-      fields: [claims.userId],
-      references: [users.id],
-    }),
+export const companiesClaimRelations = relations(claims, ({ one, many }) => ({
+  company: one(companies, {
+    fields: [claims.companyId],
+    references: [companies.id],
   }),
-)
+  user: one(users, {
+    fields: [claims.userId],
+    references: [users.id],
+  }),
+}))
 
 export const companiesReviewRelations = relations(
   companyReviews,

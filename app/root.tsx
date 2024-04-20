@@ -18,8 +18,9 @@ import { useEffect, useState } from "react"
 import TopBarProgress from "react-topbar-progress-indicator"
 import tailwindCssHref from "~/styles/tailwind.css"
 
-import { Toaster } from "@/components/ui/toaster"
+import { Toaster } from "@/components/ui/sonner"
 
+// import { Toaster } from "@/components/ui/toaster"
 import * as gtag from "@/lib/gtags.client"
 import { getUser } from "@/lib/session.server"
 
