@@ -154,6 +154,8 @@ export async function action({ request }: ActionFunctionArgs) {
       companyId: company.id,
       categoryId: "6e632c6f-3fcd-4ab1-b205-832b8b981d43",
     })
+
+    return {done: "success"}
   }
 }
 
