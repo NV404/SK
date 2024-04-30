@@ -12,11 +12,13 @@ import {
   useFetcher,
   useLoaderData,
 } from "@remix-run/react"
+import { format } from "date-fns"
 import { count, eq } from "drizzle-orm"
 import {
   Banknote,
   Boxes,
   CalendarClock,
+  CalendarIcon,
   CheckCircle,
   CheckCircleIcon,
   CheckIcon,
@@ -56,6 +58,7 @@ import {
 } from "@/components/ui/accordion"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { Calendar } from "@/components/ui/calendar"
 import {
   Card,
   CardContent,
@@ -75,6 +78,11 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
 import {
@@ -350,6 +358,8 @@ export default function Company() {
   const [contactForm, setForm] = useState(false)
   const [valuesCount, setValuesCount] = useState(0)
   const [valuation, setValuation] = useState(0)
+  const [teamSize, setTeamSize] = useState(0)
+  const [date, setDate] = useState<Date>()
   // const authenticationFetcher = useFetcher<typeof authenticationAction>({
   //   key: "authentication",
   // })
@@ -1044,7 +1054,32 @@ export default function Company() {
                         {[...Array(valuation)].map((funding) => (
                           <TableRow key={funding}>
                             <TableCell className="font-medium">
-                              <Input />
+                              <Popover>
+                                <PopoverTrigger asChild>
+                                  <Button
+                                    variant={"outline"}
+                                    className={cn(
+                                      "w-[280px] justify-start text-left font-normal",
+                                      !date && "text-muted-foreground",
+                                    )}
+                                  >
+                                    <CalendarIcon className="mr-2 h-4 w-4" />
+                                    {date ? (
+                                      format(date, "PPP")
+                                    ) : (
+                                      <span>Pick a date</span>
+                                    )}
+                                  </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-auto p-0">
+                                  <Calendar
+                                    mode="single"
+                                    selected={date}
+                                    onSelect={setDate}
+                                    initialFocus
+                                  />
+                                </PopoverContent>
+                              </Popover>
                             </TableCell>
                             <TableCell>
                               <Input />
@@ -1053,6 +1088,35 @@ export default function Company() {
                               <Input />
                             </TableCell>
                             <TableCell className={cn("font-medium")}>
+                              <Input />
+                            </TableCell>
+                            <TableCell className="flex flex-row flex-wrap items-center justify-start gap-2">
+                              <Input />
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <Button
+                      className="w-fit"
+                      variant={"hero"}
+                      onClick={() => setTeamSize(teamSize + 1)}
+                    >
+                      Add TeamSize
+                    </Button>
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Date</TableHead>
+                          <TableHead>Team Size</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {[...Array(teamSize)].map((funding) => (
+                          <TableRow key={funding}>
+                            <TableCell className="font-medium">
                               <Input />
                             </TableCell>
                             <TableCell className="flex flex-row flex-wrap items-center justify-start gap-2">

@@ -47,6 +47,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import {
   Table,
@@ -56,11 +57,14 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { Textarea } from "@/components/ui/textarea"
 
 import { getUser } from "@/lib/session.server"
 
 import { db, schema } from "@/db/index.server"
 import { Claim, claims, companies } from "@/db/schema"
+
+import { compinesToCategories } from "./schema"
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const user = await getUser(request)
@@ -129,6 +133,28 @@ export async function action({ request }: ActionFunctionArgs) {
       return { data: "success" }
     }
   }
+
+  if (action === "add") {
+    const name = form.get("name") as string
+    const description = form.get("description") as string
+    const website = form.get("website") as string
+    console.log("called2")
+    const [company] = await db
+      .insert(companies)
+      .values({
+        metricsId: crypto.randomUUID(),
+        name: name,
+        logo: "",
+        description: description,
+        domain: website,
+      })
+      .returning()
+
+    await db.insert(compinesToCategories).values({
+      companyId: company.id,
+      categoryId: "6e632c6f-3fcd-4ab1-b205-832b8b981d43",
+    })
+  }
 }
 
 export default function Dashboard() {
@@ -180,6 +206,48 @@ export default function Dashboard() {
           >
             Partners
           </Link>
+          <Dialog>
+            <DialogTrigger className="min-w-fit">
+              <p className="min-w-fit cursor-pointer text-muted-foreground transition-colors hover:text-foreground">
+                Add Company
+              </p>
+            </DialogTrigger>
+            <DialogContent className="max-h-[85%] w-[44rem] max-w-none overflow-y-scroll">
+              <CardHeader>
+                <CardTitle>Add Company Request</CardTitle>
+              </CardHeader>
+              <Form method="POST" className="flex flex-col gap-3">
+                <div className="flex flex-col space-y-2">
+                  <Label>Company Name</Label>
+                  <Input placeholder="Company Name" name="name" />
+                </div>
+                <div className="flex flex-col space-y-2">
+                  <Label>About Company</Label>
+                  <Textarea placeholder="About Company" name="description" />
+                </div>
+                {/* <div className="flex flex-col space-y-2">
+                          <Label>Linkedin Page</Label>
+                          <Input placeholder="Linkedin Link" name="linkedin" />
+                        </div> */}
+                <div className="grid w-full max-w-sm items-center gap-1.5">
+                  <Label htmlFor="picture">Company Logo</Label>
+                  <Input id="picture" type="file" />
+                </div>
+                <div className="flex flex-col space-y-2">
+                  <Label>Company Website</Label>
+                  <Input placeholder="https://saaskart.co" name="website" />
+                </div>
+                {/* <div className="flex flex-col space-y-2">
+                          <Label>Categories</Label>
+                          <Input placeholder="Start Typing..." name="category" />
+                        </div> */}
+                <input type="hidden" name="action" value="add" />
+                <Button type="submit" variant={"hero"}>
+                  Submit
+                </Button>
+              </Form>
+            </DialogContent>
+          </Dialog>
         </nav>
         <Sheet>
           <SheetTrigger asChild>

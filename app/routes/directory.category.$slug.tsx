@@ -30,6 +30,7 @@ import {
   SearchSlash,
   StarHalfIcon,
   StarIcon,
+  XCircleIcon,
 } from "lucide-react"
 import { cacheHeader } from "pretty-cache-header"
 import { MutableRefObject, useEffect, useRef, useState } from "react"
@@ -573,12 +574,21 @@ const CompanyCard = ({
         </div>
         <div className="flex items-center justify-between">
           <div className="flex w-full flex-col items-start gap-2 lg:flex-row lg:items-center">
-            <Badge
-              variant={"outline"}
-              className="flex w-fit items-center gap-x-1.5 text-sm"
-            >
-              clamied <CheckCircle color="green" size={12} />
-            </Badge>
+            {company.claimed_status === "unclaimed" ? (
+              <Badge
+                variant={"outline"}
+                className="flex cursor-pointer items-center gap-x-1.5 text-sm"
+              >
+                unclamied <XCircleIcon color="red" size={12} />
+              </Badge>
+            ) : (
+              <Badge
+                variant={"outline"}
+                className="flex w-fit items-center gap-x-1.5 text-sm"
+              >
+                clamied <CheckCircle color="green" size={12} />
+              </Badge>
+            )}
             <div className="w-fit rounded-full bg-green-100 px-3 py-1 text-sm text-green-800">
               Starting Price: $25.00
             </div>

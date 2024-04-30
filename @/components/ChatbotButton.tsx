@@ -1,5 +1,6 @@
 import { Loader2 } from "lucide-react"
 import { useState } from "react"
+import Markdown from "react-markdown"
 
 import { Button } from "./ui/button"
 import { Input } from "./ui/input"
@@ -20,7 +21,7 @@ const ChatbotButton = ({ apiKey }: { apiKey: string }) => {
         
         Overall, "Software Intelligence Yield Advisor" suggests an AI assistant specialized in providing intelligent guidance and recommendations for selecting software products, with a focus on achieving favorable outcomes for the user.
         
-        If anyone ask you unrelated question other then saas just say you can't help in this topic you are just a `,
+        If anyone ask you unrelated question other then saas just say you can't help in this topic. reply in markdown`,
     },
   ])
 
@@ -116,8 +117,8 @@ const ChatbotButton = ({ apiKey }: { apiKey: string }) => {
                     }
                     if (messgae.role === "assistant") {
                       return (
-                        <div className="h-fit rounded-md bg-blue-100 p-2">
-                          <p className="text-left">{messgae.content}</p>
+                        <div className="prose h-fit rounded-md bg-blue-100 p-2 text-left">
+                          <Markdown>{messgae.content}</Markdown>
                         </div>
                       )
                     }

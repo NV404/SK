@@ -1,5 +1,10 @@
-import { LoaderFunctionArgs, redirect } from "@remix-run/node"
-import { Link, useLoaderData } from "@remix-run/react"
+import {
+  ActionFunctionArgs,
+  LoaderFunctionArgs,
+  redirect,
+} from "@remix-run/node"
+import { Form, Link, useLoaderData } from "@remix-run/react"
+import { uuid } from "drizzle-orm/pg-core"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -19,6 +24,8 @@ import { getUser } from "@/lib/session.server"
 
 import { db } from "@/db/index.server"
 
+import { companies, compinesToCategories } from "./schema"
+
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const user = await getUser(request, false)
 
@@ -31,6 +38,37 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   })
 
   return { companies }
+}
+
+export async function action({ request }: ActionFunctionArgs) {
+  const form = await request.formData()
+  const action = form.get("action")
+  // const website = form.get("website") as string
+
+  console.log("called1")
+  if (action === "add") {
+    const name = form.get("name") as string
+    const description = form.get("description") as string
+    const website = form.get("website") as string
+    console.log("called2")
+    const [company] = await db
+      .insert(companies)
+      .values({
+        metricsId: crypto.randomUUID(),
+        name: name,
+        logo: "",
+        description: description,
+        domain: website,
+      })
+      .returning()
+
+    await db.insert(compinesToCategories).values({
+      companyId: company.id,
+      categoryId: "6e632c6f-3fcd-4ab1-b205-832b8b981d43",
+    })
+  }
+
+  return { sucess: "true" }
 }
 
 export default function ProfileCompany() {
@@ -103,7 +141,7 @@ export default function ProfileCompany() {
                   )}
                 </div>
               </CardContent>
-              <CardFooter className="border-t px-6 py-4">
+              {/* <CardFooter className="border-t px-6 py-4">
                 <p>
                   Not able to find your company on our platform?{" "}
                   <Dialog>
@@ -116,18 +154,17 @@ export default function ProfileCompany() {
                       <CardHeader>
                         <CardTitle>Add Company Request</CardTitle>
                       </CardHeader>
-                      <div className="flex flex-col gap-3">
+                      <Form method="POST" className="flex flex-col gap-3">
                         <div className="flex flex-col space-y-2">
                           <Label>Company Name</Label>
-                          <Input placeholder="Company Name" />
+                          <Input placeholder="Company Name" name="name" />
                         </div>
                         <div className="flex flex-col space-y-2">
                           <Label>About Company</Label>
-                          <Textarea placeholder="About Company" />
-                        </div>
-                        <div className="flex flex-col space-y-2">
-                          <Label>Linkedin Page</Label>
-                          <Input placeholder="Linkedin Link" />
+                          <Textarea
+                            placeholder="About Company"
+                            name="description"
+                          />
                         </div>
                         <div className="grid w-full max-w-sm items-center gap-1.5">
                           <Label htmlFor="picture">Company Logo</Label>
@@ -135,18 +172,20 @@ export default function ProfileCompany() {
                         </div>
                         <div className="flex flex-col space-y-2">
                           <Label>Company Website</Label>
-                          <Input placeholder="https://saaskart.co" />
+                          <Input
+                            placeholder="https://saaskart.co"
+                            name="website"
+                          />
                         </div>
-                        <div className="flex flex-col space-y-2">
-                          <Label>Categories</Label>
-                          <Input placeholder="Start Typing..." />
-                        </div>
-                        <Button variant={"hero"}>Submit</Button>
-                      </div>
+                        <input type="hidden" name="action" value="add" />
+                        <Button type="submit" variant={"hero"}>
+                          Submit
+                        </Button>
+                      </Form>
                     </DialogContent>
                   </Dialog>
                 </p>
-              </CardFooter>
+              </CardFooter> */}
             </Card>
           </div>
         </div>
