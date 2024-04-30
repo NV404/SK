@@ -63,6 +63,15 @@ export async function loader({ request }: LoaderFunctionArgs) {
     }
   }
 
+  if (name === "department") {
+    response = await db
+      .selectDistinct({
+        value: schema.grants.id,
+        label: schema.grants.from,
+      })
+      .from(schema.grants)
+  }
+
   return json(response, {
     headers: {
       "Cache-Control": cacheHeader({

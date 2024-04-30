@@ -1,5 +1,11 @@
-import { LoaderFunctionArgs } from "@remix-run/node"
-import { Link, useFetcher, useLoaderData } from "@remix-run/react"
+import { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node"
+import {
+  Form,
+  Link,
+  useActionData,
+  useFetcher,
+  useLoaderData,
+} from "@remix-run/react"
 import {
   CheckCircle,
   ChevronDown,
@@ -23,19 +29,28 @@ import { Grant } from "@/db/schema"
 
 import { FILTERS } from "@/config/options"
 
-import { type loader as companiesLoader } from "./dashboard.api.companies"
-
 export async function loader({ request, params }: LoaderFunctionArgs) {
-  const grants = await db.query.grants.findMany()
-
+  const grantss = await db.query.grants.findMany()
   return {
-    grants,
+    grants: grantss,
+  }
+}
+
+export async function action({ request }: ActionFunctionArgs) {
+  const form = await request.formData()
+  const department = form.get("department") as string
+  const grantss = await db.query.grants.findMany({
+    where: (grants, { eq }) => eq(grants.id, department),
+  })
+  return {
+    grants: grantss,
   }
 }
 
 export default function Marketplace() {
   // const fetcher = useFetcher<typeof companiesLoader>()
   const loaderData = useLoaderData<typeof loader>()
+  const actionData = useActionData<typeof action>()
   const [sort, setSort] = useState("saaskart")
 
   return (
@@ -43,18 +58,19 @@ export default function Marketplace() {
       <NavbarPublic />
 
       <div className="container flex gap-3">
-        {/* <div className="hidden lg:block">
+        <div className="hidden lg:block">
           <Card>
-            <fetcher.Form
-              method="get"
-              action="/dashboard/api/companies"
+            <Form
+              method="post"
               className="mb-3 max-w-2xl flex-col items-stretch justify-start gap-2 lg:flex"
+              // onChange={(e) => {
+              //   e.currentTarget.submit()
+              // }}
             >
               {FILTERS ? (
                 <>
                   {FILTERS.map((filter) => {
-                    console.log(filter, "filter")
-                    if (filter.name === "industries") {
+                    if (filter.name === "department") {
                       return (
                         <SuperCombobox
                           key={filter.name}
@@ -69,11 +85,13 @@ export default function Marketplace() {
                       )
                     }
                   })}
+
+                  <Button>Submit</Button>
                 </>
               ) : null}
-            </fetcher.Form>
+            </Form>
           </Card>
-        </div> */}
+        </div>
         <div className="flex flex-grow flex-col items-stretch justify-start gap-8 px-4">
           <div className="flex flex-col items-stretch justify-start gap-4">
             <div className="w-full border-b border-gray-200 dark:border-gray-800">
@@ -107,11 +125,24 @@ export default function Marketplace() {
                 </div>
               </div>
             </div>
-            {loaderData.grants.map((grant) => (
-              <div>
-                <GrantCard grant={grant} />
-              </div>
-            ))}
+
+            {actionData ? (
+              <>
+                {actionData.grants.map((grant) => (
+                  <div>
+                    <GrantCard grant={grant} />
+                  </div>
+                ))}
+              </>
+            ) : (
+              <>
+                {loaderData.grants.map((grant) => (
+                  <div>
+                    <GrantCard grant={grant} />
+                  </div>
+                ))}
+              </>
+            )}
           </div>
         </div>
       </div>

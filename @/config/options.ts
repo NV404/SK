@@ -75,6 +75,13 @@ export const FILTERS_CONST = [
     icon: Boxes,
     url: "/dashboard/api/options?name=industries",
   },
+  {
+    type: "combobox",
+    name: "department",
+    title: "Department",
+    icon: Boxes,
+    url: "/dashboard/api/options?name=department",
+  },
 ] as const
 
 export const FILTERS = FILTERS_CONST as unknown as FILTER[]

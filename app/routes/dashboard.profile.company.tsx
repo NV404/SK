@@ -86,9 +86,13 @@ export default function ProfileCompany() {
                               }}
                               width={40}
                             />
-                            <p className="font-semibold">{company.name}</p>
+                            <Link to={`/companies/${company.id}`}>
+                              <p className="font-semibold">{company.name}</p>
+                            </Link>
                           </div>
-                          <Button variant={"hero"}>Edit</Button>
+                          <Link to={`/companies/edit/${company.id}`}>
+                            <Button variant={"hero"}>Edit</Button>
+                          </Link>
                         </div>
                       ))}
                     </div>

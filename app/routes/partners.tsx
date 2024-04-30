@@ -1,5 +1,5 @@
 import { LoaderFunctionArgs } from "@remix-run/node"
-import { Link, useFetcher, useLoaderData } from "@remix-run/react"
+import { Form, Link, useFetcher, useLoaderData } from "@remix-run/react"
 import {
   CheckCircle,
   ChevronDown,
@@ -43,9 +43,9 @@ export default function Marketplace() {
       <NavbarPublic />
 
       <div className="container flex gap-3">
-        {/* <div className="hidden lg:block">
+        <div className="hidden lg:block">
           <Card>
-            <fetcher.Form
+            <Form
               method="get"
               action="/dashboard/api/companies"
               className="mb-3 max-w-2xl flex-col items-stretch justify-start gap-2 lg:flex"
@@ -65,15 +65,16 @@ export default function Marketplace() {
                           triggerButtonProps={{
                             size: "xs",
                           }}
+                          // options={[{ label: "string", value: "string" }]}
                         />
                       )
                     }
                   })}
                 </>
               ) : null}
-            </fetcher.Form>
+            </Form>
           </Card>
-        </div> */}
+        </div>
         <div className="flex flex-grow flex-col items-stretch justify-start gap-8 px-4">
           <div className="flex flex-col items-stretch justify-start gap-4">
             <div className="w-full border-b border-gray-200 dark:border-gray-800">

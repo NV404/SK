@@ -349,6 +349,7 @@ export default function Company() {
 
   const [contactForm, setForm] = useState(false)
   const [valuesCount, setValuesCount] = useState(0)
+  const [valuation, setValuation] = useState(0)
   // const authenticationFetcher = useFetcher<typeof authenticationAction>({
   //   key: "authentication",
   // })
@@ -1009,6 +1010,59 @@ export default function Company() {
                       </div>
                     </div>
                   )}
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardContent className="flex flex-col gap-4 py-7">
+                  <div className="flex flex-row items-center justify-between gap-4 py-4">
+                    <div className="h-px flex-1 rounded-full bg-border"></div>
+                    <h3 className="flex items-center gap-2 text-base/none font-bold sm:text-lg/none md:text-xl/none">
+                      Matrics{" "}
+                    </h3>
+                    <div className="h-px flex-1 rounded-full bg-border"></div>
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <Button
+                      className="w-fit"
+                      variant={"hero"}
+                      onClick={() => setValuation(valuation + 1)}
+                    >
+                      Add Valuation
+                    </Button>
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Date</TableHead>
+                          <TableHead>Funding Amount</TableHead>
+                          <TableHead>Round Name</TableHead>
+                          <TableHead>Valuation</TableHead>
+                          <TableHead>Investors</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {[...Array(valuation)].map((funding) => (
+                          <TableRow key={funding}>
+                            <TableCell className="font-medium">
+                              <Input />
+                            </TableCell>
+                            <TableCell>
+                              <Input />
+                            </TableCell>
+                            <TableCell className={cn("font-medium")}>
+                              <Input />
+                            </TableCell>
+                            <TableCell className={cn("font-medium")}>
+                              <Input />
+                            </TableCell>
+                            <TableCell className="flex flex-row flex-wrap items-center justify-start gap-2">
+                              <Input />
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
                 </CardContent>
               </Card>
 
