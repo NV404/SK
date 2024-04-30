@@ -174,6 +174,12 @@ export default function Dashboard() {
           >
             Grants
           </Link>
+          <Link
+            to="/admin/partners"
+            className="text-muted-foreground transition-colors hover:text-foreground"
+          >
+            Partners
+          </Link>
         </nav>
         <Sheet>
           <SheetTrigger asChild>

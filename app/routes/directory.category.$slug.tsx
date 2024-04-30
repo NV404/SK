@@ -4,6 +4,7 @@ import {
   json,
 } from "@remix-run/node"
 import {
+  Form,
   Link,
   useFetcher,
   useLoaderData,
@@ -23,6 +24,7 @@ import {
   GroupIcon,
   HashIcon,
   HeartIcon,
+  Layers2,
   Loader2Icon,
   Search,
   SearchSlash,
@@ -31,11 +33,19 @@ import {
 } from "lucide-react"
 import { cacheHeader } from "pretty-cache-header"
 import { MutableRefObject, useEffect, useRef, useState } from "react"
+import { toast } from "sonner"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTrigger,
+} from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import {
   Pagination,
   PaginationContent,
@@ -45,10 +55,19 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination"
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { Separator } from "@/components/ui/separator"
 import { SuperCombobox } from "@/components/ui/super-combobox"
 import { SuperRangebox } from "@/components/ui/super-rangebox"
 import { Tabs } from "@/components/ui/tabs"
+import { Textarea } from "@/components/ui/textarea"
 
 import { db, schema } from "@/db/index.server"
 import { Company } from "@/db/schema"
@@ -94,6 +113,7 @@ export default function DirectoryIndustriesIndustry() {
     industries: "6e632c6f-3fcd-4ab1-b205-832b8b981d43",
   }
   const [defaultValues, setDefaultValues] = useState(startingValues)
+  const [shortlist, setShortlist] = useState([])
 
   const industry = params.slug
   const industryName = loaderData.values?.name
@@ -138,6 +158,120 @@ export default function DirectoryIndustriesIndustry() {
 
   return (
     <>
+      {shortlist.length > 0 ? (
+        <div className="fixed bottom-0 left-0 z-50 flex w-full items-center justify-center gap-4 bg-red-300 p-4">
+          {shortlist.map((company: any) => (
+            <div className="flex items-center gap-2 rounded-lg bg-white p-2">
+              <img
+                src={company.logo}
+                className="h-16 w-16 rounded-full bg-white"
+              />
+              <div>
+                <p className="font-semibold">{company.name}</p>
+              </div>
+            </div>
+          ))}
+          <Button
+            onClick={() => {
+              toast("Add more companies", {
+                description: "Add more companies to compare",
+              })
+            }}
+          >
+            Compare
+          </Button>
+          <Dialog>
+            <DialogTrigger>
+              <Button>Query</Button>
+            </DialogTrigger>
+            <DialogContent className="flex gap-2">
+              <Form method="post" className="flex w-full flex-col gap-3">
+                <DialogHeader className="mb-2 text-xl font-bold">
+                  <h3 className="text-base/none font-bold sm:text-lg/none md:text-2xl/none">
+                    Query form
+                  </h3>
+                </DialogHeader>
+                <div className="flex w-full items-center gap-3">
+                  <div className="flex w-full flex-col gap-2">
+                    <Label>First Name *</Label>
+                    <Input
+                      name="firstName"
+                      type="text"
+                      className="w-full"
+                      required
+                    ></Input>
+                  </div>
+                  <div className="flex w-full flex-col gap-2">
+                    <Label>Last Name *</Label>
+                    <Input
+                      name="lastName"
+                      type="text"
+                      className="w-full"
+                      required
+                    ></Input>
+                  </div>
+                </div>
+                <div className="flex w-full items-center gap-3">
+                  <div className="flex w-full flex-col gap-2">
+                    <Label>Your Email *</Label>
+                    <Input
+                      name="email"
+                      type="text"
+                      className="w-full"
+                      required
+                    ></Input>
+                  </div>
+                  <div className="flex w-full flex-col gap-2">
+                    <Label>Phone Number *</Label>
+                    <Input
+                      name="phonenumber"
+                      type="text"
+                      className="w-full"
+                      required
+                    ></Input>
+                  </div>
+                </div>
+                <div className="flex w-full items-center gap-3">
+                  <div className="flex w-full flex-col gap-2">
+                    <Label>Company Name</Label>
+                    <Input
+                      name="companyname"
+                      type="text"
+                      className="w-full"
+                    ></Input>
+                  </div>
+                  <div className="flex w-full flex-col gap-2">
+                    <Label>Company Size</Label>
+                    <Select name="companysize">
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select size" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          <SelectItem value="myself">myself</SelectItem>
+                          <SelectItem value="2">2-10</SelectItem>
+                          <SelectItem value="11">11-50</SelectItem>
+                          <SelectItem value="51">51-200</SelectItem>
+                          <SelectItem value="201">201-500</SelectItem>
+                          <SelectItem value="501">501-1000</SelectItem>
+                          <SelectItem value="1000">1000+</SelectItem>
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <div>
+                  <div className="flex flex-col gap-2">
+                    <Label>Your message *</Label>
+                    <Textarea cols={10} required />
+                  </div>
+                </div>
+                <Button variant={"hero"}>Submit</Button>
+              </Form>
+            </DialogContent>
+          </Dialog>
+        </div>
+      ) : null}
       <div className="container flex flex-row flex-wrap items-center justify-start gap-4 px-4">
         {/* <Button asChild variant="outline">
           <Link to="/directory/category">
@@ -313,7 +447,11 @@ export default function DirectoryIndustriesIndustry() {
           fetcher.state == "submitting" ? null : (
             <div className="flex flex-grow flex-col items-start justify-start gap-6 px-0 lg:px-4">
               {fetcher.data.companies?.map((company) => (
-                <CompanyCard company={company} />
+                <CompanyCard
+                  company={company}
+                  shortlist={shortlist}
+                  setShortlist={setShortlist}
+                />
               ))}
             </div>
           )
@@ -347,7 +485,15 @@ export default function DirectoryIndustriesIndustry() {
   )
 }
 
-const CompanyCard = ({ company }: { company: any }) => {
+const CompanyCard = ({
+  company,
+  shortlist,
+  setShortlist,
+}: {
+  company: any
+  shortlist: any
+  setShortlist: any
+}) => {
   const [isThinkTab, setThinkTab] = useState(false)
   // console.log(company, "company details")
   return (
@@ -390,15 +536,38 @@ const CompanyCard = ({ company }: { company: any }) => {
             </div>
           </div>
           <div className="flex items-end gap-2 lg:flex-col">
-            <Button
-              variant={"outline"}
-              className="flex w-full items-center space-x-2"
-            >
-              <HeartIcon className="text-red-500" />
-              <span className="text-sm text-gray-600 dark:text-gray-400">
-                Save
-              </span>
-            </Button>
+            {shortlist.some((short: any) => short.id === company.id) ? (
+              <Button
+                variant={"hero"}
+                className="flex w-full items-center space-x-1"
+                onClick={() => setShortlist([])}
+              >
+                <Layers2 className="text-white" />
+                <span className=" text-white dark:text-gray-400">
+                  Shortlisted
+                </span>
+              </Button>
+            ) : (
+              <Button
+                variant={"outline"}
+                className="flex w-full items-center space-x-1"
+                onClick={() =>
+                  setShortlist([
+                    {
+                      id: company.id,
+                      name: company.name,
+                      logo: company.logo,
+                    },
+                  ])
+                }
+              >
+                <Layers2 className="text-red-500" />
+                <span className=" text-gray-600 dark:text-gray-400">
+                  Shortlist
+                </span>
+              </Button>
+            )}
+
             <Button>Try for free</Button>
           </div>
         </div>
@@ -487,7 +656,7 @@ const CompanyCard = ({ company }: { company: any }) => {
                     <li>• Information Technology and Services</li>
                   </ul>
                 </div>
-                <div>
+                <div className="hidden lg:block">
                   <BarChartIcon className="text-gray-600" />
                   <h4 className="mt-2 hidden text-sm font-semibold lg:block">
                     Market Segment

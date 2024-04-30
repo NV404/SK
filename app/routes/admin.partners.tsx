@@ -58,6 +58,14 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import {
   Table,
@@ -69,10 +77,18 @@ import {
 } from "@/components/ui/table"
 import { Textarea } from "@/components/ui/textarea"
 
+import { cities } from "@/lib/const"
 import { getUser } from "@/lib/session.server"
 
 import { db, schema } from "@/db/index.server"
-import { Claim, claims, companies, grants } from "@/db/schema"
+import {
+  Claim,
+  Partner,
+  claims,
+  companies,
+  grants,
+  partners,
+} from "@/db/schema"
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const user = await getUser(request)
@@ -85,10 +101,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
     return redirect("/")
   }
 
-  const grants = await db.query.grants.findMany()
+  const partners = await db.query.partners.findMany()
 
   return {
-    grants,
+    partners,
   }
 }
 
@@ -96,29 +112,30 @@ export async function action({ request }: ActionFunctionArgs) {
   const form = await request.formData()
   const action = form.get("action")
 
-  if (action === "addGrant") {
+  if (action === "addPartner") {
     const title = form.get("title") as string
     const link = form.get("link") as string
     const icon = form.get("icon") as string
-    const from = form.get("from") as string
+    const city = form.get("city") as string
     const description = form.get("description") as string
 
-    const grant = await db
-      .insert(grants)
+    const partner = await db
+      .insert(partners)
       .values({
         title: title,
         description: description,
-        from: from,
+        city: city,
+        from: "",
         icon: icon,
         link: link,
       })
       .returning()
-    if (grant) {
+    if (partner) {
       return { data: "success" }
     }
   }
 
-  if (action === "editGrant") {
+  if (action === "editPartner") {
     const title = form.get("title") as string
     const id = form.get("id") as string
     const link = form.get("link") as string
@@ -126,8 +143,8 @@ export async function action({ request }: ActionFunctionArgs) {
     const from = form.get("from") as string
     const description = form.get("description") as string
 
-    const grant = await db
-      .update(grants)
+    const partner = await db
+      .update(partners)
       .set({
         title: title,
         description: description,
@@ -135,9 +152,9 @@ export async function action({ request }: ActionFunctionArgs) {
         icon: icon,
         link: link,
       })
-      .where(eq(grants.id, id))
+      .where(eq(partners.id, id))
       .returning()
-    if (grant) {
+    if (partner) {
       return { data: "updateSuccess" }
     }
   }
@@ -145,32 +162,20 @@ export async function action({ request }: ActionFunctionArgs) {
   if (action === "delete") {
     const id = form.get("id") as string
 
-    const grant = await db.delete(grants).where(eq(grants.id, id)).returning()
-    if (grant) {
+    const partner = await db
+      .delete(partners)
+      .where(eq(partners.id, id))
+      .returning()
+    if (partner) {
       return { data: "updateSuccess" }
     }
   }
 }
 
-export default function Dashboard() {
+export default function Partners() {
   const loaderData = useLoaderData<typeof loader>()
   const actionData = useActionData<typeof action>()
   const [isLoading, setLoader] = useState(false)
-
-  // useEffect(() => {
-  //   if (actionData?.data === "success") {
-  //     toast("Grant Added", {
-  //       description: "Grant has been added",
-  //     })
-  //     setLoader(false)
-  //   }
-  //   if (actionData?.data === "updateSuccess") {
-  //     toast("Grant Updated Added", {
-  //       description: "Grant has been updated",
-  //     })
-  //     setLoader(false)
-  //   }
-  // }, [actionData])
 
   return (
     <div className="flex min-h-screen w-full flex-col">
@@ -208,14 +213,14 @@ export default function Dashboard() {
             Queries
           </Link>
           <Link
-            to="#"
-            className="text-foreground transition-colors hover:text-foreground"
+            to="/admin/grants"
+            className="text-muted-foreground transition-colors hover:text-foreground"
           >
             Grants
           </Link>
           <Link
             to="/admin/partners"
-            className="text-muted-foreground transition-colors hover:text-foreground"
+            className="text-foreground transition-colors hover:text-foreground"
           >
             Partners
           </Link>
@@ -292,8 +297,8 @@ export default function Dashboard() {
         <Card className="xl:col-span-2" x-chunk="dashboard-01-chunk-4">
           <CardHeader className="flex flex-row items-center">
             <div className="grid gap-2">
-              <CardTitle>Grants</CardTitle>
-              <CardDescription>All Grants.</CardDescription>
+              <CardTitle>Partners</CardTitle>
+              <CardDescription>All Partners.</CardDescription>
             </div>
             <Dialog>
               <DialogTrigger className="ml-auto">
@@ -306,7 +311,7 @@ export default function Dashboard() {
               </DialogTrigger>
               <DialogContent>
                 <DialogHeader>
-                  <DialogTitle>Add new grant</DialogTitle>
+                  <DialogTitle>Add new partner</DialogTitle>
                 </DialogHeader>
                 <Form method="post" className="flex flex-col space-y-3">
                   <div className="flex flex-col space-y-2">
@@ -322,18 +327,36 @@ export default function Dashboard() {
                     <Input placeholder="IconLink" name="icon" />
                   </div>
                   <div className="flex flex-col space-y-2">
-                    <Label>Department</Label>
-                    <Input placeholder="Department" name="from" />
+                    <Label>City</Label>
+                    <Select name="city">
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select City" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup className="max-h-40 ">
+                          {cities.map((city) => (
+                            <SelectItem key={city} value={city}>
+                              {city}
+                            </SelectItem>
+                          ))}
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
                   </div>
+                  <div className="flex flex-col space-y-2">
+                    <Label>Category</Label>
+                    <Input placeholder="Category" name="category" />
+                  </div>
+
                   <div className="flex flex-col space-y-2">
                     <Label>Description</Label>
                     <Textarea placeholder="Description" name="description" />
                   </div>
-                  <input type="hidden" name="action" value="addGrant" />
+                  <input type="hidden" name="action" value="addPartner" />
                   <Button
                     onClick={() => {
-                      toast("Grant Added", {
-                        description: "Grant has been added",
+                      toast("Partner Added", {
+                        description: "Partner has been added",
                       })
                     }}
                     variant={"hero"}
@@ -359,8 +382,8 @@ export default function Dashboard() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {loaderData.grants.map((grant: any) => (
-                  <ClaimCard grant={grant} isLoading={isLoading} />
+                {loaderData.partners.map((partner: any) => (
+                  <ClaimCard partner={partner} isLoading={isLoading} />
                 ))}
               </TableBody>
             </Table>
@@ -372,23 +395,23 @@ export default function Dashboard() {
 }
 
 const ClaimCard = ({
-  grant,
+  partner,
   isLoading,
 }: {
-  grant: any
+  partner: Partner
   isLoading: boolean
 }) => {
   return (
     <Dialog>
       <TableRow>
         <TableCell>
-          <div className="font-medium">{grant.title}</div>
+          <div className="font-medium">{partner.title}</div>
         </TableCell>
         <TableCell>
-          <div className="font-medium">{grant.from}</div>
+          <div className="font-medium">{partner.from}</div>
         </TableCell>
         <TableCell>
-          <div className="font-medium">{grant.link}</div>
+          <div className="font-medium">{partner.link}</div>
         </TableCell>
         <TableCell className="text-right">
           <div className="item flex justify-end gap-2">
@@ -398,10 +421,10 @@ const ClaimCard = ({
               </PopoverTrigger>
               <PopoverContent>
                 <div className="flex flex-col gap-3">
-                  <p>Delete this grant?</p>
+                  <p>Delete this partner?</p>
                   <div className="flex items-center gap-3">
                     <Form method="post">
-                      <input type="hidden" name="id" value={grant.id} />
+                      <input type="hidden" name="id" value={partner.id} />
                       <input type="hidden" name="action" value="delete" />
                       <Button variant={"destructive"}>Yes</Button>
                     </Form>
@@ -425,46 +448,46 @@ const ClaimCard = ({
             <Input
               placeholder="Title"
               name="title"
-              defaultValue={grant.title}
+              defaultValue={partner.title}
             />
           </div>
           <div className="flex flex-col space-y-2">
             <Label>Link</Label>
-            <Input placeholder="Link" name="link" defaultValue={grant.link} />
+            <Input
+              placeholder="Link"
+              name="link"
+              defaultValue={partner.link as string}
+            />
           </div>
           <div className="flex flex-col space-y-2">
             <Label>Icon</Label>
             <Input
               placeholder="IconLink"
               name="icon"
-              defaultValue={grant.icon}
+              defaultValue={partner.icon as string}
             />
           </div>
           <div className="flex flex-col space-y-2">
-            <Label>Department</Label>
-            <Input
-              placeholder="Department"
-              name="from"
-              defaultValue={grant.from}
-            />
+            <Label>From</Label>
+            <Input placeholder="From" name="from" defaultValue={partner.from} />
           </div>
           <div className="flex flex-col space-y-2">
             <Label>Description</Label>
             <Textarea
               placeholder="Description"
               name="description"
-              defaultValue={grant.description}
+              defaultValue={partner.description}
             />
           </div>
-          <input type="hidden" name="action" value="editGrant" />
-          <input type="hidden" name="id" value={grant.id} />
+          <input type="hidden" name="action" value="editPartner" />
+          <input type="hidden" name="id" value={partner.id} />
           <Button
             type="submit"
             variant={"hero"}
             className="flex items-center gap-2"
             onClick={() => {
-              toast("Grant Updated Added", {
-                description: "Grant has been updated",
+              toast("Partner Updated Added", {
+                description: "Partner has been updated",
               })
             }}
           >

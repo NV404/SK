@@ -158,7 +158,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     metrics: CompanyMetrics | null
   })[] = []
 
-  console.log(query, "queryquerymain")
+  // console.log(query, "queryquerymain")
   for (const row of query) {
     companies.push({
       ...row.companies,
