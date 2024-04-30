@@ -190,7 +190,7 @@ export default function Dashboard() {
             Dashboard
           </Link>
           <Link
-            to="#"
+            to="/admin/companies"
             className="text-muted-foreground transition-colors hover:text-foreground"
           >
             Companies

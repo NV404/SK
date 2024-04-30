@@ -71,7 +71,7 @@ export const FILTERS_CONST = [
   {
     type: "combobox",
     name: "industries",
-    title: "Industries",
+    title: "Categories",
     icon: Boxes,
     url: "/dashboard/api/options?name=industries",
   },

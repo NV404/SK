@@ -201,7 +201,7 @@ export function SuperCombobox({
           )}
         </Button>
         {/* </PopoverTrigger> */}
-        <div className={`w-[200px] p-0 ${isHidden ? "hidden" : "visible"}`}>
+        <div className={`w-full p-0 ${isHidden ? "hidden" : "visible"}`}>
           <Command>
             <CommandInput placeholder={title} />
             <CommandList>

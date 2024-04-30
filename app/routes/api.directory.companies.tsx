@@ -4,22 +4,12 @@ import { cacheHeader } from "pretty-cache-header"
 
 import { db, schema } from "@/db/index.server"
 
-const resOptions = {
-  headers: {
-    "Cache-Control": cacheHeader({
-      public: true,
-      maxAge: "1weeks",
-      staleWhileRevalidate: "2weeks",
-    }),
-  },
-}
-
 export async function loader({ request }: LoaderFunctionArgs) {
   const searchParams = new URL(request.url).searchParams
   const rawQuery = searchParams.get("query")
 
   if (!rawQuery) {
-    return json([], resOptions)
+    return json([])
   }
 
   const query = `%${encodeURIComponent(rawQuery.toLowerCase())}%`
@@ -56,6 +46,5 @@ export async function loader({ request }: LoaderFunctionArgs) {
       logo: companies.logo,
       name: companies.name,
     })),
-    resOptions,
   )
 }

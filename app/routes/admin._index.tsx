@@ -49,6 +49,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { SuperCombobox } from "@/components/ui/super-combobox"
 import {
   Table,
   TableBody,
@@ -63,6 +64,8 @@ import { getUser } from "@/lib/session.server"
 
 import { db, schema } from "@/db/index.server"
 import { Claim, claims, companies } from "@/db/schema"
+
+import { FILTERS } from "@/config/options"
 
 import { compinesToCategories } from "./schema"
 
@@ -130,6 +133,7 @@ export async function action({ request }: ActionFunctionArgs) {
       const updateCompany = await db
         .update(companies)
         .set({ managerId: deletedClaim.userId, claimed_status: "claimed" })
+        .where(eq(companies.id, deletedClaim.companyId))
       return { data: "success" }
     }
   }
@@ -138,7 +142,6 @@ export async function action({ request }: ActionFunctionArgs) {
     const name = form.get("name") as string
     const description = form.get("description") as string
     const website = form.get("website") as string
-    console.log("called2")
     const [company] = await db
       .insert(companies)
       .values({
@@ -155,7 +158,7 @@ export async function action({ request }: ActionFunctionArgs) {
       categoryId: "6e632c6f-3fcd-4ab1-b205-832b8b981d43",
     })
 
-    return {done: "success"}
+    return { done: "success" }
   }
 }
 
@@ -179,7 +182,7 @@ export default function Dashboard() {
             Dashboard
           </Link>
           <Link
-            to="#"
+            to="/admin/companies"
             className="text-muted-foreground transition-colors hover:text-foreground"
           >
             Companies
@@ -239,10 +242,28 @@ export default function Dashboard() {
                   <Label>Company Website</Label>
                   <Input placeholder="https://saaskart.co" name="website" />
                 </div>
-                {/* <div className="flex flex-col space-y-2">
-                          <Label>Categories</Label>
-                          <Input placeholder="Start Typing..." name="category" />
-                        </div> */}
+                {FILTERS ? (
+                  <>
+                    {FILTERS.map((filter) => {
+                      if (filter.name === "industries") {
+                        return (
+                          <SuperCombobox
+                            key={filter.name}
+                            name={filter.name}
+                            title={filter.title}
+                            icon={filter.icon}
+                            fetch={filter.url}
+                            triggerButtonProps={{
+                              size: "xs",
+                            }}
+                          />
+                        )
+                      }
+                    })}
+
+                    <Button>Submit</Button>
+                  </>
+                ) : null}
                 <input type="hidden" name="action" value="add" />
                 <Button type="submit" variant={"hero"}>
                   Submit
