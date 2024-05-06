@@ -60,7 +60,11 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const [allCompaniesCount] = await db
     .select({ count: count() })
     .from(companies)
-  const allCompanies = await db.query.companies.findMany()
+  const allCompanies = await db.query.companies.findMany({
+    with: {
+      update: true,
+    },
+  })
   const [claimedCompanies] = await db
     .select({ count: count() })
     .from(companies)
@@ -415,15 +419,54 @@ export default function Companies() {
                           <p className="font-semibold">{company.name}</p>
                         </Link>
                       </div>
-                      <Link to={`/companies/edit/${company.id}`}>
-                        <Button variant={"hero"}>Edit</Button>
-                      </Link>
+                      <div className="flex justify-center gap-2">
+                        {company.update && (
+                          <Dialog>
+                            <DialogTrigger>
+                              <Button variant={"secondary"}>
+                                Review Updates
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent>
+                              <DialogHeader>
+                                <DialogTitle>Company Info Update</DialogTitle>
+                              </DialogHeader>
+                              <div className="flex flex-col gap-2 py-3">
+                                {company.update.name ? (
+                                  <p className="font-semibold">
+                                    Name:{" "}
+                                    <span className="text-red-500">
+                                      {company.name}
+                                    </span>{" "}
+                                    {"->"}{" "}
+                                    <span className="text-green-500">
+                                      {company.update.name}
+                                    </span>
+                                  </p>
+                                ) : null}
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <Button className="w-full">Accept</Button>
+                                <Button
+                                  className="w-full"
+                                  variant={"destructive"}
+                                >
+                                  Decline
+                                </Button>
+                              </div>
+                            </DialogContent>
+                          </Dialog>
+                        )}
+                        <Link to={`/companies/edit/${company.id}`}>
+                          <Button variant={"hero"}>Edit</Button>
+                        </Link>
+                      </div>
                     </div>
                   ))}
                 </div>
               ) : (
                 <p className="w-full py-10 text-center text-lg font-semibold text-muted-foreground">
-                  You don't manage any companies right now
+                  No companies found
                 </p>
               )}
             </div>

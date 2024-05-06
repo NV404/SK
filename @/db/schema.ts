@@ -70,11 +70,44 @@ export const companies = pgTable("companies", {
 
   sources: text("sources").array(),
 
+  updateId: uuid("update_id"),
   updatedAt: timestamp("updated_at"),
 })
 
 export type Company = InferSelectModel<typeof companies>
 export type CompanyInsert = InferInsertModel<typeof companies>
+
+export const companiesUpdate = pgTable("companies-update", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  companyId: uuid("company_id").notNull(),
+
+  name: text("name"),
+  description: text("description"),
+  yearOfIncorporation: smallint("year_of_incorporation"),
+  banner_image: text("banner_image"),
+
+  logo: text("logo"),
+  domain: text("domain"),
+
+  socials: jsonb("socials"),
+
+  country: text("country"),
+  state: text("state"),
+  city: text("city"),
+  street: text("street"),
+  postal: text("postal"),
+
+  productImages: text("product_images").array(),
+  companyValues: text("company_values").array(),
+  companyFeatures: jsonb("company_features").array(),
+
+  matrics: jsonb("matrics"),
+
+  updatedAt: timestamp("updated_at"),
+})
+
+export type CompanyUpdate = InferSelectModel<typeof companiesUpdate>
+export type CompanyUpdateInsert = InferInsertModel<typeof companiesUpdate>
 
 export const company_pricing = pgTable("company_pricing", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -319,6 +352,10 @@ export const companiesRelations = relations(companies, ({ one, many }) => ({
     fields: [companies.managerId],
     references: [users.id],
   }),
+  update: one(companiesUpdate, {
+    fields: [companies.updateId],
+    references: [companiesUpdate.id]
+  }),
   metricsHistory: many(companies_metrics_history),
   fundingHistory: many(companies_funding_history),
   pricings: many(company_pricing),
@@ -332,6 +369,16 @@ export const companiesSocialsRelations = relations(
   ({ one, many }) => ({
     company: one(companies, {
       fields: [companies_socials.companyId],
+      references: [companies.id],
+    }),
+  }),
+)
+
+export const companiesUpdateRelations = relations(
+  companiesUpdate,
+  ({ one, many }) => ({
+    company: one(companies, {
+      fields: [companiesUpdate.companyId],
       references: [companies.id],
     }),
   }),

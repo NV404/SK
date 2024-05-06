@@ -47,6 +47,7 @@ import { Avatar } from "./ui/avatar"
 import { Card } from "./ui/card"
 import {
   Command,
+  CommandEmpty,
   CommandInput,
   CommandItem,
   CommandList,
@@ -148,9 +149,9 @@ export function NavbarPublic() {
             to="/"
             className="flex flex-grow flex-row items-center justify-start gap-2"
           >
-            <img src="/saaskart_logo.jpg" alt="logo" width={150} />
+            <img src="/saaskart_logo.png" alt="logo" width={150} />
           </Link>
-          <Command className="relative flex-grow overflow-visible rounded-lg border">
+          {/* <Command className="relative flex-grow overflow-visible rounded-lg border">
             <CommandInput
               placeholder="Search for products"
               value={searchQuery}
@@ -158,7 +159,7 @@ export function NavbarPublic() {
               className="w-full"
             />
             <CommandList className="absolute left-0 top-14 z-50 w-full rounded-lg bg-white shadow-xl">
-              {/* <CommandEmpty>No results found.</CommandEmpty> */}
+              <CommandEmpty>No results found.</CommandEmpty>
               {fetcher.state === "loading" ? (
                 <CommandLoading>Loading...</CommandLoading>
               ) : null}
@@ -186,7 +187,7 @@ export function NavbarPublic() {
                 </CommandItem>
               ))}
             </CommandList>
-          </Command>
+          </Command> */}
         </div>
 
         <div className="flex flex-row items-center justify-start gap-2">
@@ -465,7 +466,7 @@ export function NavbarPublic() {
             to="/"
             className="flex flex-row items-center justify-start gap-2"
           >
-            <img src="/saaskart_logo.jpg" alt="logo" width={150} />
+            <img src="/saaskart_logo.png" alt="logo" width={150} />
           </Link>
         </div>
         <Sheet>

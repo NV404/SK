@@ -69,6 +69,7 @@ import {
 } from "@/components/ui/card"
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
   DialogFooter,
@@ -111,7 +112,7 @@ import { getUser } from "@/lib/session.server"
 import { cn, formatNumber, getRandom, groupBy } from "@/lib/utils"
 
 import { db, type schema } from "@/db/index.server"
-import { claims, companyReviews, users } from "@/db/schema"
+import { claims, companiesUpdate, companyReviews, users } from "@/db/schema"
 
 import { getMetaTags } from "@/config/meta"
 import { FILTERS } from "@/config/options"
@@ -134,6 +135,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       metricsHistory: true,
       fundingHistory: true,
       pricings: true,
+      update: true,
       compinesToCategories: {
         with: {
           category: true,
@@ -186,11 +188,11 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 export async function action({ request }: ActionFunctionArgs) {
   const form = await request.formData()
   const action = form.get("action")
+  const companyId = form.get("companyId") as string
 
   if (action === "claim") {
     const number = form.get("phonenumber") as string
     const linkedin = form.get("linkedin") as string
-    const companyId = form.get("companyId") as string
 
     const user = await getUser(request)
 
@@ -219,6 +221,34 @@ export async function action({ request }: ActionFunctionArgs) {
 
   // TODO : action for adding query
   if (action === "query") {
+  }
+
+  if (action === "edit") {
+    const name = form.get("name") as string
+
+    const [companiesEdit] = await db
+      .select()
+      .from(companiesUpdate)
+      .where(eq(companiesUpdate.companyId, companyId))
+
+    console.log(companiesEdit, "companiesEdit")
+
+    if (companiesEdit) {
+      await db
+        .update(companiesUpdate)
+        .set({
+          ...(name && name !== "" ? { name: name } : {}),
+        })
+        .where(eq(companiesUpdate.companyId, companyId))
+    } else {
+      await db.insert(companiesUpdate).values({
+        companyId: companyId,
+        ...(name && name !== "" ? { name: name } : {}),
+        // ...(Description && Description != "" ? {description: description} : {}),
+      })
+    }
+
+    return { success: true }
   }
 
   return null
@@ -426,7 +456,7 @@ export default function Company() {
             <div className="flex w-full flex-col items-center justify-between pb-6 lg:flex-row">
               <div className="flex flex-1 flex-col items-start justify-start gap-2">
                 <h1 className="flex gap-1 text-xl/none font-extrabold sm:text-2xl/none md:text-3xl/none">
-                  {company.name}
+                  {company?.update?.name ? company?.update?.name : company.name}
                   <Dialog>
                     <DialogTrigger className="min-w-fit">
                       <div className="flex items-center text-sm text-muted-foreground hover:text-black">
@@ -437,11 +467,35 @@ export default function Company() {
                       <DialogHeader>
                         <DialogTitle>Edit Company Name</DialogTitle>
                       </DialogHeader>
-                      <div className="flex flex-col space-y-2">
-                        <Label>Name</Label>
-                        <Input placeholder="Name" defaultValue={company.name} />
-                      </div>
-                      <Button variant={"hero"}>Save</Button>
+                      <Form method="post" className="flex flex-col space-y-2">
+                        <div className="flex flex-col space-y-2">
+                          <Label>Name</Label>
+                          <Input
+                            placeholder="Name"
+                            defaultValue={
+                              company?.update?.name
+                                ? company?.update?.name
+                                : company.name
+                            }
+                            name="name"
+                          />
+                        </div>
+                        <input type="hidden" name="action" value="edit" />
+                        <input
+                          type="hidden"
+                          name="companyId"
+                          value={company.id}
+                        />
+                        <DialogClose>
+                          <Button
+                            type="submit"
+                            className="w-full"
+                            variant={"hero"}
+                          >
+                            Save
+                          </Button>
+                        </DialogClose>
+                      </Form>
                     </DialogContent>
                   </Dialog>
                 </h1>
